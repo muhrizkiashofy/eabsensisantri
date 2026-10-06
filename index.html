@@ -621,6 +621,18 @@
     function loadingBlock() { return '<div class="bg-white rounded-xl border border-gray-100 p-6 text-center text-sm text-gray-400"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data...</div>'; }
     function toast(icon, msg) { Swal.fire({ toast: true, position: 'top', icon: icon, title: msg, showConfirmButton: false, timer: 2800 }); }
 
+    // Status notifikasi WhatsApp dari backend (res.data.wa): { sent, status, message }
+    function infoWA(wa) {
+      if (!wa) return { text: '', warn: false };
+      if (wa.sent) return { text: 'Notifikasi WhatsApp terkirim ke wali.', warn: false };
+      if (wa.status === 'gagal' || wa.status === 'tanpa_nomor') return { text: wa.message || 'Notifikasi WhatsApp gagal dikirim.', warn: true };
+      return { text: wa.message || '', warn: false }; // dilewati / nonaktif
+    }
+    function notifWA(wa) {
+      const i = infoWA(wa);
+      if (i.text) toast(i.warn ? 'warning' : 'success', i.text);
+    }
+
     // load(): tampilkan cache dulu (instan), ambil data terbaru di latar belakang bila sudah lewat ttl
     function load(key, action, payload, render, opts) {
       opts = opts || {};
@@ -991,6 +1003,7 @@
         el('res-nis').innerText = decodedText; el('res-jam').innerText = "-";
       }
       resBox.className = "mt-4 text-center px-4 py-3 rounded-lg shadow block text-white " + cls;
+      if (res.success && res.data) notifWA(res.data.wa);
 
       // Scanner aktif lagi setelah suara selesai (minimal 1,8 detik) supaya QR yang sama tidak terbaca ulang saat suara masih berjalan
       Promise.all([new Promise(r => setTimeout(r, 1800)), suaraSelesai]).then(() => {
@@ -1070,7 +1083,7 @@
       const opts = aktif.map(s => `<option value="${esc(s.ID_Sesi)}" ${s.ID_Sesi === cur ? 'selected' : ''}>${esc(s.Nama_Sesi)}</option>`).join('');
       const r = await Swal.fire({
         title: 'Tutup Sesi Absensi',
-        html: `<p style="font-size:13px;color:#6b7280;margin-bottom:10px">Rekap kehadiran hari ini dikirim lewat WhatsApp ke wali semua santri aktif pada sesi yang dipilih.</p><select id="ts-sesi" class="swal2-select" style="width:100%;margin:0">${opts}</select>`,
+        html: `<p style="font-size:13px;color:#6b7280;margin-bottom:10px">Pesan WhatsApp dikirim ke wali yang belum menerima notifikasi pada sesi ini (mis. santri tidak hadir). Yang sudah terkirim otomatis saat absen dilewati.</p><select id="ts-sesi" class="swal2-select" style="width:100%;margin:0">${opts}</select>`,
         showCancelButton: true, confirmButtonText: 'Lihat penerima', cancelButtonText: 'Batal', confirmButtonColor: '#0f766e',
         preConfirm: () => document.getElementById('ts-sesi').value
       });
@@ -1160,7 +1173,12 @@
       const res = await api('inputManual', payload);
       if (res.success) {
         closeModal('modal-manual');
-        Swal.fire('Berhasil', res.data && res.data.updated ? 'Catatan lama diperbarui' : 'Data manual tersimpan', 'success');
+        const infoManual = infoWA(res.data && res.data.wa);
+        Swal.fire({
+          icon: infoManual.warn ? 'warning' : 'success', title: 'Berhasil',
+          html: esc(res.data && res.data.updated ? 'Catatan lama diperbarui' : 'Data manual tersimpan') +
+            (infoManual.text ? '<br><span style="font-size:13px;color:' + (infoManual.warn ? '#b45309' : '#6b7280') + '">' + esc(infoManual.text) + '</span>' : '')
+        });
         form.reset(); loadDashboard();
       }
     }
