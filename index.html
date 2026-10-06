@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>E-Absensi Apps</title>
-  <meta name="theme-color" content="#0f766e">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <meta name="theme-color" content="#5fc9b0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -107,6 +107,56 @@
       .bw-mini td.nm { text-align: left; white-space: nowrap; padding-left: 3px; }
       .bw-mini tr:last-child td { border-bottom: 1px solid #000; }
     }
+
+    /* ===== SOFT UI (mint / sage / tosca, light mode) ===== */
+    :root { --p1:#3fb8a2; --p2:#8fdcc6; --ink:#1f3b36; --bg:#f2faf7; --soft:0 10px 40px -10px rgba(63,184,162,.22); }
+    body { font-family:'Plus Jakarta Sans','Poppins','Segoe UI',sans-serif !important; background:var(--bg) !important; color:var(--ink); }
+    #main-content { background:var(--bg) !important; padding-bottom:7rem; }
+    #main-content > div, .content-page { padding-left:1.25rem; padding-right:1.25rem; }
+    .content-page > * + * { margin-top:1.1rem; }
+    body .bg-gray-800 { background:linear-gradient(135deg,var(--p1),var(--p2)) !important; color:#fff; box-shadow:0 8px 20px -6px rgba(63,184,162,.5); }
+    body .hover\:bg-black:hover { filter:brightness(1.05); }
+    body .text-gray-800 { color:var(--ink); } body .text-gray-500, body .text-gray-400 { color:#7d9a93; }
+    body .text-blue-600, body .text-blue-700 { color:#2a9d89; } body .border-blue-600 { border-color:#3fb8a2; }
+    body .bg-blue-50, body .bg-teal-50 { background:#e6f7f2; } body .bg-blue-100 { background:#d8f3ea; }
+    body .bg-gray-50 { background:#f6fbf9; } body .bg-gray-100 { background:#ecf6f2; } body .bg-gray-200 { background:#dcece6; }
+    body .rounded, body .rounded-lg { border-radius:1rem; } body .rounded-xl { border-radius:1.5rem; } body .rounded-t-3xl, body .rounded-3xl { border-radius:2rem; }
+    body .shadow, body .shadow-sm, body .shadow-lg, body .shadow-xl, body .shadow-2xl { box-shadow:var(--soft) !important; }
+    body .border, body .border-gray-200, body .border-gray-300 { border-color:#e3f0eb; }
+    body .p-3 { padding:.9rem; } body .p-4 { padding:1.25rem; } body .p-5 { padding:1.5rem; } body .gap-2 { gap:.7rem; } body .gap-3 { gap:1rem; } body .space-y-2 > * + * { margin-top:.8rem; }
+    input, select, textarea { background:#fff; border-radius:1rem !important; border:1.5px solid #e3f0eb !important; transition:box-shadow .2s, border-color .2s; }
+    input:focus, select:focus, textarea:focus { border-color:var(--p1) !important; box-shadow:0 0 0 4px rgba(63,184,162,.18) !important; outline:none; }
+    body .focus\:ring-gray-800:focus { --tw-ring-color:transparent; }
+    .app-bar { background:linear-gradient(135deg,var(--p1),var(--p2)) !important; border-radius:0 0 2rem 2rem; box-shadow:0 14px 40px -12px rgba(63,184,162,.45); }
+    .hero { background:linear-gradient(135deg,#46bfa9,#9be3cf) !important; border-radius:2rem; padding:1.5rem 1.5rem; box-shadow:0 18px 40px -14px rgba(63,184,162,.5); }
+    .hero:after { background:rgba(255,255,255,.22); }
+    .stat-card { border-radius:1.75rem; padding:1.2rem; gap:1rem; box-shadow:0 12px 40px -12px rgba(63,184,162,.25); }
+    .stat-ic { width:3rem; height:3rem; border-radius:1.1rem; font-size:1.15rem; }
+    .stat-n { font-size:2rem; font-weight:800; color:var(--ink); letter-spacing:-.02em; line-height:1.05; }
+    .stat-l { font-size:11.5px; font-weight:600; color:#7d9a93; margin-bottom:.15rem; }
+    .bnav { border-radius:2rem; background:rgba(255,255,255,.92) !important; backdrop-filter:blur(14px); box-shadow:0 18px 50px -12px rgba(63,184,162,.35) !important; }
+    .bottom-nav-item.active, .bottom-nav-item.text-gray-800 { color:#2a9d89; }
+    .bnav-fab { background:linear-gradient(135deg,var(--p1),var(--p2)); box-shadow:0 12px 26px -6px rgba(63,184,162,.6); border:5px solid #fff; }
+    .login-bg { background:linear-gradient(160deg,#c9f1e4,#8fdcc6 55%,#5fc9b0) !important; }
+    .scan-frame { border-radius:2rem; background:#16332e; box-shadow:0 20px 44px -14px rgba(63,184,162,.5); }
+    .scan-frame .c { border-color:#9be3cf; border-radius:.8rem; }
+    #scan-result { border-radius:1.75rem !important; padding:1.25rem !important; }
+    #scan-result.bg-green-500 { background:linear-gradient(135deg,#46bfa9,#8fdcc6) !important; }
+    #scan-result.bg-yellow-500 { background:linear-gradient(135deg,#f2b84b,#ffe08a) !important; }
+    #scan-result.bg-orange-500 { background:linear-gradient(135deg,#f28b5b,#ffc09a) !important; }
+    #scan-result.bg-red-500, #scan-result.bg-red-600 { background:linear-gradient(135deg,#ec6f7d,#ffa7b0) !important; }
+    #res-nama { font-size:1.45rem; font-weight:800; }
+    .st-hadir { background:#d4f5e6 !important; color:#157a55 !important; }
+    .st-warn { background:#fff0c9 !important; color:#a8700a !important; }
+    .st-bad { background:#ffdde2 !important; color:#c0314a !important; }
+    .st-hadir, .st-warn, .st-bad { border-radius:999px; padding:.2rem .7rem; font-weight:700; }
+    body .bg-green-100 { background:#d4f5e6; } body .text-green-700 { color:#157a55; }
+    body .bg-red-100, body .bg-red-50 { background:#ffe6ea; } body .text-red-600, body .text-red-500 { color:#d8405a; }
+    body .bg-yellow-100 { background:#fff0c9; } body .bg-purple-100 { background:#ece4ff; }
+    body .bg-green-300 { background:#a9ecd0; } body .bg-yellow-300 { background:#ffe49a; } body .bg-orange-300 { background:#ffc9a6; }
+    .master-item { border-radius:1.25rem; padding:1rem .8rem; } .master-item:active { background:#ecf6f2; }
+    .master-ic { border-radius:1.1rem; width:2.8rem; height:2.8rem; }
+    .avatar { box-shadow:0 6px 14px -4px rgba(63,184,162,.4); }
   </style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
@@ -816,7 +866,7 @@
       el('loader').classList.add('hidden');
       if (auth) showApp(); else showLogin();
       try {
-        const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'getPengaturanInfo', payload: {} }) });
+        const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getPengaturanInfo', payload: {} }) });
         const result = await res.json();
         if (result.success) {
           appSettings = {};
@@ -873,7 +923,7 @@
       if (block) el('loader').classList.remove('hidden');
       payload.auth = auth;
       try {
-        const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: action, payload: payload }) });
+        const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
         const result = await response.json();
         if (!result.success && result.message === 'Sesi login tidak valid.') {
           localStorage.removeItem('eabsensi_auth'); location.reload(); return result;
@@ -1560,13 +1610,14 @@
           img.onload = function () {
             const canvas = document.createElement('canvas');
             let width = img.width, height = img.height;
-            if (width > 200 || height > 200) {
-              if (width > height) { height *= 200 / width; width = 200; } else { width *= 200 / height; height = 200; }
+            if (width > 160 || height > 160) {
+              if (width > height) { height *= 160 / width; width = 160; } else { width *= 160 / height; height = 160; }
             }
             canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            const base64str = canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png');
+            let base64str = canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png');
+            if (base64str.length > 45000) base64str = canvas.toDataURL('image/jpeg', 0.8);
             el('base64-logo').value = base64str;
             el('preview-logo').src = base64str;
             el('preview-logo').classList.remove('hidden');
