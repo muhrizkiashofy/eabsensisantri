@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>E-Absensi Apps</title>
   <meta name="theme-color" content="#0f766e">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -624,13 +624,30 @@
     // Status notifikasi WhatsApp dari backend (res.data.wa): { sent, status, message }
     function infoWA(wa) {
       if (!wa) return { text: '', warn: false };
+      if (wa.status === 'antri') return { text: 'Mengirim notifikasi WhatsApp...', warn: false };
       if (wa.sent) return { text: 'Notifikasi WhatsApp terkirim ke wali.', warn: false };
-      if (wa.status === 'gagal' || wa.status === 'tanpa_nomor') return { text: wa.message || 'Notifikasi WhatsApp gagal dikirim.', warn: true };
+      if (wa.status === 'gagal' || wa.status === 'tanpa_nomor') {
+        let msg = wa.message || 'Notifikasi WhatsApp gagal dikirim.';
+        // Tangani pesan "Connection Closed" atau putus koneksi agar ramah pengguna
+        if (msg.includes('Connection Closed') || msg.includes('terputus') || msg.includes('offline') || msg.includes('tidak terjangkau')) {
+          msg = 'Absen aman disimpan, namun WhatsApp gagal (Server WA sedang offline/sibuk).';
+        }
+        return { text: msg, warn: true };
+      }
       return { text: wa.message || '', warn: false }; // dilewati / nonaktif
     }
+    
     function notifWA(wa) {
       const i = infoWA(wa);
       if (i.text) toast(i.warn ? 'warning' : 'success', i.text);
+    }
+    // Kirim WA lewat panggilan TERPISAH setelah absen tersimpan, supaya layar tidak menunggu bot WhatsApp.
+    // Mengembalikan objek status WA akhir ({sent, status, message}).
+    async function kirimNotifWA(wa, nis, sesi) {
+      if (!wa || wa.status !== 'antri') return wa || null;
+      const r = await api('kirimNotifAbsen', { nis: nis, sesi: sesi }, { silent: true });
+      if (r.success) return r.data;
+      return { sent: false, status: 'gagal', message: 'Absen tersimpan, tapi WA gagal terkirim: ' + (r.message || 'tidak ada respons') };
     }
 
     // load(): tampilkan cache dulu (instan), ambil data terbaru di latar belakang bila sudah lewat ttl
@@ -693,19 +710,14 @@
       o.start(t0); o.stop(t0 + dur + 0.03);
     }
     const SFX = {
-      // QR terbaca: klik digital sangat pendek
       detect: () => tone(2000, 0, 0.04, 'square', 0.08),
-      // Berhasil: beep tunggal nyaring dan cepat
       success: () => tone(1760, 0, 0.13, 'square', 0.30),
-      // Terlambat: beep ganda peringatan
       late: () => {
         tone(988, 0.00, 0.11, 'square', 0.28);
         tone(988, 0.17, 0.11, 'square', 0.28);
         tone(740, 0.34, 0.16, 'square', 0.24);
       },
-      // Sudah absen: blip netral
       double: () => tone(700, 0, 0.10, 'triangle', 0.32, 560),
-      // Gagal: buzzer rendah
       fail: () => {
         tone(150, 0.00, 0.28, 'sawtooth', 0.30, 120);
         tone(75, 0.00, 0.28, 'square', 0.14);
@@ -716,7 +728,6 @@
     const SFX_DUR = { success: 0.2, late: 0.55, double: 0.2, fail: 0.75, detect: 0.1 };
     function sfx(name) { if (!soundOn) return; try { SFX[name](); } catch (e) { } }
     function vibrate(p) { if (soundOn && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) { } } }
-    // Suara hasil scan: murni sintesis digital (Web Audio API), tanpa suara orang & tanpa file audio.
     function suara(skn) {
       if (!soundOn) return Promise.resolve();
       sfx(skn);
@@ -747,7 +758,6 @@
     function tutupMaster() { el('sheet-master').classList.add('hidden'); }
     function pilihMaster(t) { tutupMaster(); if (t === 'guru') nav('guru'); else navSantri(t); }
 
-    // Mulai begitu halaman siap. Tidak menunggu font/ikon/gambar dari server luar (kalau lambat, layar "memuat" bisa menggantung).
     let appStarted = false;
     function mulaiApp() { if (appStarted) return; appStarted = true; applySettingsUI(); tickClock(); initApp(); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mulaiApp); else mulaiApp();
@@ -778,7 +788,6 @@
     // INIT, LOGIN, NAVIGASI
     // =====================================================
     async function initApp() {
-      // Tampilkan aplikasi/login langsung (pakai pengaturan tersimpan), pengaturan terbaru diambil di latar belakang
       el('loader').classList.add('hidden');
       if (auth) showApp(); else showLogin();
       try {
@@ -904,7 +913,6 @@
     // =====================================================
     function loadSesi() { updateSoundIcon(); return loadJadwal('scan'); }
 
-    // Satu sumber data jadwal untuk: pilihan sesi scan, input manual, tab Sesi, dan chip rekap
     function loadJadwal(page) {
       if (!cache.jadwal && page === 'scan') el('select-sesi').innerHTML = '<option value="">Memuat sesi...</option>';
       return load('jadwal', 'getJadwal', {}, applyJadwal, { busy: page, ttl: 60000 });
@@ -920,7 +928,7 @@
       const cur = sel.value;
       const aktif = sesiData.filter(s => s.Status === 'Aktif');
       sel.innerHTML = aktif.length
-        ? aktif.map(s => `<option value="${esc(s.ID_Sesi)}">${esc(s.Nama_Sesi)} (Mulai: ${esc(jamPendek(s.Jam_Mulai))})</option>`).join('')
+        ? aktif.map(s => `<option value="${esc(s.ID_Sesi)}">${esc(s.Nama_Sesi)} (Mulai:${esc(jamPendek(s.Jam_Mulai))})</option>`).join('')
         : '<option value="">Belum ada sesi aktif</option>';
       if (cur && aktif.some(s => s.ID_Sesi === cur)) sel.value = cur;
     }
@@ -934,7 +942,7 @@
     }
 
     function startCustomScanner() {
-      unlockAudio(); // izinkan suara (butuh sentuhan pengguna)
+      unlockAudio();
       if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
       if (el('scanner-placeholder')) el('scanner-placeholder').style.display = 'none';
       if (el('btn-start-scan')) el('btn-start-scan').classList.add('hidden');
@@ -971,7 +979,6 @@
       isScanning = false;
       sfx('detect');
 
-      // Tampilkan "memproses" seketika supaya terasa cepat, hasil menyusul
       const resBox = el('scan-result');
       resBox.className = "mt-4 text-center px-4 py-3 rounded-lg shadow block text-white bg-gray-500";
       el('res-status').innerText = "Memproses...";
@@ -1003,9 +1010,11 @@
         el('res-nis').innerText = decodedText; el('res-jam').innerText = "-";
       }
       resBox.className = "mt-4 text-center px-4 py-3 rounded-lg shadow block text-white " + cls;
-      if (res.success && res.data) notifWA(res.data.wa);
+      if (res.success && res.data && res.data.wa) {
+        const dScan = res.data.data || {};
+        kirimNotifWA(res.data.wa, dScan.nis, dScan.sesi).then(notifWA);
+      }
 
-      // Scanner aktif lagi setelah suara selesai (minimal 1,8 detik) supaya QR yang sama tidak terbaca ulang saat suara masih berjalan
       Promise.all([new Promise(r => setTimeout(r, 1800)), suaraSelesai]).then(() => {
         resBox.classList.add('hidden');
         if (el('btn-stop-scan') && !el('btn-stop-scan').classList.contains('hidden')) isScanning = true;
@@ -1074,7 +1083,6 @@
       filterPantauan();
     }
 
-    // ---------- TUTUP SESI & KIRIM REKAP WA KE WALI ----------
     async function tutupSesi() {
       if (!sesiData.length) await loadJadwal('dashboard');
       const aktif = sesiData.filter(s => s.Status === 'Aktif');
@@ -1094,7 +1102,7 @@
       if (!p.akanKirim) { Swal.fire('Tidak ada yang dikirim', `Tanpa nomor WA: ${p.tanpaNomor}. Sudah terkirim sebelumnya: ${p.sudahTerkirim}.`, 'info'); return; }
       const c = await Swal.fire({
         title: 'Kirim rekap WA?', icon: 'question',
-        html: `<b>${esc(p.sesi)}</b><br>Akan dikirim ke <b>${p.akanKirim}</b> wali.<br><span style="font-size:12px;color:#6b7280">Hadir ${p.hadir}, Terlambat ${p.terlambat}, Izin/Sakit ${p.izinSakit}, Tidak hadir ${p.alfa}.<br>Tanpa nomor WA: ${p.tanpaNomor}. Sudah terkirim sebelumnya: ${p.sudahTerkirim}.</span>`,
+        html: `<b>${esc(p.sesi)}</b><br>Akan dikirim ke <b>${p.akanKirim}</b> wali.<br><span style="font-size:12px;color:#6b7280">Hadir ${p.hadir}, Terlambat ${p.terlambat}, Izin/Sakit${p.izinSakit}, Tidak hadir ${p.alfa}.<br>Tanpa nomor WA:${p.tanpaNomor}. Sudah terkirim sebelumnya: ${p.sudahTerkirim}.</span>`,
         showCancelButton: true, confirmButtonText: 'Kirim sekarang', cancelButtonText: 'Batal', confirmButtonColor: '#0f766e'
       });
       if (!c.isConfirmed) return;
@@ -1109,12 +1117,11 @@
       Swal.fire({ title: d.sisa || d.gagal ? 'Selesai sebagian' : 'Rekap terkirim', html: info, icon: d.gagal || d.sisa ? 'warning' : 'success' });
     }
 
-    // Cetak generik: isi area cetak, atur orientasi kertas, lalu print
     function cetakHTML(html, orientation) {
       el('print-content').innerHTML = html;
       let st = el('print-page-style');
       if (!st) { st = document.createElement('style'); st.id = 'print-page-style'; document.head.appendChild(st); }
-      st.textContent = `@page { size: A4 ${orientation}; margin: ${orientation === 'landscape' ? '8mm' : '1cm'}; }`;
+      st.textContent = `@page { size: A4 ${orientation}; margin:${orientation === 'landscape' ? '8mm' : '1cm'}; }`;
 
       const area = el('print-area');
       area.classList.remove('hidden');
@@ -1157,7 +1164,7 @@
       const cur = sel.value;
       const aktif = santriData.filter(s => s.Status === 'Aktif');
       sel.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>' +
-        aktif.map(s => `<option value="${esc(s.NIS)}">${esc(s.NIS)} - ${esc(s.Nama)}</option>`).join('');
+        aktif.map(s => `<option value="${esc(s.NIS)}">${esc(s.NIS)} -${esc(s.Nama)}</option>`).join('');
       if (cur && aktif.some(s => String(s.NIS) === cur)) sel.value = cur;
     }
 
@@ -1173,11 +1180,21 @@
       const res = await api('inputManual', payload);
       if (res.success) {
         closeModal('modal-manual');
-        const infoManual = infoWA(res.data && res.data.wa);
+        const waAwal = res.data && res.data.wa;
+        const infoAwal = infoWA(waAwal);
+        const waHasil = kirimNotifWA(waAwal, payload.nis, payload.sesi); // berjalan di latar belakang
+        
+        // Modal ramah pengguna agar sukses absensi tetap tampil berwarna hijau "success"
         Swal.fire({
-          icon: infoManual.warn ? 'warning' : 'success', title: 'Berhasil',
-          html: esc(res.data && res.data.updated ? 'Catatan lama diperbarui' : 'Data manual tersimpan') +
-            (infoManual.text ? '<br><span style="font-size:13px;color:' + (infoManual.warn ? '#b45309' : '#6b7280') + '">' + esc(infoManual.text) + '</span>' : '')
+          icon: 'success', title: 'Berhasil',
+          html: esc(res.data && res.data.updated ? 'Catatan lama diperbarui.' : 'Data manual berhasil disimpan.') +
+            '<br><span id="wa-info" style="font-size:13px;color:#6b7280;margin-top:10px;display:inline-block;">' + esc(infoAwal.text) + '</span>'
+        });
+        
+        waHasil.then(w => {
+          const i = infoWA(w), e = document.getElementById('wa-info');
+          if (e) { e.style.color = i.warn ? '#b45309' : '#6b7280'; e.textContent = i.text; }
+          else if (i.text) toast(i.warn ? 'warning' : 'success', i.text);
         });
         form.reset(); loadDashboard();
       }
@@ -1221,7 +1238,7 @@
         el('rekap-list').innerHTML = loadingBlock();
       }
       load(key, 'getRekapBulanan', { bulan: ymStr(), sesi: rekap.sesi }, d => {
-        if (key !== rekapKey()) return;       // pengguna sudah pindah bulan/sesi
+        if (key !== rekapKey()) return;
         applyRekap(d, key);
       }, { busy: 'rekap', ttl: 30000 });
     }
@@ -1240,7 +1257,7 @@
       const names = ['ALL'].concat(sesiData.map(s => s.Nama_Sesi));
       el('rekap-sesi-chips').innerHTML = names.map(n => {
         const aktif = rekap.sesi === n;
-        return `<button data-n="${esc(n)}" onclick="pilihSesiRekap(this.dataset.n)" class="shrink-0 px-4 py-2 rounded-full text-sm font-bold border ${aktif ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-600 border-gray-200'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`;
+        return `<button data-n="${esc(n)}" onclick="pilihSesiRekap(this.dataset.n)" class="shrink-0 px-4 py-2 rounded-full text-sm font-bold border ${aktif ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-600 border-gray-200'}">${n === 'ALL' ? 'Semua Sesi' : esc(n)}</button>`;
       }).join('');
     }
 
@@ -1268,7 +1285,6 @@
       else if (urut === 'alfa') list.sort((a, b) => b.c.A - a.c.A || a.nama.localeCompare(b.nama));
       else list.sort((a, b) => a.nama.localeCompare(b.nama));
 
-      // Ringkasan
       const dgPersen = d.santri.filter(s => s.persen !== null);
       const rata = dgPersen.length ? Math.round(dgPersen.reduce((t, s) => t + s.persen, 0) / dgPersen.length) : null;
       const totalA = d.santri.reduce((t, s) => t + s.c.A, 0);
@@ -1291,7 +1307,7 @@
     function kartuRekap(s, d) {
       const buka = rekap.open === String(s.nis);
       const chips = ['H', 'T', 'S', 'I', 'A'].filter(k => k === 'H' || s.c[k] > 0)
-        .map(k => `<span class="px-1.5 py-0.5 rounded text-[11px] font-bold ${KODE[k].chip}">${k} ${s.c[k]}</span>`).join('');
+        .map(k => `<span class="px-1.5 py-0.5 rounded text-[11px] font-bold ${KODE[k].chip}">${k}${s.c[k]}</span>`).join('');
 
       return `
         <div class="bg-white rounded-xl border ${buka ? 'border-gray-400' : 'border-gray-100'} shadow-sm overflow-hidden">
@@ -1312,7 +1328,6 @@
     }
 
     function detailRekap(s, d) {
-      // Kalender bulan: tiap kotak dibagi ke bawah per sesi
       let cells = '';
       for (let i = 0; i < d.firstWeekday; i++) cells += '<div></div>';
       for (let day = 1; day <= d.daysInMonth; day++) {
@@ -1327,357 +1342,4 @@
         </div>`;
       }
 
-      const legenda = ['H', 'T', 'S', 'I', 'A'].map(k => `<span class="flex items-center gap-1"><i class="inline-block w-3 h-3 rounded-sm ${KODE[k].bg}"></i>${KODE[k].label}</span>`).join('');
-      const multi = d.sesiList.length > 1;
-
-      // Daftar tanggal per status
-      const hari = Object.keys(s.days).map(Number).sort((a, b) => a - b);
-      const baris = ['A', 'S', 'I', 'T'].map(code => {
-        const items = [];
-        hari.forEach(day => {
-          s.days[day].forEach(e => {
-            if (e[1] === code) {
-              items.push(`<span class="whitespace-nowrap">${day}${multi ? ` <span class="text-gray-400">(${esc(d.sesiList[e[0]])})</span>` : ''}${e[2] ? ` <span class="text-gray-500 italic">– ${esc(e[2])}</span>` : ''}</span>`);
-            }
-          });
-        });
-        if (!items.length) return '';
-        return `<div class="flex gap-2 items-start">
-          <span class="shrink-0 w-24 text-center text-[11px] font-bold px-1.5 py-1 rounded ${KODE[code].chip}">${KODE[code].label} ${items.length}x</span>
-          <p class="text-xs text-gray-700 leading-relaxed pt-0.5">tgl ${items.join(', ')}</p>
-        </div>`;
-      }).join('');
-
-      return `
-        <div class="border-t border-gray-100 p-3 bg-gray-50">
-          <div class="grid grid-cols-7 gap-1 mb-1">${HARI.map(h => `<div class="text-center text-[10px] font-bold text-gray-400">${h}</div>`).join('')}</div>
-          <div class="grid grid-cols-7 gap-1">${cells}</div>
-          <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] text-gray-500">${legenda}</div>
-          ${multi ? `<p class="text-[10px] text-gray-400 mt-1">Setiap kotak terbagi dari atas ke bawah: ${d.sesiList.map(esc).join(', ')}.</p>` : ''}
-          <div class="mt-3 space-y-2">
-            ${baris || '<p class="text-xs text-green-700 font-semibold"><i class="fas fa-check-circle mr-1"></i> Tidak ada ketidakhadiran bulan ini.</p>'}
-          </div>
-        </div>`;
-    }
-
-    function cetakRekapBulanan() {
-      const d = rekap.data;
-      if (!d || !d.santri.length || !d.totalSesiEfektif) { Swal.fire('Info', 'Belum ada data absensi untuk dicetak.', 'info'); return; }
-
-      const urut = [...d.santri].sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
-      let head = '<th>No</th><th>Nama</th><th>Kls</th>';
-      for (let day = 1; day <= d.daysInMonth; day++) head += `<th>${day}</th>`;
-      head += '<th>H</th><th>T</th><th>S</th><th>I</th><th>A</th><th>%</th>';
-
-      const body = urut.map((s, i) => {
-        let tds = '';
-        for (let day = 1; day <= d.daysInMonth; day++) tds += `<td>${(s.days[day] || []).map(e => e[1]).join('')}</td>`;
-        return `<tr><td>${i + 1}</td><td class="nm">${esc(s.nama)}</td><td>${esc(s.kelas)}</td>${tds}<td>${s.c.H}</td><td>${s.c.T}</td><td>${s.c.S}</td><td>${s.c.I}</td><td>${s.c.A}</td><td>${s.persen === null ? '-' : s.persen}</td></tr>`;
-      }).join('');
-
-      const sesiLabel = rekap.sesi === 'ALL' ? 'Semua Sesi' : rekap.sesi;
-      cetakHTML(
-        headerCetak(`Rekap Absensi Bulanan — ${BULAN[rekap.m - 1]} ${rekap.y} (${esc(sesiLabel)})`) +
-        `<table class="bw-table bw-mini"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
-         <p style="font-size:7pt;margin-top:6px;">H = Hadir, T = Terlambat, S = Sakit, I = Izin, A = Alfa. Kolom tanggal berisi satu huruf per sesi (urut sesi).</p>`,
-        'landscape');
-    }
-
-    // =====================================================
-    // DATA SANTRI (tambah / edit / hapus)
-    // =====================================================
-    function loadSantri() {
-      if (!cache.santri) el('list-santri').innerHTML = loadingRow();
-      return load('santri', 'getSantri', {}, applySantri, { busy: 'santri', ttl: 60000 });
-    }
-
-    function applySantri(data) { santriData = data; renderSantri(); renderManualSantri(); }
-
-    // Daftar sesuai pilihan di menu Master (Putra / Putri). Santri lama yang jenis kelaminnya belum diisi tampil di kedua daftar dengan label "JK belum diisi".
-    let santriJK = 'Laki-laki';
-    function jkSantri(s) { return (s.Jenis_Kelamin === 'Laki-laki' || s.Jenis_Kelamin === 'Perempuan') ? s.Jenis_Kelamin : ''; }
-    function navSantri(jk) { santriJK = jk; nav('santri'); renderSantri(); }
-
-    function renderSantri() {
-      const q = (el('cari-santri').value || '').toLowerCase();
-      if (el('santri-title')) el('santri-title').innerText = santriJK === 'Perempuan' ? 'Santri Putri' : 'Santri Putra';
-      const rows = santriData.map((s, i) => ({ s, i })).filter(({ s }) => (jkSantri(s) === santriJK || jkSantri(s) === '') && (!q || (s.Nama + ' ' + s.NIS + ' ' + s.Kelas).toLowerCase().includes(q)));
-      el('list-santri').innerHTML = rows.length ? rows.map(({ s, i }) => `
-        <li class="p-3 flex items-center gap-3">
-          <div class="avatar ${jkSantri(s) === 'Perempuan' ? 'av-p' : jkSantri(s) === 'Laki-laki' ? 'av-l' : 'av-n'}">${esc(String(s.Nama || '?').trim().charAt(0).toUpperCase())}</div>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-sm text-gray-800 truncate">${esc(s.Nama)} ${s.Status !== 'Aktif' ? badgeStatus(s.Status) : ''} ${jkSantri(s) === '' ? '<span class="st-warn text-[10px] font-bold px-1.5 py-0.5 ml-1">JK belum diisi</span>' : ''}</p>
-            <p class="text-[11px] text-gray-500 truncate">NIS ${esc(s.NIS)} · Kelas ${esc(s.Kelas)}${s.No_WA_Wali ? ' · WA ' + esc(s.No_WA_Wali) : ''}</p>
-          </div>
-          <button onclick="generateQRPDF(${i})" class="w-9 h-9 rounded-lg text-gray-500 hover:bg-gray-100" title="Cetak QR"><i class="fas fa-qrcode"></i></button>
-          <button onclick="bukaModalSantri(${i})" class="w-9 h-9 rounded-lg text-blue-600 hover:bg-blue-50" title="Edit"><i class="fas fa-pen"></i></button>
-          <button onclick="hapusSantri(${i})" class="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50" title="Hapus"><i class="fas fa-trash"></i></button>
-        </li>`).join('') : emptyRow('Belum ada data santri.');
-    }
-
-    function bukaModalSantri(i) {
-      const edit = i !== undefined && santriData[i];
-      el('santri-mode').value = edit ? 'edit' : 'add';
-      el('santri-modal-title').innerText = edit ? 'Edit Santri' : 'Tambah Santri';
-      const s = edit ? santriData[i] : { NIS: '', Nama: '', Kelas: '', No_WA_Wali: '', Status: 'Aktif', Jenis_Kelamin: santriJK };
-      el('ins-nis').value = s.NIS; el('ins-nis').readOnly = !!edit;
-      el('santri-nis-hint').classList.toggle('hidden', !edit);
-      el('ins-nama').value = s.Nama; el('ins-kelas').value = s.Kelas; el('ins-jk').value = jkSantri(s);
-      el('ins-wa').value = s.No_WA_Wali; el('ins-status').value = s.Status || 'Aktif';
-      showModal('modal-santri');
-    }
-
-    async function saveSantri(e) {
-      e.preventDefault();
-      const edit = el('santri-mode').value === 'edit';
-      const data = { NIS: el('ins-nis').value.trim(), Nama: el('ins-nama').value.trim(), Kelas: el('ins-kelas').value.trim(), No_WA_Wali: el('ins-wa').value.trim(), Jenis_Kelamin: el('ins-jk').value, Status: el('ins-status').value };
-      const res = await api(edit ? 'updateSantri' : 'addSantri', { data: data });
-      if (res.success) { closeModal('modal-santri'); loadSantri(); Swal.fire('Oke', edit ? 'Perubahan tersimpan' : 'Santri ditambahkan', 'success'); }
-    }
-
-    async function hapusSantri(i) {
-      const s = santriData[i];
-      if (!await konfirmasiHapus('Hapus santri?', `${s.Nama} (NIS ${s.NIS}) akan dihapus dari data santri. Riwayat absensinya tetap tersimpan. Jika hanya berhenti, lebih baik ubah status jadi Nonaktif.`)) return;
-      const res = await api('deleteSantri', { nis: s.NIS });
-      if (res.success) { loadSantri(); Swal.fire('Terhapus', 'Data santri dihapus.', 'success'); }
-    }
-
-    function generateQRPDF(i) {
-      const s = santriData[i]; if (!s) return;
-      const nisJs = JSON.stringify(String(s.NIS)).replace(/</g, '\\u003c');
-      const printWindow = window.open('', '_blank', 'width=400,height=500');
-      printWindow.document.write(`<html><head><style>body{text-align:center; font-family:sans-serif;} .card{border:2px solid #000; padding:20px; display:inline-block; border-radius:10px; margin-top:20px;}</style></head><body><div class="card"><h2>${esc(s.Nama)}</h2><p>NIS: ${esc(s.NIS)}</p><img id="qr" style="margin:0 auto; display:block;"></div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"><\/script><script>setTimeout(()=>{new QRious({element:document.getElementById('qr'),value:${nisJs},size:200});setTimeout(()=>window.print(),500);},100);<\/script></body></html>`);
-      printWindow.document.close();
-    }
-
-    // =====================================================
-    // DATA GURU (tambah / edit / hapus)
-    // =====================================================
-    function loadGuru() {
-      if (!cache.guru) el('list-guru').innerHTML = loadingRow();
-      return load('guru', 'getGuru', {}, d => { guruData = d; renderGuru(); }, { busy: 'guru', ttl: 60000 });
-    }
-
-    function renderGuru() {
-      el('list-guru').innerHTML = guruData.length ? guruData.map((g, i) => `
-        <li class="p-3 flex items-center gap-2">
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-sm text-gray-800 truncate">${esc(g.Nama)} ${badgeStatus(g.Status)}</p>
-            <p class="text-[11px] text-gray-500 truncate">ID ${esc(g.ID_Guru)} · @${esc(g.Username)}</p>
-          </div>
-          <button onclick="bukaModalGuru(${i})" class="w-9 h-9 rounded-lg text-blue-600 hover:bg-blue-50" title="Edit"><i class="fas fa-pen"></i></button>
-          <button onclick="hapusGuru(${i})" class="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50" title="Hapus"><i class="fas fa-trash"></i></button>
-        </li>`).join('') : emptyRow('Belum ada data guru.');
-    }
-
-    function bukaModalGuru(i) {
-      const edit = i !== undefined && guruData[i];
-      el('guru-mode').value = edit ? 'edit' : 'add';
-      el('guru-modal-title').innerText = edit ? 'Edit Guru' : 'Tambah Guru';
-      const g = edit ? guruData[i] : { ID_Guru: '', Nama: '', Username: '', Status: 'Aktif' };
-      el('ins-g-id').value = g.ID_Guru; el('ins-g-id').readOnly = !!edit;
-      el('ins-g-nama').value = g.Nama; el('ins-g-user').value = g.Username;
-      el('ins-g-pass').value = ''; el('ins-g-pass').required = !edit;
-      el('ins-g-pass').placeholder = edit ? 'Kosongkan jika tidak diubah' : 'Password';
-      el('ins-g-status').value = g.Status || 'Aktif';
-      showModal('modal-guru');
-    }
-
-    async function saveGuru(e) {
-      e.preventDefault();
-      const edit = el('guru-mode').value === 'edit';
-      const data = { ID_Guru: el('ins-g-id').value.trim(), Nama: el('ins-g-nama').value.trim(), Username: el('ins-g-user').value.trim(), Password: el('ins-g-pass').value, Status: el('ins-g-status').value };
-      const res = await api(edit ? 'updateGuru' : 'addGuru', { data: data });
-      if (res.success) { closeModal('modal-guru'); loadGuru(); Swal.fire('Oke', edit ? 'Perubahan tersimpan' : 'Guru ditambahkan', 'success'); }
-    }
-
-    async function hapusGuru(i) {
-      const g = guruData[i];
-      if (!await konfirmasiHapus('Hapus guru?', `${g.Nama} tidak akan bisa login lagi. Riwayat absensi yang pernah dicatatnya tetap tersimpan.`)) return;
-      const res = await api('deleteGuru', { id: g.ID_Guru });
-      if (res.success) { loadGuru(); Swal.fire('Terhapus', 'Data guru dihapus.', 'success'); }
-    }
-
-    // =====================================================
-    // PENGATURAN: TAB, INSTANSI
-    // =====================================================
-    function setTabPengaturan(tab) {
-      ['instansi', 'sesi', 'user'].forEach(t => {
-        el('panel-' + t).classList.toggle('hidden', t !== tab);
-        el('tab-' + t).className = 'flex-1 py-2 rounded-lg ' + (t === tab ? 'bg-white text-gray-900 shadow' : 'text-gray-500');
-      });
-      if (tab === 'sesi') loadSesiAdmin();
-      if (tab === 'user') loadUser();
-    }
-
-    function fillPengaturan() {
-      if (el('set-nama')) el('set-nama').value = appSettings.nama_instansi || '';
-      if (el('set-alamat')) el('set-alamat').value = appSettings.alamat || '';
-      if (el('set-telepon')) el('set-telepon').value = appSettings.telepon || '';
-      if (el('base64-logo')) el('base64-logo').value = appSettings.logo || '';
-      if (appSettings.logo && el('preview-logo')) {
-        el('preview-logo').src = appSettings.logo;
-        el('preview-logo').classList.remove('hidden');
-      }
-    }
-
-    if (el('set-logo')) {
-      el('set-logo').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const img = new Image();
-          img.onload = function () {
-            const canvas = document.createElement('canvas');
-            let width = img.width, height = img.height;
-            if (width > 160 || height > 160) {
-              if (width > height) { height *= 160 / width; width = 160; } else { width *= 160 / height; height = 160; }
-            }
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            let base64str = canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png');
-            if (base64str.length > 45000) base64str = canvas.toDataURL('image/jpeg', 0.8);
-            el('base64-logo').value = base64str;
-            el('preview-logo').src = base64str;
-            el('preview-logo').classList.remove('hidden');
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function savePengaturan(e) {
-      e.preventDefault();
-      const payload = { nama_instansi: el('set-nama').value, alamat: el('set-alamat').value, telepon: el('set-telepon').value, logo: el('base64-logo').value };
-      const res = await api('savePengaturan', { data: payload });
-      if (res.success) {
-        appSettings = payload;
-        localStorage.setItem('eabsensi_settings', JSON.stringify(appSettings));
-        applySettingsUI();
-        Swal.fire('Berhasil', 'Pengaturan diperbarui.', 'success');
-      }
-    }
-
-    // =====================================================
-    // PENGATURAN: SESI (tambah / edit / hapus)
-    // =====================================================
-    function loadSesiAdmin() {
-      if (!cache.jadwal) el('list-sesi-admin').innerHTML = loadingBlock();
-      return loadJadwal('pengaturan');
-    }
-
-    function renderSesiAdmin() {
-      el('list-sesi-admin').innerHTML = sesiData.length ? sesiData.map((s, i) => `
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex items-center gap-2">
-          <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center shrink-0"><i class="fas fa-clock"></i></div>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-sm text-gray-800">${esc(s.Nama_Sesi)} ${badgeStatus(s.Status)}</p>
-            <p class="text-[11px] text-gray-500">Mulai ${esc(jamPendek(s.Jam_Mulai))} · terlambat setelah ${esc(jamPendek(s.Batas_Terlambat))}</p>
-          </div>
-          <button onclick="bukaModalSesi(${i})" class="w-9 h-9 rounded-lg text-blue-600 hover:bg-blue-50" title="Edit"><i class="fas fa-pen"></i></button>
-          <button onclick="hapusSesi(${i})" class="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50" title="Hapus"><i class="fas fa-trash"></i></button>
-        </div>`).join('') : '<div class="bg-white rounded-xl border border-gray-100 p-6 text-center text-sm text-gray-400">Belum ada sesi.</div>';
-    }
-
-    function bukaModalSesi(i) {
-      const edit = i !== undefined && sesiData[i];
-      const s = edit ? sesiData[i] : { ID_Sesi: '', Nama_Sesi: '', Jam_Mulai: '', Batas_Terlambat: '', Status: 'Aktif' };
-      el('sesi-modal-title').innerText = edit ? 'Edit Sesi' : 'Tambah Sesi';
-      el('sesi-id').value = s.ID_Sesi;
-      el('ins-s-nama').value = s.Nama_Sesi;
-      el('ins-s-mulai').value = jamPendek(s.Jam_Mulai);
-      el('ins-s-batas').value = jamPendek(s.Batas_Terlambat);
-      el('ins-s-status').value = s.Status || 'Aktif';
-      el('sesi-rename-hint').classList.toggle('hidden', !edit);
-      showModal('modal-sesi');
-    }
-
-    async function saveSesi(e) {
-      e.preventDefault();
-      const id = el('sesi-id').value;
-      const data = { ID_Sesi: id, Nama_Sesi: el('ins-s-nama').value.trim(), Jam_Mulai: el('ins-s-mulai').value, Batas_Terlambat: el('ins-s-batas').value, Status: el('ins-s-status').value };
-      const res = await api(id ? 'updateSesi' : 'addSesi', { data: data });
-      if (res.success) { closeModal('modal-sesi'); sesiData = []; loadSesiAdmin(); Swal.fire('Oke', id ? 'Sesi diperbarui' : 'Sesi ditambahkan', 'success'); }
-    }
-
-    async function hapusSesi(i) {
-      const s = sesiData[i];
-      if (!await konfirmasiHapus('Hapus sesi?', `Sesi "${s.Nama_Sesi}" akan dihapus. Riwayat absensi sesi ini tetap tersimpan. Jika hanya ingin berhenti sementara, ubah status jadi Nonaktif.`)) return;
-      const res = await api('deleteSesi', { id: s.ID_Sesi });
-      if (res.success) { sesiData = []; loadSesiAdmin(); Swal.fire('Terhapus', 'Sesi dihapus.', 'success'); }
-    }
-
-    // =====================================================
-    // PENGATURAN: PENGGUNA & ROLE (tambah / edit / hapus)
-    // =====================================================
-    function loadUser() {
-      if (!cache.user) el('list-user').innerHTML = loadingRow();
-      return load('user', 'getPengguna', {}, d => { userData = d; renderUser(); }, { busy: 'pengaturan', ttl: 60000 });
-    }
-
-    function renderUser() {
-      el('list-user').innerHTML = userData.length ? userData.map((u, i) => {
-        const diri = auth && String(auth.id) === String(u.ID_User);
-        const roleCls = u.Role === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-200 text-gray-700';
-        return `
-        <li class="p-3 flex items-center gap-2">
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-sm text-gray-800 truncate">${esc(u.Nama)} ${diri ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Anda</span>' : ''}</p>
-            <p class="text-[11px] text-gray-500 truncate">@${esc(u.Username)}</p>
-            <div class="flex gap-1 mt-1"><span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${roleCls}">${esc(u.Role)}</span>${badgeStatus(u.Status)}</div>
-          </div>
-          <button onclick="bukaModalUser(${i})" class="w-9 h-9 rounded-lg text-blue-600 hover:bg-blue-50" title="Edit"><i class="fas fa-pen"></i></button>
-          ${diri ? '' : `<button onclick="hapusUser(${i})" class="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50" title="Hapus"><i class="fas fa-trash"></i></button>`}
-        </li>`;
-      }).join('') : emptyRow('Belum ada pengguna.');
-    }
-
-    function bukaModalUser(i) {
-      const edit = i !== undefined && userData[i];
-      const u = edit ? userData[i] : { ID_User: '', Nama: '', Username: '', Role: 'Guru', Status: 'Aktif' };
-      const diri = edit && auth && String(auth.id) === String(u.ID_User);
-      el('user-modal-title').innerText = edit ? 'Edit Pengguna' : 'Tambah Pengguna';
-      el('user-id').value = u.ID_User;
-      el('ins-u-nama').value = u.Nama;
-      el('ins-u-user').value = u.Username;
-      el('ins-u-pass').value = ''; el('ins-u-pass').required = !edit;
-      el('ins-u-pass').placeholder = edit ? 'Kosongkan jika tidak diubah' : 'Password';
-      el('ins-u-role').innerHTML = ROLES.map(r => `<option>${r}</option>`).join('');
-      el('ins-u-role').value = u.Role; el('ins-u-role').disabled = !!diri;
-      el('ins-u-status').value = u.Status || 'Aktif'; el('ins-u-status').disabled = !!diri;
-      el('user-self-hint').classList.toggle('hidden', !diri);
-      showModal('modal-user');
-    }
-
-    async function saveUser(e) {
-      e.preventDefault();
-      const id = el('user-id').value;
-      const data = {
-        ID_User: id, Nama: el('ins-u-nama').value.trim(), Username: el('ins-u-user').value.trim(),
-        Password: el('ins-u-pass').value, Role: el('ins-u-role').value, Status: el('ins-u-status').value
-      };
-      const res = await api(id ? 'updatePengguna' : 'addPengguna', { data: data });
-      if (res.success) {
-        // Jika yang diedit akun sendiri, sinkronkan sesi login di browser ini
-        if (id && auth && String(auth.id) === String(id)) {
-          auth.nama = data.Nama; auth.username = data.Username;
-          if (data.Password) auth.password = data.Password;
-          localStorage.setItem('eabsensi_auth', JSON.stringify(auth));
-          if (el('welcome-name')) el('welcome-name').innerText = auth.nama;
-        }
-        closeModal('modal-user'); loadUser(); Swal.fire('Oke', id ? 'Perubahan tersimpan' : 'Pengguna ditambahkan', 'success');
-      }
-    }
-
-    async function hapusUser(i) {
-      const u = userData[i];
-      if (!await konfirmasiHapus('Hapus pengguna?', `${u.Nama} (@${u.Username}) tidak akan bisa login lagi.`)) return;
-      const res = await api('deletePengguna', { id: u.ID_User });
-      if (res.success) { loadUser(); Swal.fire('Terhapus', 'Pengguna dihapus.', 'success'); }
-    }
-  </script>
-</body>
-</html>
+      const legenda = ['H', 'T', 'S', 'I', 'A'].map(k => `<span class="flex items-center gap-1"><i class="inline-block w-3 h
