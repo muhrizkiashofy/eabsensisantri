@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>E-Absensi Apps</title>
-  <meta name="theme-color" content="#5fc9b0">
+  <meta name="theme-color" content="#0f766e">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,66 +23,83 @@
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
     .bottom-nav-item.active { color: #2563eb; font-weight: bold; }
     #reader video { object-fit: cover !important; border-radius: 0.5rem; width: 100% !important; }
-    .logo-img { object-fit: contain; border-radius: 50%; background: white; padding: 5px; }
+    .logo-img { object-fit: contain; border-radius: 0; background: transparent !important; padding: 0; border: 0; box-shadow: none; }
 
-    /* ===== TEMA MODERN (hijau teal, lembut) ===== */
-    :root { --p1:#0f766e; --p2:#10b981; --bg:#eef6f4; }
-    body { font-family:'Poppins','Segoe UI',Tahoma,sans-serif; background:var(--bg); }
+    /* ===== TEMA SOLID (terang, kontras tinggi) ===== */
+    :root { --p1:#0f766e; --p2:#115e59; --acc:#14b8a6; --ink:#0f172a; --mut:#475569; --bg:#f1f5f4; --line:#d5dfdc; --sh:0 1px 2px rgba(15,23,42,.06),0 6px 18px rgba(15,23,42,.07); }
+    body { font-family:'Plus Jakarta Sans','Segoe UI',Tahoma,sans-serif; background:var(--bg); color:var(--ink); }
     #main-content { background:var(--bg); }
-    body .bg-gray-800 { background:linear-gradient(135deg,var(--p1),var(--p2)); }
-    body .hover\:bg-black:hover { background:linear-gradient(135deg,var(--p1),var(--p2)); filter:brightness(.92); }
-    body .text-blue-600 { color:var(--p1); } body .border-blue-600 { border-color:var(--p1); }
-    body .focus\:ring-gray-800:focus { --tw-ring-color:var(--p2); }
-    body .rounded-xl { border-radius:1.25rem; }
-    body .shadow-sm { box-shadow:0 4px 18px rgba(15,118,110,.08); }
-    button { transition:transform .12s, filter .2s; } button:active { transform:scale(.96); }
-    .content-page:not(.hidden) { animation:up .35s ease both; }
-    @keyframes up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
-    @keyframes pop { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:none} }
+    body .text-gray-800, body .text-gray-900 { color:var(--ink); }
+    body .text-gray-600, body .text-gray-500 { color:var(--mut); } body .text-gray-400 { color:#64748b; }
+    body .text-blue-600, body .text-blue-700 { color:var(--p1); } body .border-blue-600 { border-color:var(--p1); }
+    body .bg-gray-800 { background:var(--p1); color:#fff; } body .hover\:bg-black:hover { background:var(--p2); }
+    body .bg-gray-50 { background:#f8fafb; } body .bg-gray-100 { background:#e8eeed; } body .bg-gray-200 { background:#d5dfdc; }
+    body .bg-blue-50, body .bg-teal-50 { background:#e0f2f1; } body .bg-blue-100 { background:#cdebe8; }
+    body .rounded-lg { border-radius:.9rem; } body .rounded-xl { border-radius:1.25rem; } body .rounded-3xl { border-radius:1.75rem; }
+    body .shadow, body .shadow-sm, body .shadow-lg { box-shadow:var(--sh); } body .shadow-xl, body .shadow-2xl { box-shadow:0 12px 36px rgba(15,23,42,.18); }
+    body .bg-white.rounded-xl, body .bg-white.rounded-lg { border:1px solid var(--line); }
+    body .border-gray-100, body .border-gray-200, body .border-gray-300 { border-color:var(--line); }
+    body button { transition:transform .12s, background .2s; } body button:active { transform:scale(.97); }
+    body button.p-4 { padding-top:.8rem; padding-bottom:.8rem; } body button[class*="py-3"] { padding-top:.7rem; padding-bottom:.7rem; }
+    body button[class*="py-2"] { padding-top:.5rem; padding-bottom:.5rem; }
+    input, select, textarea { background:#fff; border:1.5px solid #b9c7c3 !important; border-radius:.9rem !important; color:var(--ink); }
+    input:focus, select:focus, textarea:focus { border-color:var(--p1) !important; box-shadow:0 0 0 3px rgba(15,118,110,.2) !important; outline:none; }
+    body .focus\:ring-gray-800:focus { --tw-ring-color:transparent; }
+    .content-page:not(.hidden) { animation:up .3s ease both; }
+    @keyframes up { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    @keyframes pop { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:none} }
 
-    .app-bar { padding-top:max(calc(env(safe-area-inset-top, 0px) + 8px), 20px) !important; padding-left:max(1rem, env(safe-area-inset-left, 0px)); padding-right:max(1rem, env(safe-area-inset-right, 0px)); background:linear-gradient(135deg,var(--p1),var(--p2)); color:#fff; border-radius:0 0 1.5rem 1.5rem; box-shadow:0 8px 24px rgba(15,118,110,.25); }
-    .hero { background:linear-gradient(135deg,var(--p1),var(--p2)); color:#fff; border-radius:1.5rem; padding:1.1rem 1.25rem; box-shadow:0 10px 26px rgba(15,118,110,.22); position:relative; overflow:hidden; }
-    .hero:after { content:''; position:absolute; right:-30px; top:-30px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.14); }
-    .stat-card { background:#fff; border-radius:1.25rem; padding:.9rem; display:flex; align-items:center; gap:.75rem; box-shadow:0 4px 18px rgba(15,118,110,.08); transition:transform .15s; }
-    .stat-card:active { transform:scale(.97); }
-    .stat-ic { width:2.6rem; height:2.6rem; border-radius:.9rem; display:grid; place-items:center; color:var(--c); background:var(--b); font-size:1.05rem; flex:none; }
-    .stat-l { font-size:11px; font-weight:600; color:#6b7280; } .stat-n { font-size:1.5rem; font-weight:700; color:#111827; line-height:1.1; }
+    .app-bar { background:var(--p1); color:#fff; padding-top:max(calc(env(safe-area-inset-top, 0px) + 6px), 12px) !important; padding-left:max(1rem, env(safe-area-inset-left, 0px)); padding-right:max(1rem, env(safe-area-inset-right, 0px)); border-radius:0 0 1.5rem 1.5rem; box-shadow:0 6px 20px rgba(15,118,110,.3); }
+    #clock { font-size:1.25rem; font-weight:800; letter-spacing:.04em; font-variant-numeric:tabular-nums; color:#fff; }
+    .hero { background:var(--p1); color:#fff; border-radius:1.5rem; padding:1.25rem 1.5rem; box-shadow:0 8px 22px rgba(15,118,110,.28); position:relative; overflow:hidden; }
+    .hero:after { content:''; position:absolute; right:-28px; top:-28px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,.12); }
+    .stat-card { background:#fff; border:1px solid var(--line); border-radius:1.25rem; padding:1rem; display:flex; align-items:center; gap:.85rem; box-shadow:var(--sh); }
+    .stat-ic { width:2.9rem; height:2.9rem; border-radius:1rem; display:grid; place-items:center; color:#fff; background:var(--c); font-size:1.1rem; flex:none; }
+    .stat-n { font-size:1.9rem; font-weight:800; color:var(--ink); line-height:1.05; letter-spacing:-.02em; }
+    .stat-l { font-size:11px; font-weight:600; color:var(--mut); margin-bottom:.1rem; }
 
-    .bnav { left:12px; right:12px; bottom:10px; width:auto !important; border-radius:1.5rem; border:0 !important; box-shadow:0 10px 30px rgba(15,118,110,.22) !important; }
-    .bottom-nav-item.text-gray-800 { color:var(--p1); }
-    .bnav-fab { width:3.5rem; height:3.5rem; margin-top:-1.75rem; border-radius:50%; display:grid; place-items:center; color:#fff; background:linear-gradient(135deg,var(--p1),var(--p2)); box-shadow:0 8px 20px rgba(16,185,129,.45); border:4px solid #fff; }
-    .login-bg { background:linear-gradient(160deg,#0f766e,#10b981 55%,#a7f3d0); }
-    .av-n { background:#9ca3af; }
-    .avatar { width:2.5rem; height:2.5rem; border-radius:50%; display:grid; place-items:center; font-weight:700; color:#fff; flex:none; }
-    .av-l { background:linear-gradient(135deg,#0ea5e9,#2563eb); } .av-p { background:linear-gradient(135deg,#f472b6,#db2777); }
+    .bnav { left:0; right:0; bottom:0; width:100% !important; background:#fff !important; border-top:1px solid var(--line) !important; border-radius:1.5rem 1.5rem 0 0; box-shadow:0 -6px 20px rgba(15,23,42,.08) !important; padding-bottom:env(safe-area-inset-bottom, 0px); }
+    @media (min-width:768px) { .bnav { left:50%; right:auto; transform:translateX(-50%); width:min(34rem,94vw) !important; } }
+    .bnav .bottom-nav-item { flex:1 1 0; min-width:0; color:#64748b; } .bnav .bottom-nav-item.text-gray-800, .bottom-nav-item.active { color:var(--p1); font-weight:800; }
+    .bnav-fab { width:3.5rem; height:3.5rem; margin-top:-1.7rem; border-radius:50%; display:grid; place-items:center; color:#fff; background:var(--p1); border:4px solid #fff; box-shadow:0 8px 18px rgba(15,118,110,.45); }
+    .login-bg { background:var(--p1) !important; }
+    .login-head { background:var(--p1); color:#fff; }
+    .av-n { background:#94a3b8; } .avatar { width:2.5rem; height:2.5rem; border-radius:50%; display:grid; place-items:center; font-weight:700; color:#fff; flex:none; }
+    .av-l { background:#2563eb; } .av-p { background:#db2777; }
 
-    /* SCANNER */
-    .scan-frame { position:relative; max-width:22rem; margin:0 auto; border-radius:1.75rem; overflow:hidden; background:#0b1f1c; box-shadow:0 12px 30px rgba(15,118,110,.3); }
-    .scan-frame #reader { background:#0b1f1c; border:0; border-radius:0; box-shadow:none; color:#9ca3af; max-width:none; }
-    #qr-shaded-region { border-color:rgba(6,30,27,.55) !important; }
-    .scan-frame .c { position:absolute; width:2.2rem; height:2.2rem; border:4px solid #6ee7b7; border-radius:.6rem; pointer-events:none; }
-    .c.tl { top:15%; left:15%; border-right:0; border-bottom:0; } .c.tr { top:15%; right:15%; border-left:0; border-bottom:0; }
-    .c.bl { bottom:15%; left:15%; border-right:0; border-top:0; } .c.br { bottom:15%; right:15%; border-left:0; border-top:0; }
-    .scan-line { display:none; position:absolute; left:15%; right:15%; top:15%; height:3px; border-radius:3px; background:linear-gradient(90deg,transparent,#6ee7b7,transparent); box-shadow:0 0 14px #34d399; animation:sl 2s ease-in-out infinite alternate; }
-    .scanning .scan-line { display:block; } @keyframes sl { to { top:84%; } }
-    #btn-start-scan, #btn-stop-scan { border-radius:9999px; padding:.7rem 1.4rem; }
-    #scan-result { border-radius:1.25rem !important; padding:1rem !important; animation:pop .3s ease both; box-shadow:0 10px 26px rgba(0,0,0,.18) !important; }
-    #scan-result.bg-green-500 { background:linear-gradient(135deg,#059669,#34d399) !important; }
-    #scan-result.bg-yellow-500 { background:linear-gradient(135deg,#d97706,#fbbf24) !important; }
-    #scan-result.bg-orange-500 { background:linear-gradient(135deg,#ea580c,#fb923c) !important; }
-    #scan-result.bg-red-500, #scan-result.bg-red-600 { background:linear-gradient(135deg,#dc2626,#f87171) !important; }
-    #res-nama { font-size:1.35rem; }
+    /* ===== SCANNER: reticle + laser ===== */
+    #reader video { object-fit:cover !important; border-radius:0; width:100% !important; }
+    .scan-frame { position:relative; max-width:22rem; margin:0 auto; border-radius:1.5rem; overflow:hidden; background:#06201c; box-shadow:0 12px 30px rgba(6,32,28,.35); }
+    .scan-frame:after { content:''; position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 60px rgba(0,0,0,.45); }
+    .scan-frame #reader { background:#06201c; border:0 !important; border-radius:0; box-shadow:none; color:#94a3b8; max-width:none; }
+    #qr-shaded-region { border-color:rgba(2,16,14,.6) !important; }
+    .scan-frame .c { position:absolute; z-index:2; width:2.6rem; height:2.6rem; border:4px solid #2dd4bf; border-radius:.5rem; pointer-events:none; filter:drop-shadow(0 0 6px rgba(45,212,191,.9)); animation:reticle 1.6s ease-in-out infinite; }
+    .c.tl { top:12%; left:12%; border-right:0; border-bottom:0; } .c.tr { top:12%; right:12%; border-left:0; border-bottom:0; }
+    .c.bl { bottom:12%; left:12%; border-right:0; border-top:0; } .c.br { bottom:12%; right:12%; border-left:0; border-top:0; }
+    @keyframes reticle { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.7; transform:scale(.94)} }
+    .scan-line { display:none; position:absolute; z-index:2; left:12%; right:12%; top:12%; height:3px; border-radius:3px; pointer-events:none; background:linear-gradient(90deg,transparent,#5eead4 20%,#fff 50%,#5eead4 80%,transparent); box-shadow:0 0 10px 2px rgba(45,212,191,.95),0 0 28px 8px rgba(45,212,191,.55); animation:laser 2.2s cubic-bezier(.45,0,.55,1) infinite alternate; }
+    .scan-line:after { content:''; position:absolute; left:0; right:0; top:-34px; height:34px; background:linear-gradient(to top,rgba(45,212,191,.28),transparent); }
+    .scanning .scan-line { display:block; } @keyframes laser { from{top:12%} to{top:87%} }
+    #btn-start-scan, #btn-stop-scan { border-radius:9999px; padding:.6rem 1.4rem; }
+    #scan-result { border-radius:1.25rem !important; padding:1rem 1.25rem !important; animation:pop .3s ease both; box-shadow:0 10px 26px rgba(15,23,42,.22) !important; color:#fff; }
+    #scan-result.bg-green-500 { background:#059669 !important; } #scan-result.bg-yellow-500 { background:#d97706 !important; }
+    #scan-result.bg-orange-500 { background:#ea580c !important; } #scan-result.bg-red-500, #scan-result.bg-red-600 { background:#dc2626 !important; }
+    #res-nama { font-size:1.4rem; font-weight:800; }
 
-    /* ===== NAV BAWAH, SHEET, STATUS ===== */
-    @media (min-width:768px) { .bnav { left:50%; right:auto; transform:translateX(-50%); width:min(34rem,92vw) !important; } }
+    /* ===== BOTTOM SHEET, STATUS ===== */
     .sheet-panel { animation:slideup .25s ease both; } @keyframes slideup { from{transform:translateY(100%)} to{transform:none} }
-    .master-item { width:100%; display:flex; align-items:center; gap:.9rem; padding:.85rem .6rem; border-radius:1rem; font-weight:600; font-size:.95rem; color:#1f2937; text-align:left; }
-    .master-item:active { background:#f3f4f6; }
-    .master-ic { width:2.5rem; height:2.5rem; border-radius:.9rem; display:grid; place-items:center; color:var(--c); background:var(--b); }
-    .st-hadir { background:#dcfce7 !important; color:#166534 !important; }
-    .st-warn { background:#fef3c7 !important; color:#b45309 !important; }
-    .st-bad { background:#ffe4e6 !important; color:#be123c !important; }
-    .st-hadir, .st-warn, .st-bad { border-radius:.5rem; }
+    .master-item { width:100%; display:flex; align-items:center; gap:.9rem; padding:.8rem .6rem; border-radius:1rem; font-weight:700; font-size:.95rem; color:var(--ink); text-align:left; }
+    .master-item:active { background:#e8eeed; }
+    .master-ic { width:2.6rem; height:2.6rem; border-radius:.9rem; display:grid; place-items:center; color:#fff; background:var(--c); }
+    .pb-safe { padding-bottom:env(safe-area-inset-bottom, 0px); }
+    .st-hadir { background:#047857 !important; color:#fff !important; }
+    .st-warn { background:#f59e0b !important; color:#1c1917 !important; }
+    .st-bad { background:#dc2626 !important; color:#fff !important; }
+    .st-hadir, .st-warn, .st-bad { border-radius:.6rem; font-weight:700; }
+    body .bg-green-100 { background:#bbf7d0; } body .text-green-700 { color:#14532d; }
+    body .bg-red-100, body .bg-red-50 { background:#fecaca; } body .text-red-600, body .text-red-500 { color:#b91c1c; }
+    body .bg-yellow-100 { background:#fde68a; } body .text-yellow-700 { color:#78350f; } body .bg-purple-100 { background:#ddd6fe; }
+    body .bg-green-300 { background:#34d399; } body .bg-yellow-300 { background:#fbbf24; } body .bg-orange-300 { background:#fb923c; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -108,55 +125,6 @@
       .bw-mini tr:last-child td { border-bottom: 1px solid #000; }
     }
 
-    /* ===== SOFT UI (mint / sage / tosca, light mode) ===== */
-    :root { --p1:#3fb8a2; --p2:#8fdcc6; --ink:#1f3b36; --bg:#f2faf7; --soft:0 10px 40px -10px rgba(63,184,162,.22); }
-    body { font-family:'Plus Jakarta Sans','Poppins','Segoe UI',sans-serif !important; background:var(--bg) !important; color:var(--ink); }
-    #main-content { background:var(--bg) !important; padding-bottom:7rem; }
-    #main-content > div, .content-page { padding-left:1.25rem; padding-right:1.25rem; }
-    .content-page > * + * { margin-top:1.1rem; }
-    body .bg-gray-800 { background:linear-gradient(135deg,var(--p1),var(--p2)) !important; color:#fff; box-shadow:0 8px 20px -6px rgba(63,184,162,.5); }
-    body .hover\:bg-black:hover { filter:brightness(1.05); }
-    body .text-gray-800 { color:var(--ink); } body .text-gray-500, body .text-gray-400 { color:#7d9a93; }
-    body .text-blue-600, body .text-blue-700 { color:#2a9d89; } body .border-blue-600 { border-color:#3fb8a2; }
-    body .bg-blue-50, body .bg-teal-50 { background:#e6f7f2; } body .bg-blue-100 { background:#d8f3ea; }
-    body .bg-gray-50 { background:#f6fbf9; } body .bg-gray-100 { background:#ecf6f2; } body .bg-gray-200 { background:#dcece6; }
-    body .rounded, body .rounded-lg { border-radius:1rem; } body .rounded-xl { border-radius:1.5rem; } body .rounded-t-3xl, body .rounded-3xl { border-radius:2rem; }
-    body .shadow, body .shadow-sm, body .shadow-lg, body .shadow-xl, body .shadow-2xl { box-shadow:var(--soft) !important; }
-    body .border, body .border-gray-200, body .border-gray-300 { border-color:#e3f0eb; }
-    body .p-3 { padding:.9rem; } body .p-4 { padding:1.25rem; } body .p-5 { padding:1.5rem; } body .gap-2 { gap:.7rem; } body .gap-3 { gap:1rem; } body .space-y-2 > * + * { margin-top:.8rem; }
-    input, select, textarea { background:#fff; border-radius:1rem !important; border:1.5px solid #e3f0eb !important; transition:box-shadow .2s, border-color .2s; }
-    input:focus, select:focus, textarea:focus { border-color:var(--p1) !important; box-shadow:0 0 0 4px rgba(63,184,162,.18) !important; outline:none; }
-    body .focus\:ring-gray-800:focus { --tw-ring-color:transparent; }
-    .app-bar { background:linear-gradient(135deg,var(--p1),var(--p2)) !important; border-radius:0 0 2rem 2rem; box-shadow:0 14px 40px -12px rgba(63,184,162,.45); }
-    .hero { background:linear-gradient(135deg,#46bfa9,#9be3cf) !important; border-radius:2rem; padding:1.5rem 1.5rem; box-shadow:0 18px 40px -14px rgba(63,184,162,.5); }
-    .hero:after { background:rgba(255,255,255,.22); }
-    .stat-card { border-radius:1.75rem; padding:1.2rem; gap:1rem; box-shadow:0 12px 40px -12px rgba(63,184,162,.25); }
-    .stat-ic { width:3rem; height:3rem; border-radius:1.1rem; font-size:1.15rem; }
-    .stat-n { font-size:2rem; font-weight:800; color:var(--ink); letter-spacing:-.02em; line-height:1.05; }
-    .stat-l { font-size:11.5px; font-weight:600; color:#7d9a93; margin-bottom:.15rem; }
-    .bnav { border-radius:2rem; background:rgba(255,255,255,.92) !important; backdrop-filter:blur(14px); box-shadow:0 18px 50px -12px rgba(63,184,162,.35) !important; }
-    .bottom-nav-item.active, .bottom-nav-item.text-gray-800 { color:#2a9d89; }
-    .bnav-fab { background:linear-gradient(135deg,var(--p1),var(--p2)); box-shadow:0 12px 26px -6px rgba(63,184,162,.6); border:5px solid #fff; }
-    .login-bg { background:linear-gradient(160deg,#c9f1e4,#8fdcc6 55%,#5fc9b0) !important; }
-    .scan-frame { border-radius:2rem; background:#16332e; box-shadow:0 20px 44px -14px rgba(63,184,162,.5); }
-    .scan-frame .c { border-color:#9be3cf; border-radius:.8rem; }
-    #scan-result { border-radius:1.75rem !important; padding:1.25rem !important; }
-    #scan-result.bg-green-500 { background:linear-gradient(135deg,#46bfa9,#8fdcc6) !important; }
-    #scan-result.bg-yellow-500 { background:linear-gradient(135deg,#f2b84b,#ffe08a) !important; }
-    #scan-result.bg-orange-500 { background:linear-gradient(135deg,#f28b5b,#ffc09a) !important; }
-    #scan-result.bg-red-500, #scan-result.bg-red-600 { background:linear-gradient(135deg,#ec6f7d,#ffa7b0) !important; }
-    #res-nama { font-size:1.45rem; font-weight:800; }
-    .st-hadir { background:#d4f5e6 !important; color:#157a55 !important; }
-    .st-warn { background:#fff0c9 !important; color:#a8700a !important; }
-    .st-bad { background:#ffdde2 !important; color:#c0314a !important; }
-    .st-hadir, .st-warn, .st-bad { border-radius:999px; padding:.2rem .7rem; font-weight:700; }
-    body .bg-green-100 { background:#d4f5e6; } body .text-green-700 { color:#157a55; }
-    body .bg-red-100, body .bg-red-50 { background:#ffe6ea; } body .text-red-600, body .text-red-500 { color:#d8405a; }
-    body .bg-yellow-100 { background:#fff0c9; } body .bg-purple-100 { background:#ece4ff; }
-    body .bg-green-300 { background:#a9ecd0; } body .bg-yellow-300 { background:#ffe49a; } body .bg-orange-300 { background:#ffc9a6; }
-    .master-item { border-radius:1.25rem; padding:1rem .8rem; } .master-item:active { background:#ecf6f2; }
-    .master-ic { border-radius:1.1rem; width:2.8rem; height:2.8rem; }
-    .avatar { box-shadow:0 6px 14px -4px rgba(63,184,162,.4); }
   </style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
@@ -177,14 +145,14 @@
 
   <!-- LOGIN PAGE -->
   <div id="page-login" class="min-h-screen flex items-center justify-center p-4 z-50 login-bg absolute inset-0 hidden">
-    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
-      <div class="text-center mb-6">
-        <img id="login-logo" src="" alt="Logo" class="w-24 h-24 mx-auto logo-img shadow mb-3 border border-gray-200" onerror="this.style.display='none'; document.getElementById('login-icon').style.display='block';">
-        <i id="login-icon" class="fas fa-fingerprint text-5xl text-gray-800 mb-3 hidden"></i>
-        <h1 class="text-2xl font-bold text-gray-800" id="login-title">E-Absensi</h1>
-        <p class="text-xs text-gray-500 mt-1" id="login-alamat">Memuat data instansi...</p>
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div class="login-head text-center px-8 pt-8 pb-6">
+        <img id="login-logo" src="" alt="Logo" class="w-24 h-24 mx-auto logo-img mb-3" onerror="this.style.display='none'; document.getElementById('login-icon').style.display='block';">
+        <i id="login-icon" class="fas fa-fingerprint text-5xl text-white mb-3 hidden"></i>
+        <h1 class="text-2xl font-extrabold text-white" id="login-title">E-Absensi</h1>
+        <p class="text-xs text-white/80 mt-1" id="login-alamat">Memuat data instansi...</p>
       </div>
-      <form id="form-login" onsubmit="handleLogin(event)">
+      <form id="form-login" class="p-8" onsubmit="handleLogin(event)">
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Username</label>
           <input type="text" id="username" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-800 outline-none" required>
@@ -206,7 +174,7 @@
     <main class="flex-1 overflow-y-auto pb-28 bg-gray-50 h-full relative" id="main-content">
       <header class="app-bar px-4 py-3 flex justify-between items-center sticky top-0 z-20">
         <div class="flex items-center gap-3 min-w-0">
-          <img id="top-logo" src="" class="w-9 h-9 logo-img hidden" onerror="this.style.display='none';el('top-icon').style.display=''">
+          <img id="top-logo" src="" alt="Logo" class="h-10 w-auto max-w-[3.5rem] logo-img hidden" onerror="this.style.display='none';el('top-icon').style.display=''">
           <i id="top-icon" class="fas fa-mosque text-2xl text-white"></i>
           <span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span>
         </div>
@@ -273,13 +241,11 @@
             </div>
             <select id="select-sesi" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 font-bold outline-none"></select>
             <div class="flex gap-1.5 mt-3 flex-wrap items-center text-[11px]">
-              <span class="text-gray-400">Tes suara:</span>
-              <select id="tes-jk" class="border border-gray-200 rounded px-1 py-1 text-[11px] font-bold"><option value="Perempuan">Perempuan</option><option value="Laki-laki">Laki-laki</option></select>
+              <span class="text-gray-400">Tes suara digital:</span>
               <button type="button" onclick="tesSuara('success')" class="px-2 py-1 rounded bg-green-100 text-green-700 font-bold">Berhasil</button>
               <button type="button" onclick="tesSuara('late')" class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 font-bold">Terlambat</button>
               <button type="button" onclick="tesSuara('double')" class="px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold">Sudah absen</button>
               <button type="button" onclick="tesSuara('fail')" class="px-2 py-1 rounded bg-red-100 text-red-700 font-bold">Gagal</button>
-              <p id="vo-info" class="w-full text-[10px] text-gray-400"></p>
             </div>
           </div>
 
@@ -700,7 +666,6 @@
     }
     function unlockAudio() {
       try { getAudio(); } catch (e) { }
-      try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } } catch (e) { }
     }
     function tone(freq, start, dur, type, vol, slideTo) {
       const ctx = getAudio();
@@ -716,98 +681,38 @@
       o.start(t0); o.stop(t0 + dur + 0.03);
     }
     const SFX = {
-      // QR terbaca: klik pendek
-      detect: () => tone(1318, 0, 0.06, 'sine', 0.10),
-      // Berhasil: "cling!" tiga nada naik + kilau
-      success: () => {
-        tone(1047, 0.00, 0.12, 'triangle', 0.30);
-        tone(1319, 0.08, 0.12, 'triangle', 0.30);
-        tone(1568, 0.16, 0.30, 'triangle', 0.30);
-        tone(2093, 0.16, 0.38, 'sine', 0.10);
-      },
-      // Terlambat: "ting-dung" dua nada turun, ramah tapi beda
+      // QR terbaca: klik digital sangat pendek
+      detect: () => tone(2000, 0, 0.04, 'square', 0.08),
+      // Berhasil: beep tunggal nyaring dan cepat
+      success: () => tone(1760, 0, 0.13, 'square', 0.30),
+      // Terlambat: beep ganda peringatan
       late: () => {
-        tone(880, 0.00, 0.15, 'sine', 0.30);
-        tone(659, 0.15, 0.32, 'sine', 0.30);
+        tone(988, 0.00, 0.11, 'square', 0.28);
+        tone(988, 0.17, 0.11, 'square', 0.28);
+        tone(740, 0.34, 0.16, 'square', 0.24);
       },
-      // Sudah absen: "tok-tok-tuit?" dua ketukan lalu nada tanya naik
-      double: () => {
-        tone(587, 0.00, 0.08, 'triangle', 0.32);
-        tone(587, 0.13, 0.08, 'triangle', 0.32);
-        tone(784, 0.26, 0.20, 'triangle', 0.26, 1047);
-      },
-      // Gagal: "bzzt-bzzt" nada rendah turun
+      // Sudah absen: blip netral
+      double: () => tone(700, 0, 0.10, 'triangle', 0.32, 560),
+      // Gagal: buzzer rendah
       fail: () => {
-        tone(196, 0.00, 0.22, 'sawtooth', 0.18, 147);
-        tone(147, 0.25, 0.42, 'sawtooth', 0.18, 98);
+        tone(150, 0.00, 0.28, 'sawtooth', 0.30, 120);
+        tone(75, 0.00, 0.28, 'square', 0.14);
+        tone(130, 0.32, 0.38, 'sawtooth', 0.30, 90);
+        tone(65, 0.32, 0.38, 'square', 0.14);
       }
     };
+    const SFX_DUR = { success: 0.2, late: 0.55, double: 0.2, fail: 0.75, detect: 0.1 };
     function sfx(name) { if (!soundOn) return; try { SFX[name](); } catch (e) { } }
     function vibrate(p) { if (soundOn && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) { } } }
-    // ---------- VOICE OVER (suara perempuan / laki-laki sesuai jenis kelamin santri) ----------
-    // Memakai suara bawaan perangkat (Web Speech API), gratis dan tanpa internet tambahan.
-    const VO = {
-      NAMA_MAX_KATA: 3,        // nama panjang dipotong supaya suara tidak kelamaan
-      DEFAULT_JK: 'Perempuan', // dipakai untuk "gagal scan" & santri yang jenis kelaminnya belum diisi
-      // parts: teks dibacakan berurutan, angka = jeda (milidetik)
-      skenario: {
-        success: { rate: 0.92, pitch: 1.0,  parts: n => ['Alhamdulillah, verifikasi berhasil.', 200, 'Selamat belajar ' + n + ', semoga berkah.'] },
-        late:    { rate: 0.88, pitch: 0.95, parts: n => ['Bismillah, kehadiran dicatat.', 'Mari lebih disiplin dan tepat waktu esok hari,', 400, n + '.'] },
-        fail:    { rate: 1.0,  pitch: 1.0,  parts: () => ['Maaf, kartu tidak terbaca. Silakan tempelkan kembali kartu Anda.'] },
-        double:  { rate: 0.95, pitch: 1.0,  parts: n => ['Terima kasih ' + n + ', data kehadiran Anda hari ini sudah tersimpan.'] }
-      }
-    };
-    const SPEECH_OK = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
-    let voVoices = [], voToken = 0;
-    function loadVoices() { if (SPEECH_OK) voVoices = speechSynthesis.getVoices().filter(v => /^id([-_]|$)/i.test(v.lang)); }
-    if (SPEECH_OK) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
-
-    function pickVoice(jk) {
-      loadVoices();
-      const putri = /female|gadis|damayanti|wanita|perempuan|indah|google/i, putra = /\bmale\b|andika|pria|laki|ardi/i;
-      const cocok = voVoices.filter(v => jk === 'Laki-laki' ? (putra.test(v.name) && !/female/i.test(v.name)) : putri.test(v.name));
-      if (cocok.length) return { voice: cocok[0], pitch: 1, asli: true };
-      // tidak ada suara bawaan untuk gender itu: pakai suara Indonesia yang ada, bedakan lewat nada
-      return { voice: voVoices[0] || null, pitch: jk === 'Laki-laki' ? 0.65 : 1.12, asli: false };
-    }
-    function namaSuara(nama) { return String(nama || '').trim().split(/\s+/).slice(0, VO.NAMA_MAX_KATA).join(' '); }
-
-    function bicara(skn, nama, jk) {
-      return new Promise(resolve => {
-        const sc = VO.skenario[skn]; if (!SPEECH_OK || !sc) return resolve(false);
-        const p = pickVoice(jk === 'Laki-laki' ? 'Laki-laki' : (jk === 'Perempuan' ? 'Perempuan' : VO.DEFAULT_JK));
-        const token = ++voToken, parts = sc.parts(namaSuara(nama));
-        let i = 0, selesai = false;
-        const fin = () => { if (!selesai) { selesai = true; resolve(true); } };
-        setTimeout(fin, 9000); // pengaman
-        try { speechSynthesis.cancel(); } catch (e) { }
-        const next = () => {
-          if (token !== voToken || i >= parts.length) return fin();
-          const part = parts[i++];
-          if (typeof part === 'number') return setTimeout(next, part);
-          const u = new SpeechSynthesisUtterance(part);
-          u.lang = 'id-ID'; if (p.voice) u.voice = p.voice;
-          u.rate = sc.rate; u.pitch = Math.min(2, Math.max(0.1, sc.pitch * p.pitch)); u.volume = 1;
-          u.onend = next; u.onerror = next;
-          speechSynthesis.speak(u);
-        };
-        next();
-      });
-    }
-    // Suara hasil scan. Jika perangkat tidak mendukung suara bicara, jatuh ke bunyi SFX lama.
-    function suara(skn, nama, jk) {
+    // Suara hasil scan: murni sintesis digital (Web Audio API), tanpa suara orang & tanpa file audio.
+    function suara(skn) {
       if (!soundOn) return Promise.resolve();
-      if (!SPEECH_OK) { sfx(skn); return Promise.resolve(); }
-      return bicara(skn, nama, jk).then(ok => { if (!ok) sfx(skn); });
+      sfx(skn);
+      return new Promise(r => setTimeout(r, Math.round((SFX_DUR[skn] || 0.2) * 1000)));
     }
     function tesSuara(skn) {
       try { unlockAudio(); } catch (e) { }
-      const jk = (el('tes-jk') || {}).value || VO.DEFAULT_JK;
-      const p = SPEECH_OK ? pickVoice(jk) : null;
-      if (el('vo-info')) el('vo-info').innerText = !SPEECH_OK ? 'Perangkat ini tidak mendukung suara bicara, memakai bunyi biasa.'
-        : (!voVoices.length ? 'Tidak ada suara Indonesia di perangkat ini; memakai suara bawaan browser.'
-          : (p.asli ? 'Suara dipakai: ' + p.voice.name : 'Perangkat hanya punya suara ' + p.voice.name + '; dibedakan lewat nada.'));
-      suara(skn === 'detect' ? 'success' : skn, jk === 'Laki-laki' ? 'Ahmad Fauzi' : 'Aisyah Zahra', jk);
+      sfx(skn);
     }
     function updateSoundIcon() { const i = document.getElementById('icon-sound'); if (i) i.className = 'fas ' + (soundOn ? 'fa-volume-up' : 'fa-volume-mute'); }
     function toggleSound() {
@@ -823,8 +728,7 @@
       const d = new Date(), p = n => String(n).padStart(2, '0');
       c.innerText = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
     }
-    tickClock();
-    setInterval(tickClock, 1000);
+    (function loopClock() { tickClock(); setTimeout(loopClock, 1000 - (Date.now() % 1000) + 5); })();
 
     // ---------- MASTER (bottom sheet) ----------
     function bukaMaster() { el('sheet-master').classList.remove('hidden'); }
@@ -1035,7 +939,6 @@
     }
 
     function stopCustomScanner() {
-      try { voToken++; speechSynthesis.cancel(); } catch (e) { }
       if (html5QrCode && isScanning) {
         try {
           html5QrCode.stop().then(() => {
@@ -1072,9 +975,9 @@
         const st = res.data.status;
         const d = res.data.data || {};
         const namaS = d.nama || d.Nama || '', jkS = d.jk || d.Jenis_Kelamin || '';
-        if (st === 'HADIR') { cls = 'bg-green-500'; suaraSelesai = suara('success', namaS, jkS); vibrate(80); }
-        else if (st === 'TERLAMBAT') { cls = 'bg-yellow-500'; suaraSelesai = suara('late', namaS, jkS); vibrate([60, 40, 60]); }
-        else if (st === 'DOUBLE') { cls = 'bg-orange-500'; suaraSelesai = suara('double', namaS, jkS); vibrate([50, 60, 50, 60, 50]); }
+        if (st === 'HADIR') { cls = 'bg-green-500'; suaraSelesai = suara('success'); vibrate(80); }
+        else if (st === 'TERLAMBAT') { cls = 'bg-yellow-500'; suaraSelesai = suara('late'); vibrate([60, 40, 60]); }
+        else if (st === 'DOUBLE') { cls = 'bg-orange-500'; suaraSelesai = suara('double'); vibrate([50, 60, 50, 60, 50]); }
         else { cls = 'bg-red-500'; suaraSelesai = suara('fail'); vibrate(400); }
 
         el('res-status').innerText = (res.data.message === "BERHASIL" && st === "TERLAMBAT") ? "BERHASIL (TERLAMBAT)" : (res.data.message || st);
