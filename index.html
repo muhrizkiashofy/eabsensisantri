@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>E-Absensi Apps</title>
   <meta name="theme-color" content="#0f766e">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -40,7 +40,7 @@
     @keyframes up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
     @keyframes pop { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:none} }
 
-    .app-bar { background:linear-gradient(135deg,var(--p1),var(--p2)); color:#fff; border-radius:0 0 1.5rem 1.5rem; box-shadow:0 8px 24px rgba(15,118,110,.25); }
+    .app-bar { padding-top:max(calc(env(safe-area-inset-top, 0px) + 8px), 20px) !important; padding-left:max(1rem, env(safe-area-inset-left, 0px)); padding-right:max(1rem, env(safe-area-inset-right, 0px)); background:linear-gradient(135deg,var(--p1),var(--p2)); color:#fff; border-radius:0 0 1.5rem 1.5rem; box-shadow:0 8px 24px rgba(15,118,110,.25); }
     .hero { background:linear-gradient(135deg,var(--p1),var(--p2)); color:#fff; border-radius:1.5rem; padding:1.1rem 1.25rem; box-shadow:0 10px 26px rgba(15,118,110,.22); position:relative; overflow:hidden; }
     .hero:after { content:''; position:absolute; right:-30px; top:-30px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.14); }
     .stat-card { background:#fff; border-radius:1.25rem; padding:.9rem; display:flex; align-items:center; gap:.75rem; box-shadow:0 4px 18px rgba(15,118,110,.08); transition:transform .15s; }
@@ -52,6 +52,7 @@
     .bottom-nav-item.text-gray-800 { color:var(--p1); }
     .bnav-fab { width:3.5rem; height:3.5rem; margin-top:-1.75rem; border-radius:50%; display:grid; place-items:center; color:#fff; background:linear-gradient(135deg,var(--p1),var(--p2)); box-shadow:0 8px 20px rgba(16,185,129,.45); border:4px solid #fff; }
     .login-bg { background:linear-gradient(160deg,#0f766e,#10b981 55%,#a7f3d0); }
+    .av-n { background:#9ca3af; }
     .avatar { width:2.5rem; height:2.5rem; border-radius:50%; display:grid; place-items:center; font-weight:700; color:#fff; flex:none; }
     .av-l { background:linear-gradient(135deg,#0ea5e9,#2563eb); } .av-p { background:linear-gradient(135deg,#f472b6,#db2777); }
 
@@ -157,7 +158,7 @@
         <div class="flex items-center gap-3 min-w-0">
           <img id="top-logo" src="" class="w-9 h-9 logo-img hidden" onerror="this.style.display='none';el('top-icon').style.display=''">
           <i id="top-icon" class="fas fa-mosque text-2xl text-white"></i>
-          <span id="clock" class="font-semibold text-xl tabular-nums tracking-wide">--:--</span>
+          <span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span>
         </div>
         <button onclick="doLogout()" class="w-10 h-10 rounded-full bg-white/20 text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
       </header>
@@ -191,9 +192,9 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center">
-              <h3 class="font-bold text-gray-700"><i class="fas fa-list-ul text-gray-400 mr-2"></i> Pantauan Hari Ini <button type="button" onclick="refreshDashboard()" class="ml-1 w-8 h-8 rounded-full text-teal-700 hover:bg-teal-50 align-middle" title="Perbarui"><i id="ic-refresh" class="fas fa-sync-alt"></i></button></h3>
-              <span class="text-xs font-semibold bg-gray-200 text-gray-600 px-2 py-1 rounded-full" id="dash-date-label">Hari ini</span>
+            <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center gap-2">
+              <h3 class="font-bold text-gray-700 flex items-center gap-2 min-w-0"><i class="fas fa-list-ul text-gray-400 shrink-0"></i><span class="whitespace-nowrap">Pantauan Hari Ini</span><button type="button" onclick="refreshDashboard()" class="shrink-0 w-8 h-8 rounded-full text-teal-700 hover:bg-teal-50 flex items-center justify-center" title="Perbarui"><i id="ic-refresh" class="fas fa-sync-alt"></i></button></h3>
+              <span class="shrink-0 whitespace-nowrap text-xs font-semibold bg-gray-200 text-gray-600 px-2 py-1 rounded-full" id="dash-date-label">Hari ini</span>
             </div>
             <div class="px-4 py-3 border-b border-gray-100">
               <div class="relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
@@ -302,12 +303,7 @@
         <div id="page-santri" class="content-page hidden admin-only">
           <div class="flex justify-between items-center mb-3">
             <h2 class="text-xl font-bold" id="santri-title">Data Santri</h2>
-            <span id="busy-santri" class="hidden"></span><button onclick="bukaModalSantri()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-plus mr-1"></i> Tambah</button>
-          </div>
-          <div class="flex gap-2 mb-3 text-sm font-bold">
-            <button type="button" id="tab-jk-Laki-laki" onclick="setTabSantri('Laki-laki')" class="flex-1 py-2 rounded-lg border"></button>
-            <button type="button" id="tab-jk-Perempuan" onclick="setTabSantri('Perempuan')" class="flex-1 py-2 rounded-lg border"></button>
-            <button type="button" id="tab-jk-" onclick="setTabSantri('')" class="hidden flex-1 py-2 rounded-lg border"></button>
+            <span id="busy-santri" class="hidden"></span><button onclick="bukaModalSantri()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow">+ Tambah</button>
           </div>
           <input type="text" id="cari-santri" oninput="renderSantri()" placeholder="Cari nama / NIS / kelas..." class="w-full border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-800 mb-3">
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -774,9 +770,10 @@
     // ---------- JAM DIGITAL ----------
     function tickClock() {
       const c = document.getElementById('clock'); if (!c) return;
-      const d = new Date(), t = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-      if (c.innerText !== t) c.innerText = t;
+      const d = new Date(), p = n => String(n).padStart(2, '0');
+      c.innerText = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
     }
+    tickClock();
     setInterval(tickClock, 1000);
 
     // ---------- MASTER (bottom sheet) ----------
@@ -1425,33 +1422,20 @@
 
     function applySantri(data) { santriData = data; renderSantri(); renderManualSantri(); }
 
-    // Tab Laki-laki / Perempuan. Santri lama yang belum diisi jenis kelaminnya masuk tab "Belum diisi".
+    // Daftar sesuai pilihan di menu Master (Putra / Putri). Santri lama yang jenis kelaminnya belum diisi tampil di kedua daftar dengan label "JK belum diisi".
     let santriJK = 'Laki-laki';
     function jkSantri(s) { return (s.Jenis_Kelamin === 'Laki-laki' || s.Jenis_Kelamin === 'Perempuan') ? s.Jenis_Kelamin : ''; }
     function navSantri(jk) { santriJK = jk; nav('santri'); renderSantri(); }
-    function setTabSantri(jk) { santriJK = jk; renderSantri(); }
 
     function renderSantri() {
       const q = (el('cari-santri').value || '').toLowerCase();
-      const cnt = { 'Laki-laki': 0, 'Perempuan': 0, '': 0 };
-      santriData.forEach(s => cnt[jkSantri(s)]++);
-      if (santriJK === '' && !cnt['']) santriJK = 'Laki-laki';
-      const label = { 'Laki-laki': 'Putra', 'Perempuan': 'Putri', '': 'Belum diisi' };
-      if (el('santri-title')) el('santri-title').innerText = santriJK === 'Laki-laki' ? 'Santri Putra' : santriJK === 'Perempuan' ? 'Santri Putri' : 'Santri (Belum diisi)';
-      Object.keys(label).forEach(k => {
-        const b = el('tab-jk-' + k); if (!b) return;
-        b.innerText = `${label[k]} (${cnt[k]})`;
-        if (k === '') b.classList.toggle('hidden', !cnt['']);
-        const aktif = santriJK === k;
-        b.classList.toggle('bg-gray-800', aktif); b.classList.toggle('text-white', aktif);
-        b.classList.toggle('bg-white', !aktif); b.classList.toggle('text-gray-600', !aktif);
-      });
-      const rows = santriData.map((s, i) => ({ s, i })).filter(({ s }) => jkSantri(s) === santriJK && (!q || (s.Nama + ' ' + s.NIS + ' ' + s.Kelas).toLowerCase().includes(q)));
+      if (el('santri-title')) el('santri-title').innerText = santriJK === 'Perempuan' ? 'Santri Putri' : 'Santri Putra';
+      const rows = santriData.map((s, i) => ({ s, i })).filter(({ s }) => (jkSantri(s) === santriJK || jkSantri(s) === '') && (!q || (s.Nama + ' ' + s.NIS + ' ' + s.Kelas).toLowerCase().includes(q)));
       el('list-santri').innerHTML = rows.length ? rows.map(({ s, i }) => `
         <li class="p-3 flex items-center gap-3">
-          <div class="avatar ${s.Jenis_Kelamin === 'Perempuan' ? 'av-p' : 'av-l'}">${esc(String(s.Nama || '?').trim().charAt(0).toUpperCase())}</div>
+          <div class="avatar ${jkSantri(s) === 'Perempuan' ? 'av-p' : jkSantri(s) === 'Laki-laki' ? 'av-l' : 'av-n'}">${esc(String(s.Nama || '?').trim().charAt(0).toUpperCase())}</div>
           <div class="flex-1 min-w-0">
-            <p class="font-bold text-sm text-gray-800 truncate">${esc(s.Nama)} ${s.Status !== 'Aktif' ? badgeStatus(s.Status) : ''}</p>
+            <p class="font-bold text-sm text-gray-800 truncate">${esc(s.Nama)} ${s.Status !== 'Aktif' ? badgeStatus(s.Status) : ''} ${jkSantri(s) === '' ? '<span class="st-warn text-[10px] font-bold px-1.5 py-0.5 ml-1">JK belum diisi</span>' : ''}</p>
             <p class="text-[11px] text-gray-500 truncate">NIS ${esc(s.NIS)} · Kelas ${esc(s.Kelas)}${s.No_WA_Wali ? ' · WA ' + esc(s.No_WA_Wali) : ''}</p>
           </div>
           <button onclick="generateQRPDF(${i})" class="w-9 h-9 rounded-lg text-gray-500 hover:bg-gray-100" title="Cetak QR"><i class="fas fa-qrcode"></i></button>
