@@ -104,19 +104,27 @@
     /* ===== ABSENSI HARI INI + KIRIM WA (Direct WA) ===== */
 
     /* ===== HERO HEADER (satu blok: bar atas + sapaan, hanya di Dashboard) ===== */
-    .app-bar { position:relative; overflow:hidden; transition:padding .2s; }
-    .app-bar > * { position:relative; z-index:1; }
-    .app-bar.is-hero { position:relative !important; background:linear-gradient(135deg,#0b4f4a 0%,#0f766e 45%,#14b8a6 100%); border-radius:0 0 2rem 2rem; padding-bottom:3.6rem !important; box-shadow:0 14px 34px rgba(15,118,110,.35); }
-    .app-bar .glow { display:none; position:absolute; z-index:0; border-radius:50%; filter:blur(38px); pointer-events:none; }
-    .app-bar.is-hero .glow { display:block; }
+    /* Struktur: .app-bar (TANPA overflow-hidden) berisi
+         1) .hero-bg  = latar gradasi + glow, satu-satunya yang overflow-hidden & rounded
+         2) .hdr-content = jam/logo/sapaan
+         3) .hero-actions-abs = tombol aksi, absolute di dasar header, z-index tertinggi, di luar .hero-bg */
+    .app-bar { position:relative; }
+    .hero-bg { display:none; position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; border-radius:0 0 2rem 2rem; background:linear-gradient(135deg,#0b4f4a 0%,#0f766e 45%,#14b8a6 100%); box-shadow:0 14px 34px rgba(15,118,110,.35); }
+    .hdr-content { position:relative; z-index:2; }
+    .app-bar.is-hero { position:relative !important; background:transparent; box-shadow:none; border-radius:0; padding-bottom:3.4rem !important; margin-bottom:2.4rem; z-index:30; }
+    .app-bar.is-hero .hero-bg { display:block; }
+    .glow { position:absolute; border-radius:50%; filter:blur(38px); }
     .glow.g1 { width:11rem; height:11rem; right:-2.5rem; top:-3.5rem; background:rgba(94,234,212,.55); }
     .glow.g2 { width:9rem; height:9rem; left:-3rem; bottom:-2rem; background:rgba(56,189,248,.35); }
-    .glass { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.32); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 4px 14px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.35); }
+    .hero-actions-abs { display:none; position:absolute; left:0; right:0; bottom:0; transform:translateY(50%); z-index:40; padding:0 1rem; }
+    .app-bar.is-hero .hero-actions-abs { display:block; }
+    .hero-actions-inner { max-width:72rem; margin:0 auto; display:flex; gap:.75rem; }
+    @media (min-width:768px) { .hero-actions-abs { padding:0 2rem; } }
     .glass-tile { width:2.6rem; height:2.6rem; border-radius:.9rem; display:grid; place-items:center; flex:none; }
     .glass-pill { border-radius:9999px; padding:.3rem .8rem; }
     #hero-greet { display:none; margin-top:.9rem; }
     .app-bar.is-hero #hero-greet { display:block; animation:up .35s ease both; }
-    .hero-actions { margin-top:-2.4rem; position:relative; z-index:25; }
+    .glass { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.32); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 4px 14px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.35); }
     .hero-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:.55rem; padding:.95rem 1rem; border-radius:1.1rem; font-weight:800; font-size:.9rem; transition:transform .15s, box-shadow .15s; }
     .hero-btn:hover { transform:translateY(-2px); }
     .hero-btn.light { background:#fff; color:#0f5f58; border:1px solid #cfe6e3; box-shadow:0 12px 24px rgba(15,118,110,.18), 0 2px 0 #cfe6e3; }
@@ -229,21 +237,34 @@
     <!-- CONTENT -->
     <main class="flex-1 overflow-y-auto pb-28 bg-gray-50 h-full relative" id="main-content">
       <header id="app-bar" class="app-bar px-4 py-3 sticky top-0 z-20">
-        <i class="glow g1"></i><i class="glow g2"></i>
-        <div class="flex justify-between items-center">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="glass glass-tile">
-              <img id="top-logo" src="" alt="Logo" class="h-8 w-auto max-w-[2.2rem] logo-img hidden" onerror="this.style.display='none';document.getElementById('top-icon').style.display=''">
-              <i id="top-icon" class="fas fa-mosque text-xl text-white"></i>
-            </span>
-            <span class="glass glass-pill"><span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span></span>
+        <!-- 1) Latar gradasi + glow: satu-satunya elemen overflow-hidden -->
+        <div class="hero-bg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i></div>
+
+        <!-- 2) Isi header -->
+        <div class="hdr-content">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="glass glass-tile">
+                <img id="top-logo" src="" alt="Logo" class="h-8 w-auto max-w-[2.2rem] logo-img hidden" onerror="this.style.display='none';document.getElementById('top-icon').style.display=''">
+                <i id="top-icon" class="fas fa-mosque text-xl text-white"></i>
+              </span>
+              <span class="glass glass-pill"><span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span></span>
+            </div>
+            <button onclick="doLogout()" class="glass glass-tile text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
           </div>
-          <button onclick="doLogout()" class="glass glass-tile text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
+          <div id="hero-greet">
+            <p class="text-xs opacity-80">Assalamu'alaikum</p>
+            <h2 class="text-2xl font-extrabold leading-tight">Hai, <span id="welcome-name"></span></h2>
+            <p class="text-xs opacity-80 mt-1">Semoga hari ini penuh berkah</p>
+          </div>
         </div>
-        <div id="hero-greet">
-          <p class="text-xs opacity-80">Assalamu'alaikum</p>
-          <h2 class="text-2xl font-extrabold leading-tight">Hai, <span id="welcome-name"></span></h2>
-          <p class="text-xs opacity-80 mt-1">Semoga hari ini penuh berkah</p>
+
+        <!-- 3) Tombol aksi: DI LUAR .hero-bg, menempel di dasar header lalu turun setengah tinggi (overlap 3D) -->
+        <div class="hero-actions-abs">
+          <div class="hero-actions-inner">
+            <button onclick="bukaModalManual()" class="hero-btn light admin-only"><i class="fas fa-pen-to-square"></i> Input Manual</button>
+            <button onclick="unduhRekapPDF()" class="hero-btn dark admin-only"><i class="fas fa-print"></i> Cetak</button>
+          </div>
         </div>
       </header>
 
@@ -251,12 +272,6 @@
 
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="content-page hidden">
-          <!-- Tombol aksi menimpa batas bawah Hero Header -->
-          <div class="hero-actions flex gap-3 mb-5">
-            <button onclick="bukaModalManual()" class="hero-btn light admin-only"><i class="fas fa-pen-to-square"></i> Input Manual</button>
-            <button onclick="unduhRekapPDF()" class="hero-btn dark admin-only"><i class="fas fa-print"></i> Cetak</button>
-          </div>
-
           <!-- ABSENSI + NOTIFIKASI WA (semi-otomatis / Direct WA) -->
           <div class="admin-only mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
