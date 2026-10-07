@@ -102,18 +102,49 @@
     body .bg-green-300 { background:#34d399; } body .bg-yellow-300 { background:#fbbf24; } body .bg-orange-300 { background:#fb923c; }
 
     /* ===== ABSENSI HARI INI + KIRIM WA (Direct WA) ===== */
+
+    /* ===== HERO HEADER (satu blok: bar atas + sapaan, hanya di Dashboard) ===== */
+    .app-bar { position:relative; overflow:hidden; transition:padding .2s; }
+    .app-bar > * { position:relative; z-index:1; }
+    .app-bar.is-hero { position:relative !important; background:linear-gradient(135deg,#0b4f4a 0%,#0f766e 45%,#14b8a6 100%); border-radius:0 0 2rem 2rem; padding-bottom:3.6rem !important; box-shadow:0 14px 34px rgba(15,118,110,.35); }
+    .app-bar .glow { display:none; position:absolute; z-index:0; border-radius:50%; filter:blur(38px); pointer-events:none; }
+    .app-bar.is-hero .glow { display:block; }
+    .glow.g1 { width:11rem; height:11rem; right:-2.5rem; top:-3.5rem; background:rgba(94,234,212,.55); }
+    .glow.g2 { width:9rem; height:9rem; left:-3rem; bottom:-2rem; background:rgba(56,189,248,.35); }
+    .glass { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.32); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 4px 14px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.35); }
+    .glass-tile { width:2.6rem; height:2.6rem; border-radius:.9rem; display:grid; place-items:center; flex:none; }
+    .glass-pill { border-radius:9999px; padding:.3rem .8rem; }
+    #hero-greet { display:none; margin-top:.9rem; }
+    .app-bar.is-hero #hero-greet { display:block; animation:up .35s ease both; }
+    .hero-actions { margin-top:-2.4rem; position:relative; z-index:25; }
+    .hero-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:.55rem; padding:.95rem 1rem; border-radius:1.1rem; font-weight:800; font-size:.9rem; transition:transform .15s, box-shadow .15s; }
+    .hero-btn:hover { transform:translateY(-2px); }
+    .hero-btn.light { background:#fff; color:#0f5f58; border:1px solid #cfe6e3; box-shadow:0 12px 24px rgba(15,118,110,.18), 0 2px 0 #cfe6e3; }
+    .hero-btn.dark { background:linear-gradient(135deg,#0f766e,#0d9488); color:#fff; box-shadow:0 12px 24px rgba(15,118,110,.4), 0 2px 0 #0b5f58; }
+    .date-nav { display:inline-flex; align-items:center; gap:.25rem; }
+    .date-nav button.arrow { width:1.8rem; height:1.8rem; border-radius:.55rem; display:grid; place-items:center; color:#0f766e; background:#e0f2f1; font-size:12px; }
+    .date-nav button.arrow:disabled { opacity:.35; cursor:not-allowed; }
+    .tip-i { display:inline-grid; place-items:center; width:1.1rem; height:1.1rem; margin-left:.3rem; border-radius:50%; background:#0f766e; color:#fff; font-size:10px; font-weight:800; vertical-align:middle; cursor:pointer; }
+    #tip-pop { position:fixed; z-index:120; max-width:16rem; background:#0f2f2c; color:#fff; font-size:12px; line-height:1.45; padding:.6rem .75rem; border-radius:.8rem; box-shadow:0 10px 26px rgba(0,0,0,.28); display:none; }
+    .st-chip { padding:.55rem .4rem; border-radius:.8rem; font-size:12px; font-weight:800; border:2px solid transparent; background:#f1f5f4; color:#475569; }
+    .st-chip.on { color:#fff; border-color:rgba(0,0,0,.08); }
+    .st-chip.on.HADIR { background:#15803d; } .st-chip.on.TERLAMBAT { background:#f59e0b; color:#1c1917; } .st-chip.on.SAKIT { background:#2563eb; }
+    .st-chip.on.IZIN { background:#7c3aed; } .st-chip.on.ALFA { background:#dc2626; }
     .ab-stat { border-radius:1rem; padding:.9rem 1.1rem; color:#fff; box-shadow:var(--sh); }
     .ab-stat p { font-size:12px; font-weight:600; opacity:.85; }
     .ab-stat h3 { font-size:1.7rem; font-weight:800; line-height:1.1; }
     .ab-stat h3 small { font-size:.8rem; font-weight:600; opacity:.9; margin-left:.2rem; }
     .ab-blue { background:#2563eb; } .ab-green { background:#15803d; } .ab-red { background:#dc2626; }
+    .ab-stat { transition:background .25s, color .25s; }
+    .ab-stat.ab-neutral { background:#fff; color:#475569; border:1px solid var(--line); }
+    .ab-stat.ab-neutral p { opacity:1; color:#64748b; }
     .ab-tab { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem .9rem; font-size:13px; font-weight:700; border-radius:.8rem .8rem 0 0; color:#64748b; border-bottom:3px solid transparent; }
     .ab-tab.on-sudah { color:#15803d; border-bottom-color:#15803d; background:#f0fdf4; }
     .ab-tab.on-belum { color:#dc2626; border-bottom-color:#dc2626; background:#fef2f2; }
     .ab-table { border-collapse:collapse; width:100%; font-size:13px; }
-    .ab-table thead th { background:#111827; color:#fff; text-align:left; padding:.7rem .6rem; font-size:12px; font-weight:700; white-space:nowrap; }
+    .ab-table thead th { background:#dcefec; color:#0f5f58; text-align:left; padding:.7rem .6rem; font-size:12px; font-weight:800; white-space:nowrap; border-bottom:2px solid #b5dbd6; }
     .ab-table tbody td { padding:.6rem; border-bottom:1px solid #eef2f1; vertical-align:middle; }
-    .ab-table tbody tr:hover { background:#f8fafb; }
+    .ab-table tbody tr { cursor:pointer; } .ab-table tbody tr:hover { background:#f0f9f8; }
     .ab-pill { display:inline-block; padding:.15rem .5rem; border-radius:.45rem; font-size:11px; font-weight:700; font-variant-numeric:tabular-nums; }
     .ab-jam { background:#111827; color:#fff; } .ab-nis { background:#e5e7eb; color:#374151; }
     .ab-st-HADIR { background:#15803d; color:#fff; } .ab-st-TERLAMBAT { background:#f59e0b; color:#1c1917; }
@@ -197,39 +228,45 @@
 
     <!-- CONTENT -->
     <main class="flex-1 overflow-y-auto pb-28 bg-gray-50 h-full relative" id="main-content">
-      <header class="app-bar px-4 py-3 flex justify-between items-center sticky top-0 z-20">
-        <div class="flex items-center gap-3 min-w-0">
-          <img id="top-logo" src="" alt="Logo" class="h-10 w-auto max-w-[3.5rem] logo-img hidden" onerror="this.style.display='none';document.getElementById('top-icon').style.display=''">
-          <i id="top-icon" class="fas fa-mosque text-2xl text-white"></i>
-          <span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span>
+      <header id="app-bar" class="app-bar px-4 py-3 sticky top-0 z-20">
+        <i class="glow g1"></i><i class="glow g2"></i>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="glass glass-tile">
+              <img id="top-logo" src="" alt="Logo" class="h-8 w-auto max-w-[2.2rem] logo-img hidden" onerror="this.style.display='none';document.getElementById('top-icon').style.display=''">
+              <i id="top-icon" class="fas fa-mosque text-xl text-white"></i>
+            </span>
+            <span class="glass glass-pill"><span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span></span>
+          </div>
+          <button onclick="doLogout()" class="glass glass-tile text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
         </div>
-        <button onclick="doLogout()" class="w-10 h-10 rounded-full bg-white/20 text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
+        <div id="hero-greet">
+          <p class="text-xs opacity-80">Assalamu'alaikum</p>
+          <h2 class="text-2xl font-extrabold leading-tight">Hai, <span id="welcome-name"></span></h2>
+          <p class="text-xs opacity-80 mt-1">Semoga hari ini penuh berkah</p>
+        </div>
       </header>
 
       <div class="p-4 md:p-8 max-w-6xl mx-auto">
 
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="content-page hidden">
-          <div class="hero mb-4">
-            <p class="text-xs opacity-80">Assalamu'alaikum</p>
-            <h2 class="text-xl font-bold">Hai, <span id="welcome-name"></span></h2>
-            <p class="text-xs opacity-80 mt-1">Semoga hari ini penuh berkah</p>
+          <!-- Tombol aksi menimpa batas bawah Hero Header -->
+          <div class="hero-actions flex gap-3 mb-5">
+            <button onclick="bukaModalManual()" class="hero-btn light admin-only"><i class="fas fa-pen-to-square"></i> Input Manual</button>
+            <button onclick="unduhRekapPDF()" class="hero-btn dark admin-only"><i class="fas fa-print"></i> Cetak</button>
           </div>
 
-          <div class="flex gap-3 mb-3">
-            <button onclick="bukaModalManual()" class="flex-1 bg-white border border-gray-200 text-gray-800 p-4 rounded-xl shadow-sm hover:shadow flex items-center justify-center font-bold text-sm transition admin-only">
-              <i class="fas fa-edit text-gray-500 mr-2"></i> Input Manual
-            </button>
-            <button onclick="unduhRekapPDF()" class="flex-1 bg-gray-800 text-white p-4 rounded-xl shadow-sm hover:bg-black flex items-center justify-center font-bold text-sm transition admin-only">
-              <i class="fas fa-print mr-2"></i> Cetak PDF Hari Ini
-            </button>
-          </div>
-
-          <!-- ABSENSI HARI INI + NOTIFIKASI WA (semi-otomatis / Direct WA) -->
-          <div class="admin-only mt-5 mb-3 flex flex-wrap items-end justify-between gap-3">
+          <!-- ABSENSI + NOTIFIKASI WA (semi-otomatis / Direct WA) -->
+          <div class="admin-only mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h3 class="text-lg font-extrabold flex items-center gap-2"><i class="fas fa-calendar-day text-blue-600"></i> Absensi Hari Ini</h3>
-              <p class="text-xs text-gray-500 mt-0.5">Tanggal: <b id="dash-date-label">-</b></p>
+              <h3 class="text-lg font-extrabold flex items-center gap-2"><i class="fas fa-calendar-day text-teal-700"></i> <span id="dash-title">Absensi Hari Ini</span></h3>
+              <div class="date-nav mt-1">
+                <button type="button" id="btn-tgl-prev" onclick="geserTanggal(-1)" class="arrow" title="Hari sebelumnya"><i class="fas fa-chevron-left"></i></button>
+                <b id="dash-date-label" class="text-xs text-gray-600 px-1">-</b>
+                <button type="button" id="btn-tgl-next" onclick="geserTanggal(1)" class="arrow" title="Hari berikutnya"><i class="fas fa-chevron-right"></i></button>
+                <button type="button" id="btn-tgl-today" onclick="keHariIni()" class="hidden ml-1 text-[11px] font-bold text-teal-700 underline">Hari ini</button>
+              </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <button id="btn-wa-next" onclick="kirimWABerikutnya()" class="wa-main" disabled><i class="fab fa-whatsapp text-base"></i> Kirim WA Berikutnya <span id="wa-next-count"></span></button>
@@ -245,7 +282,7 @@
           <div class="admin-only grid grid-cols-3 gap-2 md:gap-3 mb-4">
             <div class="ab-stat ab-blue"><p>Total Santri</p><h3><span id="dash-total">0</span><small>Santri</small></h3></div>
             <div class="ab-stat ab-green"><p>Sudah Absen</p><h3><span id="dash-sudah">0</span><small>Santri</small></h3></div>
-            <div class="ab-stat ab-red"><p>Belum Absen</p><h3><span id="dash-belum">0</span><small>Santri</small></h3></div>
+            <div id="card-belum" class="ab-stat ab-neutral"><p>Belum Absen</p><h3><span id="dash-belum">0</span><small>Santri</small></h3></div>
           </div>
 
           <div class="admin-only bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
@@ -262,14 +299,14 @@
               <table class="ab-table">
                 <thead><tr>
                   <th style="width:2.5rem">No</th><th class="hidden md:table-cell">Jam Scan</th><th class="hidden md:table-cell">NIS</th>
-                  <th>Nama Lengkap</th><th class="hidden md:table-cell">Kelas</th><th>Status</th><th>Aksi Notif</th>
+                  <th>Nama Lengkap</th><th class="hidden md:table-cell">Kelas</th><th>Status</th>
+                  <th>Aksi Notif<span class="tip-i" role="button" tabindex="0" aria-label="Bantuan Aksi Notif" onclick="tipWA(event)" onmouseenter="tipWA(event,true)" onmouseleave="tipTutup()">i</span></th>
                 </tr></thead>
                 <tbody id="tb-absen"></tbody>
               </table>
             </div>
             <p id="pantauan-kosong" class="hidden p-6 text-center text-sm text-gray-400">Tidak ada data.</p>
           </div>
-          <p class="admin-only text-[11px] text-gray-400 -mt-3 mb-6 leading-relaxed">Tombol <b>Kirim</b> membuka WhatsApp ke nomor wali dengan draf pesan yang sudah terisi. Anda tinggal menekan ikon kirim di WhatsApp. Pesan dikirim dari HP Anda sendiri, bukan oleh bot.</p>
         </div>
 
         <!-- SCAN ABSENSI -->
@@ -461,6 +498,37 @@
     </div>
   </div>
 
+  <!-- MODAL EDIT CEPAT STATUS ABSEN -->
+  <div id="modal-edit-absen" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] overflow-y-auto">
+      <div class="p-4 border-b flex justify-between bg-gray-50">
+        <h3 class="font-bold text-gray-800">Ubah Status Absen</h3>
+        <button onclick="closeModal('modal-edit-absen')"><i class="fas fa-times text-red-500"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <p class="font-extrabold text-lg leading-tight" id="ea-nama">-</p>
+          <p class="text-xs text-gray-500 mt-0.5" id="ea-info">-</p>
+        </div>
+        <div>
+          <label class="block text-sm font-bold mb-2 text-gray-600">Status</label>
+          <div class="grid grid-cols-5 gap-1.5" id="ea-status"></div>
+        </div>
+        <div>
+          <label class="block text-sm font-bold mb-1 text-gray-600">Catatan (opsional)</label>
+          <input type="text" id="ea-catatan" class="w-full border p-3 rounded-lg outline-none" placeholder="mis. demam, izin pulang">
+        </div>
+        <div class="flex gap-2">
+          <button type="button" id="ea-hapus" onclick="hapusAbsenDash()" class="px-4 py-3 rounded-lg font-bold text-sm text-red-600 bg-red-50 hidden"><i class="fas fa-rotate-left mr-1"></i> Jadikan Belum Absen</button>
+          <button type="button" onclick="simpanEditAbsen()" class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-lg shadow">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLTIP BANTUAN -->
+  <div id="tip-pop" role="tooltip"></div>
+
   <!-- MODAL INPUT MANUAL -->
   <div id="modal-manual" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] overflow-y-auto">
@@ -626,6 +694,7 @@
     const writing = {};
     const WRITE_INVALIDATES = {
       inputManual: ['dash', 'rekap:'], scanAbsensi: ['dash', 'rekap:'], savePengaturan: [],
+      ubahStatusAbsen: ['dash', 'rekap:'], hapusAbsen: ['dash', 'rekap:'],
       addSantri: ['santri', 'dash', 'rekap:'], updateSantri: ['santri', 'dash', 'rekap:'], deleteSantri: ['santri', 'dash', 'rekap:'],
       addGuru: ['guru'], updateGuru: ['guru'], deleteGuru: ['guru'],
       addPengguna: ['user'], updatePengguna: ['user'], deletePengguna: ['user'],
@@ -906,6 +975,7 @@
       try { if (pageId !== 'scan') stopCustomScanner(); } catch (e) { }
 
       document.querySelectorAll('.content-page').forEach(e => e.classList.add('hidden'));
+      el('app-bar').classList.toggle('is-hero', pageId === 'dashboard' && auth && auth.role === 'Admin');
       const target = el(`page-${pageId}`);
       if (target) target.classList.remove('hidden');
 
@@ -1034,22 +1104,47 @@
     // DASHBOARD & CETAK HARIAN
     // =====================================================
     let dashSesiId = '';        // kosong = sesi dipilih otomatis oleh server
+    let dashTanggal = '';       // kosong = hari ini; selain itu "yyyy-MM-dd"
     let dashTab = 'sudah';
     let dashData = null;
+    let editAbsen = null;       // { tab, i, status }
+
+    function bersihkanCacheDash() { Object.keys(cache).forEach(k => { if (k.indexOf('dash') === 0) delete cache[k]; }); }
+    function dashKey() { return 'dash:' + (dashSesiId || 'auto') + ':' + (dashTanggal || 'today'); }
 
     function loadDashboard() {
-      el('dash-date-label').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const key = 'dash:' + (dashSesiId || 'auto');
-      if (!cache[key]) {
+      if (!cache[dashKey()]) {
         ['dash-total', 'dash-sudah', 'dash-belum'].forEach(id => el(id).innerText = '–');
         el('tb-absen').innerHTML = '<tr><td colspan="7" class="p-6 text-center text-sm text-gray-400"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data...</td></tr>';
       }
-      load(key, 'getAbsensiHariIni', { sesiId: dashSesiId }, renderDashboard, { busy: 'dashboard', ttl: 15000 });
+      load(dashKey(), 'getAbsensiHariIni', { sesiId: dashSesiId, tanggal: dashTanggal }, renderDashboard, { busy: 'dashboard', ttl: 15000 });
     }
 
     function refreshDashboard() { markStale(['dash']); loadDashboard(); }
     function gantiSesiDashboard() { dashSesiId = el('dash-sesi').value; loadDashboard(); }
     function setTabDash(t) { dashTab = t; renderTabelAbsen(); }
+
+    // ---------- navigasi tanggal ----------
+    function isoGeser(iso, hari) {
+      const p = iso.split('-').map(Number);
+      const d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + hari));
+      return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
+    }
+    function geserTanggal(arah) {
+      if (!dashData) return;
+      const baru = isoGeser(dashData.tanggalISO, arah);
+      if (baru > dashData.hariIniISO) return;            // tidak ada absensi di masa depan
+      dashSesiId = dashData.sesiId;                       // pertahankan sesi yang sedang dilihat
+      dashTanggal = baru === dashData.hariIniISO ? '' : baru;
+      loadDashboard();
+    }
+    function keHariIni() { dashSesiId = dashData ? dashData.sesiId : ''; dashTanggal = ''; loadDashboard(); }
+
+    function judulTanggal(d) {
+      if (d.tanggalISO === d.hariIniISO) return 'Absensi Hari Ini';
+      if (d.tanggalISO === isoGeser(d.hariIniISO, -1)) return 'Absensi Kemarin';
+      return 'Absensi ' + d.tanggal.split(', ')[1];
+    }
 
     function filterPantauan() {
       const q = (el('cari-pantauan').value || '').trim().toLowerCase();
@@ -1066,7 +1161,16 @@
       el('dash-belum').innerText = d.stats.belum;
       el('cnt-sudah').innerText = d.stats.sudah;
       el('cnt-belum').innerText = d.stats.belum;
+      // Kotak "Belum Absen": netral jika 0, merah jika ada
+      const cb = el('card-belum');
+      cb.classList.toggle('ab-neutral', d.stats.belum === 0);
+      cb.classList.toggle('ab-red', d.stats.belum > 0);
+
+      el('dash-title').innerText = judulTanggal(d);
       el('dash-date-label').innerText = d.tanggal;
+      const hariIni = d.tanggalISO === d.hariIniISO;
+      el('btn-tgl-next').disabled = hariIni;
+      el('btn-tgl-today').classList.toggle('hidden', hariIni);
 
       const sel = el('dash-sesi');
       sel.innerHTML = d.sesiList.map(s => `<option value="${esc(s.id)}">${esc(s.nama)}</option>`).join('');
@@ -1078,9 +1182,12 @@
 
     function tombolWA(tab, i, it) {
       if (!it.wa) return '<span class="wa-btn wa-off" title="Nomor WA wali belum diisi / tidak valid"><i class="fab fa-whatsapp"></i> No. WA kosong</span>';
-      if (it.terkirim) return `<button type="button" onclick="kirimWA('${tab}',${i})" class="wa-btn wa-terkirim" title="Klik untuk kirim ulang"><i class="fas fa-check"></i> Terkirim</button>`;
-      return `<button type="button" onclick="kirimWA('${tab}',${i})" class="wa-btn wa-kirim"><i class="fab fa-whatsapp"></i> Kirim</button>`;
+      if (it.terkirim) return `<button type="button" onclick="event.stopPropagation();kirimWA('${tab}',${i})" class="wa-btn wa-terkirim" title="Klik untuk kirim ulang"><i class="fas fa-check"></i> Terkirim</button>`;
+      return `<button type="button" onclick="event.stopPropagation();kirimWA('${tab}',${i})" class="wa-btn wa-kirim"><i class="fab fa-whatsapp"></i> Kirim</button>`;
     }
+
+    // Urutan: "Kirim" di atas, lalu "No. WA kosong", "Terkirim" paling bawah. Di dalam kelompok urutan asli dipertahankan.
+    function rankWA(it) { return !it.wa ? 1 : (it.terkirim ? 2 : 0); }
 
     function renderTabelAbsen() {
       if (!dashData) return;
@@ -1090,9 +1197,10 @@
       el('hint-belum').classList.toggle('hidden', tab !== 'belum');
 
       const list = dashData[tab];
-      el('tb-absen').innerHTML = list.length ? list.map((it, i) => `
-        <tr data-nama="${esc(String(it.nama || '').toLowerCase())}">
-          <td class="text-gray-500">${i + 1}</td>
+      const urut = list.map((it, i) => ({ it, i })).sort((a, b) => rankWA(a.it) - rankWA(b.it) || a.i - b.i);
+      el('tb-absen').innerHTML = urut.length ? urut.map(({ it, i }, n) => `
+        <tr data-nama="${esc(String(it.nama || '').toLowerCase())}" onclick="bukaEditAbsen('${tab}',${i})" title="Klik untuk ubah status">
+          <td class="text-gray-500">${n + 1}</td>
           <td class="hidden md:table-cell">${it.jam ? `<span class="ab-pill ab-jam">${esc(it.jam)}</span>` : '<span class="text-gray-400">-</span>'}</td>
           <td class="hidden md:table-cell"><span class="ab-pill ab-nis">${esc(it.nis)}</span></td>
           <td><span class="font-bold">${esc(it.nama)}</span>
@@ -1110,6 +1218,62 @@
       filterPantauan();
     }
 
+    // ---------- Tooltip (i) di header "Aksi Notif": hover di komputer, klik/tap di HP ----------
+    function tipWA(ev, hoverSaja) {
+      ev.stopPropagation();
+      const pop = el('tip-pop');
+      if (!hoverSaja && pop.style.display === 'block' && pop.dataset.src === 'klik') { tipTutup(true); return; }
+      pop.textContent = 'Tombol Kirim membuka WhatsApp ke nomor wali dengan draf pesan terisi. Anda tinggal menekan ikon kirim di WhatsApp. Pesan dikirim dari HP Anda sendiri, bukan oleh bot.';
+      pop.dataset.src = hoverSaja ? 'hover' : 'klik';
+      pop.style.display = 'block';
+      const r = ev.currentTarget.getBoundingClientRect();
+      const w = pop.offsetWidth;
+      pop.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+      pop.style.top = (r.bottom + 8) + 'px';
+    }
+    function tipTutup(paksa) { const p = el('tip-pop'); if (paksa || p.dataset.src !== 'klik') p.style.display = 'none'; }
+    document.addEventListener('click', () => tipTutup(true));
+
+    // ---------- Edit cepat status absen (klik baris) ----------
+    function bukaEditAbsen(tab, i) {
+      const it = dashData && dashData[tab] && dashData[tab][i];
+      if (!it) return;
+      editAbsen = { tab: tab, i: i, status: tab === 'sudah' ? it.status : 'HADIR' };
+      el('ea-nama').innerText = it.nama;
+      el('ea-info').innerText = 'NIS ' + it.nis + ' · Kelas ' + it.kelas + ' · ' + dashData.sesiNama + ' · ' + dashData.tanggal +
+        (tab === 'belum' ? ' · belum punya catatan absen' : '');
+      el('ea-catatan').value = it.catatan || '';
+      el('ea-hapus').classList.toggle('hidden', tab !== 'sudah');
+      renderChipStatus();
+      showModal('modal-edit-absen');
+    }
+    function renderChipStatus() {
+      el('ea-status').innerHTML = Object.keys(LABEL_STATUS).map(k =>
+        `<button type="button" onclick="pilihStatusEdit('${k}')" class="st-chip ${k}${editAbsen.status === k ? ' on' : ''}">${LABEL_STATUS[k]}</button>`).join('');
+    }
+    function pilihStatusEdit(k) { editAbsen.status = k; renderChipStatus(); }
+
+    async function simpanEditAbsen() {
+      if (!editAbsen) return;
+      const it = dashData[editAbsen.tab][editAbsen.i];
+      const res = await api('ubahStatusAbsen', { tanggal: dashData.tanggalISO, sesiId: dashData.sesiId, nis: it.nis, status: editAbsen.status, catatan: el('ea-catatan').value });
+      if (res.success) {
+        closeModal('modal-edit-absen');
+        toast('success', it.nama + ' diubah menjadi ' + LABEL_STATUS[editAbsen.status] + '.');
+        dashSesiId = dashData.sesiId;
+        bersihkanCacheDash();
+        loadDashboard();
+      }
+    }
+    async function hapusAbsenDash() {
+      if (!editAbsen) return;
+      const it = dashData[editAbsen.tab][editAbsen.i];
+      const c = await Swal.fire({ title: 'Jadikan belum absen?', text: 'Catatan absen ' + it.nama + ' pada sesi ini dihapus.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Ya, hapus catatan', cancelButtonText: 'Batal' });
+      if (!c.isConfirmed) return;
+      const res = await api('hapusAbsen', { tanggal: dashData.tanggalISO, sesiId: dashData.sesiId, nis: it.nis });
+      if (res.success) { closeModal('modal-edit-absen'); toast('success', 'Catatan absen dihapus.'); dashSesiId = dashData.sesiId; bersihkanCacheDash(); loadDashboard(); }
+    }
+
     // Membuka WhatsApp (aplikasi di HP / WhatsApp Web di komputer) ke nomor wali dengan draf pesan terisi.
     // window.open dipanggil LANGSUNG di dalam klik supaya tidak diblokir browser. Pesan tidak terkirim sampai admin menekan Kirim di WhatsApp.
     function kirimWA(tab, i, sudahKonfirmasi) {
@@ -1125,9 +1289,9 @@
       const w = window.open(url, '_blank');
       if (!w) { toast('warning', 'Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu klik lagi.'); return; }
 
-      it.terkirim = true;            // indikator langsung berubah jadi "Terkirim"
+      it.terkirim = true;            // tombol jadi "Terkirim" dan baris turun ke bawah
       renderTabelAbsen();
-      api('tandaiWA', { sesiId: dashData.sesiId, nis: it.nis, status: it.status }, { silent: true }).then(r => {
+      api('tandaiWA', { tanggal: dashData.tanggalISO, sesiId: dashData.sesiId, nis: it.nis, status: it.status }, { silent: true }).then(r => {
         if (!r.success) toast('warning', 'Tanda "Terkirim" belum tersimpan di server: ' + (r.message || 'koneksi terputus'));
       });
     }
@@ -1159,7 +1323,7 @@
     }
 
     function unduhRekapPDF() {
-      if (dataRekapHariIni.length === 0) { Swal.fire('Info', 'Belum ada data absensi hari ini.', 'info'); return; }
+      if (dataRekapHariIni.length === 0) { Swal.fire('Info', 'Belum ada data absensi pada tanggal ini.', 'info'); return; }
       const opsiTgl = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       const rows = dataRekapHariIni.map((row, i) => `
         <tr>
@@ -1168,7 +1332,7 @@
           <td>${esc(row.Status)}</td><td>${esc(row.Catatan || '-')}</td>
         </tr>`).join('');
       cetakHTML(
-        headerCetak('Rekapitulasi Absensi Harian — ' + new Date().toLocaleDateString('id-ID', opsiTgl)) +
+        headerCetak('Rekapitulasi Absensi Harian — ' + (dashData ? dashData.tanggal : new Date().toLocaleDateString('id-ID', opsiTgl))) +
         `<table class="bw-table"><thead><tr><th>No</th><th>NIS</th><th>Nama Santri</th><th>Kelas</th><th>Sesi</th><th>Jam</th><th>Status</th><th>Catatan</th></tr></thead><tbody>${rows}</tbody></table>`,
         'portrait');
     }
@@ -1207,6 +1371,7 @@
         // Sesi di Dashboard ikut sesi yang baru diabsen, supaya tombol "Kirim WA" santri ini langsung terlihat
         const sesiBaru = sesiData.find(s => s.Nama_Sesi === payload.sesi);
         if (sesiBaru) dashSesiId = sesiBaru.ID_Sesi;
+        dashTanggal = '';
         Swal.fire({
           icon: 'success', title: 'Berhasil',
           html: esc(res.data && res.data.updated ? 'Catatan lama diperbarui.' : 'Data manual berhasil disimpan.') +
