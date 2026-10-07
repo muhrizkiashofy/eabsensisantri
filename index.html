@@ -463,6 +463,32 @@ body .bg-white.rounded-xl,body .bg-white.rounded-lg{border-radius:1.3rem;border-
 [id^="modal-"]>div{border-radius:1.6rem}
 .swal2-confirm{background:var(--p1)!important}
 </style>
+<style id="ui-v6">
+/* Rekap: ringkasan pastel */
+.rk-card{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem .4rem;background:#fff;border-radius:1.3rem;box-shadow:var(--sh);padding:1rem .6rem}
+.rk-tile{text-align:center}
+.rk-tile p{font-size:11px;font-weight:800;color:var(--ink);margin-top:.35rem}
+.rk-n{display:inline-grid;place-items:center;min-width:3rem;height:2.6rem;padding:0 .5rem;border-radius:.8rem;color:#fff;font-weight:800;font-size:1.05rem;animation:pop .3s var(--ease) both}
+.rk-n.g{background:#6fd08c}.rk-n.b{background:#6cbfee}.rk-n.y{background:#f1c15b}.rk-n.p{background:#a99be0}.rk-n.r{background:#ef7f86}.rk-n.n{background:#8fa6bb}
+html[data-theme="dark"] .rk-card{background:#142230}
+/* Rekap: daftar santri */
+.rk-av{flex:none;width:2.5rem;height:2.5rem;border-radius:.9rem;background:var(--tint);color:var(--p1);display:grid;place-items:center;font-weight:800}
+.rk-chev{color:#a9bccb;font-size:.75rem;transition:transform .25s var(--ease)}
+.rk-chev.open{transform:rotate(90deg);color:var(--p1)}
+#rekap-list>div{transition:box-shadow .2s}
+/* Absensi Hari Ini: kartu di HP, tabel di layar besar */
+@media(max-width:639px){
+  .ab-table,.ab-table tbody{display:block;width:100%;min-width:0!important}
+  .ab-table thead{display:none}
+  .ab-table tbody tr{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:1.1rem;box-shadow:var(--sh);padding:.7rem .8rem;margin:0 0 .55rem;transition:transform .15s}
+  .ab-table tbody tr:active{transform:scale(.985)}
+  .ab-table tbody td{display:block;border:0;padding:0}
+  .ab-table tbody td:first-child{display:none}
+  .ab-table tbody td:nth-child(4){flex:1;min-width:0}
+  .ab-table tbody td[colspan]{display:block!important;flex:1;text-align:center}
+  html[data-theme="dark"] .ab-table tbody tr{background:#142230}
+}
+</style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
 
@@ -612,7 +638,7 @@ body .bg-white.rounded-xl,body .bg-white.rounded-lg{border-radius:1.3rem;border-
 
         <!-- SCAN ABSENSI -->
         <div id="page-scan" class="content-page hidden">
-          <h2 class="text-xl font-bold mb-4">Scan Absensi</h2>
+          <div class="pg-head mb-3"><button onclick="nav('dashboard')" class="pg-back" aria-label="Kembali"><i class="fas fa-arrow-left"></i></button><h2>Scan Absensi</h2></div>
           <div class="bg-white rounded-xl shadow-sm p-4 mb-4 border border-gray-100">
             <div class="flex items-center gap-2 mb-2">
               <label class="text-sm font-bold">Pilih Sesi</label>
@@ -620,20 +646,13 @@ body .bg-white.rounded-xl,body .bg-white.rounded-lg{border-radius:1.3rem;border-
               <button id="btn-sound" onclick="toggleSound()" class="ml-auto w-9 h-9 rounded-lg bg-gray-100 text-gray-600" title="Suara & getar"><i id="icon-sound" class="fas fa-volume-up"></i></button>
             </div>
             <select id="select-sesi" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 font-bold outline-none"></select>
-            <div class="flex gap-1.5 mt-3 flex-wrap items-center text-[11px]">
-              <span class="text-gray-400">Tes suara digital:</span>
-              <button type="button" onclick="tesSuara('success')" class="px-2 py-1 rounded bg-green-100 text-green-700 font-bold">Berhasil</button>
-              <button type="button" onclick="tesSuara('late')" class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 font-bold">Terlambat</button>
-              <button type="button" onclick="tesSuara('double')" class="px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold">Sudah absen</button>
-              <button type="button" onclick="tesSuara('fail')" class="px-2 py-1 rounded bg-red-100 text-red-700 font-bold">Gagal</button>
-            </div>
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
             <div id="scan-frame" class="scan-frame">
               <div id="reader" class="w-full aspect-square flex items-center justify-center">
                 <div id="scanner-placeholder" class="text-gray-400 text-sm px-6">
-                  <i class="fas fa-qrcode text-5xl mb-3 text-emerald-300"></i><br>Arahkan QR ke kamera.<br>Tekan <b>Mulai Kamera</b> untuk absen.
+                  <i class="fas fa-qrcode text-5xl mb-3 text-sky-300"></i><br>Arahkan QR ke kamera.<br>Tekan <b>Mulai Kamera</b> untuk absen.
                 </div>
               </div>
               <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><div class="scan-line"></div>
@@ -1791,10 +1810,11 @@ body .bg-white.rounded-xl,body .bg-white.rounded-lg{border-radius:1.3rem;border-
       const rata = dgPersen.length ? Math.round(dgPersen.reduce((t, s) => t + s.persen, 0) / dgPersen.length) : null;
       const totalA = d.santri.reduce((t, s) => t + s.c.A, 0);
       const totalSI = d.santri.reduce((t, s) => t + s.c.S + s.c.I, 0);
-      el('rekap-ringkas').innerHTML = `
-        <div class="bg-white rounded-xl border border-gray-100 p-3 text-center"><p class="text-[11px] text-gray-500">Rata-rata hadir</p><p class="text-xl font-extrabold ${warnaPersen(rata)}">${rata === null ? '-' : rata + '%'}</p></div>
-        <div class="bg-white rounded-xl border border-gray-100 p-3 text-center"><p class="text-[11px] text-gray-500">Sakit + Izin</p><p class="text-xl font-extrabold text-blue-600">${totalSI}</p></div>
-        <div class="bg-white rounded-xl border border-gray-100 p-3 text-center"><p class="text-[11px] text-gray-500">Alfa</p><p class="text-xl font-extrabold text-red-600">${totalA}</p></div>`;
+      const tot = k => d.santri.reduce((t, x) => t + (x.c[k] || 0), 0);
+      const rk = (v, lbl, c) => `<div class="rk-tile"><div class="rk-n ${c}">${v}</div><p>${lbl}</p></div>`;
+      el('rekap-ringkas').className = 'rk-card mb-3';
+      el('rekap-ringkas').innerHTML = rk(tot('H'), 'Hadir', 'g') + rk(tot('T'), 'Terlambat', 'b') + rk(tot('S'), 'Sakit', 'y')
+        + rk(tot('I'), 'Izin', 'p') + rk(tot('A'), 'Alfa', 'r') + rk(rata === null ? '-' : rata + '%', 'Rata-rata', 'n');
 
       el('rekap-list').innerHTML = list.length
         ? list.map(s => kartuRekap(s, d)).join('')
@@ -1814,6 +1834,7 @@ body .bg-white.rounded-xl,body .bg-white.rounded-lg{border-radius:1.3rem;border-
       return `
         <div class="bg-white rounded-xl border ${buka ? 'border-gray-400' : 'border-gray-100'} shadow-sm overflow-hidden">
           <button data-nis="${esc(s.nis)}" onclick="toggleRekap(this.dataset.nis)" class="w-full p-3 flex items-center gap-3 text-left">
+            <span class="rk-av">${esc(String(s.nama || '?').trim().charAt(0).toUpperCase())}</span>
             <div class="flex-1 min-w-0">
               <p class="font-bold text-sm text-gray-800 truncate">${esc(s.nama)}</p>
               <p class="text-[11px] text-gray-500">Kelas ${esc(s.kelas)} · NIS ${esc(s.nis)}</p>
@@ -1823,7 +1844,7 @@ body .bg-white.rounded-xl,body .bg-white.rounded-lg{border-radius:1.3rem;border-
               <p class="text-xl font-extrabold ${warnaPersen(s.persen)}">${s.persen === null ? '-' : s.persen + '%'}</p>
               <p class="text-[10px] text-gray-400">hadir</p>
             </div>
-            <i class="fas fa-chevron-${buka ? 'up' : 'down'} text-gray-300 text-xs"></i>
+            <i class="fas fa-chevron-right rk-chev ${buka ? 'open' : ''}"></i>
           </button>
           ${buka ? detailRekap(s, d) : ''}
         </div>`;
