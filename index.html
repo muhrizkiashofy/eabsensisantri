@@ -385,6 +385,10 @@ html[data-theme="dark"] .app-bar:not(.is-hero){background:var(--pat),linear-grad
 html[data-theme="dark"] .login-wrap{background:#085f52}
 html[data-theme="dark"] .lg-btn{background:#17a58c}
 </style>
+<style id="ui-v4">
+/* kotak-kotak agar transparansi logo terlihat jelas di pratinjau */
+.chk,html[data-theme="dark"] .chk{background-color:#fff!important;background-image:linear-gradient(45deg,#dfe6e3 25%,transparent 25%,transparent 75%,#dfe6e3 75%),linear-gradient(45deg,#dfe6e3 25%,transparent 25%,transparent 75%,#dfe6e3 75%)!important;background-size:12px 12px!important;background-position:0 0,6px 6px!important}
+</style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
 
@@ -658,9 +662,10 @@ html[data-theme="dark"] .lg-btn{background:#17a58c}
                 <input type="text" id="set-telepon" class="w-full border p-2 rounded outline-none">
               </div>
               <div class="mb-4">
-                <label class="block text-sm font-bold mb-1">Logo Aplikasi (.png transparan)</label>
-                <input type="file" id="set-logo" accept="image/png, image/jpeg" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
-                <img id="preview-logo" class="mt-2 w-20 h-20 object-contain border hidden bg-gray-50">
+                <label class="block text-sm font-bold mb-1">Logo Aplikasi</label>
+                <p class="text-[11px] text-gray-500 mb-2">Format asli dipertahankan. PNG dengan latar transparan tetap transparan.</p>
+                <input type="file" id="set-logo" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                <img id="preview-logo" class="mt-2 w-20 h-20 object-contain border rounded-lg hidden chk">
                 <input type="hidden" id="base64-logo">
               </div>
               <button type="submit" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition">SIMPAN PENGATURAN</button>
@@ -1952,28 +1957,56 @@ html[data-theme="dark"] .lg-btn{background:#17a58c}
     }
 
     if (el('set-logo')) {
+      // Logo disimpan sebagai data URL di satu sel Google Sheets (maks 50.000 karakter).
+      // Format asli SELALU dipertahankan: PNG transparan tetap PNG transparan, tidak pernah diubah ke JPEG.
       el('set-logo').addEventListener('change', function (e) {
-        const file = e.target.files[0];
+        const input = e.target, file = input.files[0];
         if (!file) return;
+        const BATAS = 45000;
+        const OK = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'];
+        if (OK.indexOf(file.type) === -1) { Swal.fire('Format tidak didukung', 'Gunakan PNG, JPG, WebP, GIF, atau SVG.', 'warning'); input.value = ''; return; }
+
+        const tampil = function (d) {
+          el('base64-logo').value = d;
+          el('preview-logo').src = d;
+          el('preview-logo').classList.remove('hidden');
+        };
+        const terlaluBesar = function () {
+          Swal.fire('Logo terlalu besar', 'Perkecil dimensi atau ukuran file logo (target di bawah sekitar 30 KB), lalu pilih lagi.', 'warning');
+          input.value = '';
+        };
+
         const reader = new FileReader();
-        reader.onload = function (event) {
+        reader.onload = function (ev) {
+          const asli = ev.target.result;
+          // SVG (vektor) dan GIF (bisa beranimasi) disimpan apa adanya, tidak dirasterisasi
+          if (file.type === 'image/svg+xml' || file.type === 'image/gif') { asli.length <= BATAS ? tampil(asli) : terlaluBesar(); return; }
+
           const img = new Image();
           img.onload = function () {
-            const canvas = document.createElement('canvas');
-            let width = img.width, height = img.height;
-            if (width > 160 || height > 160) {
-              if (width > height) { height *= 160 / width; width = 160; } else { width *= 160 / height; height = 160; }
+            // Sudah cukup kecil: pakai file asli tanpa diproses ulang sama sekali
+            if (asli.length <= BATAS && img.width <= 256 && img.height <= 256) { tampil(asli); return; }
+
+            // PNG: kecilkan dimensi bertahap (tetap PNG, alpha utuh). JPEG/WebP: turunkan kualitas dulu, baru dimensi.
+            const kualitas = file.type === 'image/png' ? [undefined] : [0.92, 0.8, 0.65];
+            const ukuran = [256, 192, 160, 128, 96, 64];
+            for (let a = 0; a < ukuran.length; a++) {
+              const r = Math.min(1, ukuran[a] / Math.max(img.width, img.height));
+              const w = Math.max(1, Math.round(img.width * r)), h = Math.max(1, Math.round(img.height * r));
+              const c = document.createElement('canvas'); c.width = w; c.height = h;
+              const ctx = c.getContext('2d');
+              ctx.clearRect(0, 0, w, h);                  // latar awal transparan, bukan hitam
+              ctx.imageSmoothingQuality = 'high';
+              ctx.drawImage(img, 0, 0, w, h);
+              for (let b = 0; b < kualitas.length; b++) {
+                const hasil = c.toDataURL(file.type, kualitas[b]);   // jika browser tak bisa encode WebP, otomatis jatuh ke PNG (alpha tetap)
+                if (hasil.length <= BATAS) { tampil(hasil); return; }
+              }
             }
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            let base64str = canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png');
-            if (base64str.length > 45000) base64str = canvas.toDataURL('image/jpeg', 0.8);
-            el('base64-logo').value = base64str;
-            el('preview-logo').src = base64str;
-            el('preview-logo').classList.remove('hidden');
+            terlaluBesar();
           };
-          img.src = event.target.result;
+          img.onerror = function () { Swal.fire('Gagal', 'File gambar tidak bisa dibaca.', 'error'); input.value = ''; };
+          img.src = asli;
         };
         reader.readAsDataURL(file);
       });
