@@ -100,6 +100,31 @@
     body .bg-red-100, body .bg-red-50 { background:#fecaca; } body .text-red-600, body .text-red-500 { color:#b91c1c; }
     body .bg-yellow-100 { background:#fde68a; } body .text-yellow-700 { color:#78350f; } body .bg-purple-100 { background:#ddd6fe; }
     body .bg-green-300 { background:#34d399; } body .bg-yellow-300 { background:#fbbf24; } body .bg-orange-300 { background:#fb923c; }
+
+    /* ===== ABSENSI HARI INI + KIRIM WA (Direct WA) ===== */
+    .ab-stat { border-radius:1rem; padding:.9rem 1.1rem; color:#fff; box-shadow:var(--sh); }
+    .ab-stat p { font-size:12px; font-weight:600; opacity:.85; }
+    .ab-stat h3 { font-size:1.7rem; font-weight:800; line-height:1.1; }
+    .ab-stat h3 small { font-size:.8rem; font-weight:600; opacity:.9; margin-left:.2rem; }
+    .ab-blue { background:#2563eb; } .ab-green { background:#15803d; } .ab-red { background:#dc2626; }
+    .ab-tab { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem .9rem; font-size:13px; font-weight:700; border-radius:.8rem .8rem 0 0; color:#64748b; border-bottom:3px solid transparent; }
+    .ab-tab.on-sudah { color:#15803d; border-bottom-color:#15803d; background:#f0fdf4; }
+    .ab-tab.on-belum { color:#dc2626; border-bottom-color:#dc2626; background:#fef2f2; }
+    .ab-table { border-collapse:collapse; width:100%; font-size:13px; }
+    .ab-table thead th { background:#111827; color:#fff; text-align:left; padding:.7rem .6rem; font-size:12px; font-weight:700; white-space:nowrap; }
+    .ab-table tbody td { padding:.6rem; border-bottom:1px solid #eef2f1; vertical-align:middle; }
+    .ab-table tbody tr:hover { background:#f8fafb; }
+    .ab-pill { display:inline-block; padding:.15rem .5rem; border-radius:.45rem; font-size:11px; font-weight:700; font-variant-numeric:tabular-nums; }
+    .ab-jam { background:#111827; color:#fff; } .ab-nis { background:#e5e7eb; color:#374151; }
+    .ab-st-HADIR { background:#15803d; color:#fff; } .ab-st-TERLAMBAT { background:#f59e0b; color:#1c1917; }
+    .ab-st-SAKIT { background:#2563eb; color:#fff; } .ab-st-IZIN { background:#7c3aed; color:#fff; } .ab-st-ALFA { background:#dc2626; color:#fff; }
+    .wa-btn { display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .75rem; border-radius:.6rem; font-size:12px; font-weight:700; border:1.5px solid #16a34a; white-space:nowrap; }
+    .wa-kirim { background:#fff; color:#15803d; } .wa-kirim:hover { background:#f0fdf4; }
+    .wa-terkirim { background:#16a34a; color:#fff; }
+    .wa-off { background:#e5e7eb; color:#6b7280; border-color:#d1d5db; cursor:not-allowed; }
+    .wa-main { display:inline-flex; align-items:center; gap:.45rem; background:#16a34a; color:#fff; font-weight:700; font-size:13px; padding:.55rem .95rem; border-radius:.8rem; box-shadow:var(--sh); }
+    .wa-main[disabled] { background:#9ca3af; box-shadow:none; cursor:not-allowed; }
+    .ab-ghost { display:inline-flex; align-items:center; gap:.4rem; background:#fff; color:#2563eb; border:1.5px solid #93c5fd; font-weight:700; font-size:13px; padding:.5rem .8rem; border-radius:.8rem; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -200,34 +225,51 @@
             </button>
           </div>
 
-          <button onclick="tutupSesi()" class="admin-only w-full mb-6 bg-gray-800 text-white p-4 rounded-xl shadow-sm hover:bg-black flex items-center justify-center font-bold text-sm transition"><i class="fas fa-lock mr-2"></i> Tutup Sesi Absensi &amp; Kirim WA ke Wali</button>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div class="stat-card"><div class="stat-ic" style="--c:#0f766e;--b:#ccfbf1"><i class="fas fa-users"></i></div><div><p class="stat-l">Total Santri</p><h3 class="stat-n" id="dash-total">0</h3></div></div>
-            <div class="stat-card"><div class="stat-ic" style="--c:#059669;--b:#d1fae5"><i class="fas fa-circle-check"></i></div><div><p class="stat-l">Hadir</p><h3 class="stat-n" id="dash-hadir">0</h3></div></div>
-            <div class="stat-card"><div class="stat-ic" style="--c:#d97706;--b:#fef3c7"><i class="fas fa-clock"></i></div><div><p class="stat-l">Terlambat</p><h3 class="stat-n" id="dash-telat">0</h3></div></div>
-            <div class="stat-card"><div class="stat-ic" style="--c:#e11d48;--b:#ffe4e6"><i class="fas fa-circle-xmark"></i></div><div><p class="stat-l">Tidak Hadir</p><h3 class="stat-n" id="dash-tidak-hadir">0</h3></div></div>
+          <!-- ABSENSI HARI INI + NOTIFIKASI WA (semi-otomatis / Direct WA) -->
+          <div class="admin-only mt-5 mb-3 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-extrabold flex items-center gap-2"><i class="fas fa-calendar-day text-blue-600"></i> Absensi Hari Ini</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Tanggal: <b id="dash-date-label">-</b></p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btn-wa-next" onclick="kirimWABerikutnya()" class="wa-main" disabled><i class="fab fa-whatsapp text-base"></i> Kirim WA Berikutnya <span id="wa-next-count"></span></button>
+              <button type="button" onclick="refreshDashboard()" class="ab-ghost"><i id="ic-refresh" class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center gap-2">
-              <h3 class="font-bold text-gray-700 flex items-center gap-2 min-w-0"><i class="fas fa-list-ul text-gray-400 shrink-0"></i><span class="whitespace-nowrap">Pantauan Hari Ini</span><button type="button" onclick="refreshDashboard()" class="shrink-0 w-8 h-8 rounded-full text-teal-700 hover:bg-teal-50 flex items-center justify-center" title="Perbarui"><i id="ic-refresh" class="fas fa-sync-alt"></i></button></h3>
-              <span class="shrink-0 whitespace-nowrap text-xs font-semibold bg-gray-200 text-gray-600 px-2 py-1 rounded-full" id="dash-date-label">Hari ini</span>
-            </div>
-            <div class="px-4 py-3 border-b border-gray-100">
-              <div class="relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
-                <input type="text" id="cari-pantauan" oninput="filterPantauan()" placeholder="Cari nama santri..." class="w-full border border-gray-200 rounded-full pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-800"></div>
-            </div>
-            <div class="p-0">
-              <p id="pantauan-kosong" class="hidden p-6 text-center text-sm text-gray-400">Tidak ada nama yang cocok.</p>
-              <ul id="list-ketidakhadiran" class="divide-y divide-gray-100"></ul>
-              <div id="list-empty-state" class="hidden p-8 text-center">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-gray-100 text-gray-500 rounded-full mb-3 text-xl"><i class="fas fa-check"></i></div>
-                <p class="text-gray-800 font-bold">Luar biasa!</p>
-                <p class="text-sm text-gray-500 mt-1">Semua santri hadir tepat waktu hari ini.</p>
+          <div class="admin-only mb-3 flex items-center gap-2">
+            <label for="dash-sesi" class="text-sm font-bold text-gray-600">Sesi</label>
+            <select id="dash-sesi" onchange="gantiSesiDashboard()" class="border p-2 rounded-lg bg-white text-sm font-bold outline-none"></select>
+          </div>
+
+          <div class="admin-only grid grid-cols-3 gap-2 md:gap-3 mb-4">
+            <div class="ab-stat ab-blue"><p>Total Santri</p><h3><span id="dash-total">0</span><small>Santri</small></h3></div>
+            <div class="ab-stat ab-green"><p>Sudah Absen</p><h3><span id="dash-sudah">0</span><small>Santri</small></h3></div>
+            <div class="ab-stat ab-red"><p>Belum Absen</p><h3><span id="dash-belum">0</span><small>Santri</small></h3></div>
+          </div>
+
+          <div class="admin-only bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div class="px-3 pt-2 flex flex-wrap items-end justify-between gap-2 border-b border-gray-100">
+              <div class="flex gap-1">
+                <button id="tab-sudah" onclick="setTabDash('sudah')" class="ab-tab on-sudah"><i class="fas fa-circle-check"></i> Sudah Absen (<span id="cnt-sudah">0</span>)</button>
+                <button id="tab-belum" onclick="setTabDash('belum')" class="ab-tab"><i class="fas fa-circle-xmark"></i> Belum Absen (<span id="cnt-belum">0</span>)</button>
               </div>
+              <div class="relative pb-2 flex-1 min-w-[10rem] max-w-xs"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+                <input type="text" id="cari-pantauan" oninput="filterPantauan()" placeholder="Cari nama santri..." class="w-full border border-gray-200 rounded-full pl-9 pr-3 py-2 text-sm outline-none"></div>
             </div>
+            <p id="hint-belum" class="hidden px-4 py-2 text-[12px] bg-red-50 text-red-600 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>Santri di tab ini dianggap Alfa. Kirim pesan setelah sesi selesai agar wali tidak salah paham.</p>
+            <div class="overflow-x-auto">
+              <table class="ab-table">
+                <thead><tr>
+                  <th style="width:2.5rem">No</th><th class="hidden md:table-cell">Jam Scan</th><th class="hidden md:table-cell">NIS</th>
+                  <th>Nama Lengkap</th><th class="hidden md:table-cell">Kelas</th><th>Status</th><th>Aksi Notif</th>
+                </tr></thead>
+                <tbody id="tb-absen"></tbody>
+              </table>
+            </div>
+            <p id="pantauan-kosong" class="hidden p-6 text-center text-sm text-gray-400">Tidak ada data.</p>
           </div>
+          <p class="admin-only text-[11px] text-gray-400 -mt-3 mb-6 leading-relaxed">Tombol <b>Kirim</b> membuka WhatsApp ke nomor wali dengan draf pesan yang sudah terisi. Anda tinggal menekan ikon kirim di WhatsApp. Pesan dikirim dari HP Anda sendiri, bukan oleh bot.</p>
         </div>
 
         <!-- SCAN ABSENSI -->
@@ -621,35 +663,6 @@
     function loadingBlock() { return '<div class="bg-white rounded-xl border border-gray-100 p-6 text-center text-sm text-gray-400"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data...</div>'; }
     function toast(icon, msg) { Swal.fire({ toast: true, position: 'top', icon: icon, title: msg, showConfirmButton: false, timer: 2800 }); }
 
-    // Status notifikasi WhatsApp dari backend (res.data.wa): { sent, status, message }
-    function infoWA(wa) {
-      if (!wa) return { text: '', warn: false };
-      if (wa.status === 'antri') return { text: 'Mengirim notifikasi WhatsApp...', warn: false };
-      if (wa.sent) return { text: 'Notifikasi WhatsApp terkirim ke wali.', warn: false };
-      if (wa.status === 'gagal' || wa.status === 'tanpa_nomor') {
-        let msg = wa.message || 'Notifikasi WhatsApp gagal dikirim.';
-        // Tangani pesan "Connection Closed" atau putus koneksi agar ramah pengguna
-        if (msg.includes('Connection Closed') || msg.includes('terputus') || msg.includes('offline') || msg.includes('tidak terjangkau')) {
-          msg = 'Absen aman disimpan, namun WhatsApp gagal (Server WA sedang offline/sibuk).';
-        }
-        return { text: msg, warn: true };
-      }
-      return { text: wa.message || '', warn: false }; // dilewati / nonaktif
-    }
-    
-    function notifWA(wa) {
-      const i = infoWA(wa);
-      if (i.text) toast(i.warn ? 'warning' : 'success', i.text);
-    }
-    // Kirim WA lewat panggilan TERPISAH setelah absen tersimpan, supaya layar tidak menunggu bot WhatsApp.
-    // Mengembalikan objek status WA akhir ({sent, status, message}).
-    async function kirimNotifWA(wa, nis, sesi) {
-      if (!wa || wa.status !== 'antri') return wa || null;
-      const r = await api('kirimNotifAbsen', { nis: nis, sesi: sesi }, { silent: true });
-      if (r.success) return r.data;
-      return { sent: false, status: 'gagal', message: 'Absen tersimpan, tapi WA gagal terkirim: ' + (r.message || 'tidak ada respons') };
-    }
-
     // load(): tampilkan cache dulu (instan), ambil data terbaru di latar belakang bila sudah lewat ttl
     function load(key, action, payload, render, opts) {
       opts = opts || {};
@@ -1010,10 +1023,6 @@
         el('res-nis').innerText = decodedText; el('res-jam').innerText = "-";
       }
       resBox.className = "mt-4 text-center px-4 py-3 rounded-lg shadow block text-white " + cls;
-      if (res.success && res.data && res.data.wa) {
-        const dScan = res.data.data || {};
-        kirimNotifWA(res.data.wa, dScan.nis, dScan.sesi).then(notifWA);
-      }
 
       Promise.all([new Promise(r => setTimeout(r, 1800)), suaraSelesai]).then(() => {
         resBox.classList.add('hidden');
@@ -1024,97 +1033,112 @@
     // =====================================================
     // DASHBOARD & CETAK HARIAN
     // =====================================================
-    function loadDashboard() {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      el('dash-date-label').innerText = new Date().toLocaleDateString('id-ID', options);
+    let dashSesiId = '';        // kosong = sesi dipilih otomatis oleh server
+    let dashTab = 'sudah';
+    let dashData = null;
 
-      if (!cache.dash) {
-        ['dash-total', 'dash-hadir', 'dash-telat', 'dash-tidak-hadir'].forEach(id => el(id).innerText = '–');
-        el('list-empty-state').classList.add('hidden');
-        el('list-ketidakhadiran').classList.remove('hidden');
-        el('list-ketidakhadiran').innerHTML = loadingRow();
+    function loadDashboard() {
+      el('dash-date-label').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const key = 'dash:' + (dashSesiId || 'auto');
+      if (!cache[key]) {
+        ['dash-total', 'dash-sudah', 'dash-belum'].forEach(id => el(id).innerText = '–');
+        el('tb-absen').innerHTML = '<tr><td colspan="7" class="p-6 text-center text-sm text-gray-400"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data...</td></tr>';
       }
-      load('dash', 'getDashboardSummaryData', {}, renderDashboard, { busy: 'dashboard', ttl: 15000 });
+      load(key, 'getAbsensiHariIni', { sesiId: dashSesiId }, renderDashboard, { busy: 'dashboard', ttl: 15000 });
     }
 
     function refreshDashboard() { markStale(['dash']); loadDashboard(); }
+    function gantiSesiDashboard() { dashSesiId = el('dash-sesi').value; loadDashboard(); }
+    function setTabDash(t) { dashTab = t; renderTabelAbsen(); }
+
     function filterPantauan() {
       const q = (el('cari-pantauan').value || '').trim().toLowerCase();
-      const items = el('list-ketidakhadiran').querySelectorAll('li[data-nama]'); let n = 0;
-      items.forEach(li => { const ok = !q || li.dataset.nama.indexOf(q) !== -1; li.style.display = ok ? '' : 'none'; if (ok) n++; });
-      el('pantauan-kosong').classList.toggle('hidden', !(q && items.length && !n));
+      const rows = el('tb-absen').querySelectorAll('tr[data-nama]'); let n = 0;
+      rows.forEach(tr => { const ok = !q || tr.dataset.nama.indexOf(q) !== -1; tr.style.display = ok ? '' : 'none'; if (ok) n++; });
+      el('pantauan-kosong').classList.toggle('hidden', !(rows.length && !n));
     }
 
     function renderDashboard(d) {
+      dashData = d;
+      dataRekapHariIni = d.allToday || [];
       el('dash-total').innerText = d.stats.total;
-      el('dash-hadir').innerText = d.stats.hadir;
-      el('dash-telat').innerText = d.stats.telat;
-      el('dash-tidak-hadir').innerText = d.stats.tidakHadir;
+      el('dash-sudah').innerText = d.stats.sudah;
+      el('dash-belum').innerText = d.stats.belum;
+      el('cnt-sudah').innerText = d.stats.sudah;
+      el('cnt-belum').innerText = d.stats.belum;
+      el('dash-date-label').innerText = d.tanggal;
 
-      dataRekapHariIni = d.allToday;
-      const listContainer = el('list-ketidakhadiran');
-      const emptyState = el('list-empty-state');
+      const sel = el('dash-sesi');
+      sel.innerHTML = d.sesiList.map(s => `<option value="${esc(s.id)}">${esc(s.nama)}</option>`).join('');
+      sel.value = d.sesiId;
+      renderTabelAbsen();
+    }
 
-      if (d.masalahList.length === 0) {
-        listContainer.innerHTML = '';
-        listContainer.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-      } else {
-        listContainer.classList.remove('hidden');
-        emptyState.classList.add('hidden');
-        listContainer.innerHTML = d.masalahList.map(item => {
-          let badgeClass = ""; let statusText = item.status;
-          if (item.status === "TELAT" || item.status === "TERLAMBAT") {
-            badgeClass = "st-warn border-transparent"; statusText = `TELAT (${item.jam})`;
-          } else if (item.status === "SAKIT") { badgeClass = "bg-blue-100 text-blue-700 border-blue-200";
-          } else if (item.status === "IZIN") { badgeClass = "st-warn border-transparent";
-          } else if (item.status === "ALFA") { badgeClass = "st-bad border-transparent"; statusText = "TIDAK HADIR"; }
+    const LABEL_STATUS = { HADIR: 'Hadir', TERLAMBAT: 'Terlambat', SAKIT: 'Sakit', IZIN: 'Izin', ALFA: 'Alfa' };
 
-          return `
-            <li data-nama="${esc(String(item.nama || '').toLowerCase())}" class="p-4 hover:bg-gray-50 flex items-center justify-between border-b border-gray-100">
-              <div class="flex flex-col">
-                <span class="font-bold text-gray-800 text-sm md:text-base">${esc(item.nama)}</span>
-                <span class="text-xs text-gray-500 mt-1"><i class="fas fa-comment-dots mr-1"></i> ${esc(item.catatan)}</span>
-              </div>
-              <div class="text-right"><span class="border px-2 py-1 rounded text-xs font-bold ${badgeClass}">${esc(statusText)}</span></div>
-            </li>`;
-        }).join('');
-      }
+    function tombolWA(tab, i, it) {
+      if (!it.wa) return '<span class="wa-btn wa-off" title="Nomor WA wali belum diisi / tidak valid"><i class="fab fa-whatsapp"></i> No. WA kosong</span>';
+      if (it.terkirim) return `<button type="button" onclick="kirimWA('${tab}',${i})" class="wa-btn wa-terkirim" title="Klik untuk kirim ulang"><i class="fas fa-check"></i> Terkirim</button>`;
+      return `<button type="button" onclick="kirimWA('${tab}',${i})" class="wa-btn wa-kirim"><i class="fab fa-whatsapp"></i> Kirim</button>`;
+    }
+
+    function renderTabelAbsen() {
+      if (!dashData) return;
+      const tab = dashTab;
+      el('tab-sudah').className = 'ab-tab' + (tab === 'sudah' ? ' on-sudah' : '');
+      el('tab-belum').className = 'ab-tab' + (tab === 'belum' ? ' on-belum' : '');
+      el('hint-belum').classList.toggle('hidden', tab !== 'belum');
+
+      const list = dashData[tab];
+      el('tb-absen').innerHTML = list.length ? list.map((it, i) => `
+        <tr data-nama="${esc(String(it.nama || '').toLowerCase())}">
+          <td class="text-gray-500">${i + 1}</td>
+          <td class="hidden md:table-cell">${it.jam ? `<span class="ab-pill ab-jam">${esc(it.jam)}</span>` : '<span class="text-gray-400">-</span>'}</td>
+          <td class="hidden md:table-cell"><span class="ab-pill ab-nis">${esc(it.nis)}</span></td>
+          <td><span class="font-bold">${esc(it.nama)}</span>
+            <span class="md:hidden block text-[11px] text-gray-500">${esc(it.nis)} · Kelas ${esc(it.kelas)}${it.jam ? ' · ' + esc(it.jam) : ''}</span>
+            ${it.catatan ? `<span class="block text-[11px] text-gray-500"><i class="fas fa-comment-dots mr-1"></i>${esc(it.catatan)}</span>` : ''}</td>
+          <td class="hidden md:table-cell">${esc(it.kelas)}</td>
+          <td><span class="ab-pill ab-st-${esc(it.status)}">${esc(LABEL_STATUS[it.status] || it.status)}</span></td>
+          <td>${tombolWA(tab, i, it)}</td>
+        </tr>`).join('')
+        : `<tr><td colspan="7" class="p-6 text-center text-sm text-gray-400">${tab === 'sudah' ? 'Belum ada santri yang absen pada sesi ini.' : 'Semua santri sudah absen.'}</td></tr>`;
+
+      const sisa = list.filter(it => it.wa && !it.terkirim).length;
+      el('wa-next-count').innerText = sisa ? '(' + sisa + ')' : '';
+      el('btn-wa-next').disabled = !sisa;
       filterPantauan();
     }
 
-    async function tutupSesi() {
-      if (!sesiData.length) await loadJadwal('dashboard');
-      const aktif = sesiData.filter(s => s.Status === 'Aktif');
-      if (!aktif.length) { Swal.fire('Info', 'Belum ada sesi aktif.', 'info'); return; }
-      const cur = el('select-sesi') ? el('select-sesi').value : '';
-      const opts = aktif.map(s => `<option value="${esc(s.ID_Sesi)}" ${s.ID_Sesi === cur ? 'selected' : ''}>${esc(s.Nama_Sesi)}</option>`).join('');
-      const r = await Swal.fire({
-        title: 'Tutup Sesi Absensi',
-        html: `<p style="font-size:13px;color:#6b7280;margin-bottom:10px">Pesan WhatsApp dikirim ke wali yang belum menerima notifikasi pada sesi ini (mis. santri tidak hadir). Yang sudah terkirim otomatis saat absen dilewati.</p><select id="ts-sesi" class="swal2-select" style="width:100%;margin:0">${opts}</select>`,
-        showCancelButton: true, confirmButtonText: 'Lihat penerima', cancelButtonText: 'Batal', confirmButtonColor: '#0f766e',
-        preConfirm: () => document.getElementById('ts-sesi').value
+    // Membuka WhatsApp (aplikasi di HP / WhatsApp Web di komputer) ke nomor wali dengan draf pesan terisi.
+    // window.open dipanggil LANGSUNG di dalam klik supaya tidak diblokir browser. Pesan tidak terkirim sampai admin menekan Kirim di WhatsApp.
+    function kirimWA(tab, i, sudahKonfirmasi) {
+      const it = dashData && dashData[tab] && dashData[tab][i];
+      if (!it) return;
+      if (!it.wa) { toast('warning', 'Nomor WA wali belum diisi atau tidak valid.'); return; }
+      if (it.terkirim && !sudahKonfirmasi) {
+        Swal.fire({ title: 'Kirim ulang?', text: it.nama + ' sudah ditandai Terkirim. Buka WhatsApp lagi?', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, buka lagi', cancelButtonText: 'Batal', confirmButtonColor: '#16a34a' })
+          .then(r => { if (r.isConfirmed) kirimWA(tab, i, true); });
+        return;
+      }
+      const url = 'https://wa.me/' + it.wa + '?text=' + encodeURIComponent(it.pesan);
+      const w = window.open(url, '_blank');
+      if (!w) { toast('warning', 'Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu klik lagi.'); return; }
+
+      it.terkirim = true;            // indikator langsung berubah jadi "Terkirim"
+      renderTabelAbsen();
+      api('tandaiWA', { sesiId: dashData.sesiId, nis: it.nis, status: it.status }, { silent: true }).then(r => {
+        if (!r.success) toast('warning', 'Tanda "Terkirim" belum tersimpan di server: ' + (r.message || 'koneksi terputus'));
       });
-      if (!r.isConfirmed) return;
-      const pv = await api('previewTutupSesi', { sesiId: r.value });
-      if (!pv.success) return;
-      const p = pv.data;
-      if (!p.akanKirim) { Swal.fire('Tidak ada yang dikirim', `Tanpa nomor WA: ${p.tanpaNomor}. Sudah terkirim sebelumnya: ${p.sudahTerkirim}.`, 'info'); return; }
-      const c = await Swal.fire({
-        title: 'Kirim rekap WA?', icon: 'question',
-        html: `<b>${esc(p.sesi)}</b><br>Akan dikirim ke <b>${p.akanKirim}</b> wali.<br><span style="font-size:12px;color:#6b7280">Hadir ${p.hadir}, Terlambat ${p.terlambat}, Izin/Sakit${p.izinSakit}, Tidak hadir ${p.alfa}.<br>Tanpa nomor WA:${p.tanpaNomor}. Sudah terkirim sebelumnya: ${p.sudahTerkirim}.</span>`,
-        showCancelButton: true, confirmButtonText: 'Kirim sekarang', cancelButtonText: 'Batal', confirmButtonColor: '#0f766e'
-      });
-      if (!c.isConfirmed) return;
-      Swal.fire({ title: 'Mengirim pesan...', text: 'Jangan tutup halaman ini.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-      const res = await api('tutupSesi', { sesiId: r.value }, { silent: true });
-      Swal.close();
-      if (!res.success) { Swal.fire('Gagal', res.message, 'error'); return; }
-      const d = res.data;
-      let info = `Terkirim: <b>${d.terkirim}</b> &nbsp; Gagal: <b>${d.gagal}</b>`;
-      if (d.sisa) info += `<br>Belum terkirim: <b>${d.sisa}</b> (tekan tombol lagi untuk melanjutkan)`;
-      if (d.gagalNama.length) info += `<br><span style="font-size:12px;color:#6b7280">Gagal: ${d.gagalNama.map(esc).join('; ')}</span>`;
-      Swal.fire({ title: d.sisa || d.gagal ? 'Selesai sebagian' : 'Rekap terkirim', html: info, icon: d.gagal || d.sisa ? 'warning' : 'success' });
+    }
+
+    // Buka chat wali berikutnya yang belum ditandai Terkirim (pada tab yang sedang dibuka).
+    function kirimWABerikutnya() {
+      if (!dashData) return;
+      const list = dashData[dashTab];
+      const i = list.findIndex(it => it.wa && !it.terkirim);
+      if (i === -1) { toast('info', 'Semua wali di tab ini sudah ditandai Terkirim.'); return; }
+      kirimWA(dashTab, i);
     }
 
     function cetakHTML(html, orientation) {
@@ -1180,21 +1204,13 @@
       const res = await api('inputManual', payload);
       if (res.success) {
         closeModal('modal-manual');
-        const waAwal = res.data && res.data.wa;
-        const infoAwal = infoWA(waAwal);
-        const waHasil = kirimNotifWA(waAwal, payload.nis, payload.sesi); // berjalan di latar belakang
-        
-        // Modal ramah pengguna agar sukses absensi tetap tampil berwarna hijau "success"
+        // Sesi di Dashboard ikut sesi yang baru diabsen, supaya tombol "Kirim WA" santri ini langsung terlihat
+        const sesiBaru = sesiData.find(s => s.Nama_Sesi === payload.sesi);
+        if (sesiBaru) dashSesiId = sesiBaru.ID_Sesi;
         Swal.fire({
           icon: 'success', title: 'Berhasil',
           html: esc(res.data && res.data.updated ? 'Catatan lama diperbarui.' : 'Data manual berhasil disimpan.') +
-            '<br><span id="wa-info" style="font-size:13px;color:#6b7280;margin-top:10px;display:inline-block;">' + esc(infoAwal.text) + '</span>'
-        });
-        
-        waHasil.then(w => {
-          const i = infoWA(w), e = document.getElementById('wa-info');
-          if (e) { e.style.color = i.warn ? '#b45309' : '#6b7280'; e.textContent = i.text; }
-          else if (i.text) toast(i.warn ? 'warning' : 'success', i.text);
+            '<br><span style="font-size:13px;color:#6b7280;margin-top:10px;display:inline-block;">Kirim kabar ke wali lewat tombol <b>Kirim</b> di daftar Absensi Hari Ini.</span>'
         });
         form.reset(); loadDashboard();
       }
