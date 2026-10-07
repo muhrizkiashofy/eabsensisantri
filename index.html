@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <script>try{if(localStorage.getItem("eabsensi_theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
   <title>E-Absensi Apps</title>
   <meta name="theme-color" content="#0c7c6b">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -239,7 +240,7 @@ button,a{touch-action:manipulation}
 .hg-name{font-size:1.45rem;font-weight:800;line-height:1.25;letter-spacing:-.02em;margin-top:.15rem}
 .hero-btn{border-radius:1rem;padding:.9rem 1rem;box-shadow:0 6px 18px rgba(16,35,31,.12)!important}
 .hero-btn.light{background:#fff;color:var(--p1);border:0}
-.hero-btn.dark{background:var(--ink);color:#fff;border:0}
+.hero-btn.dark{background:#10231f;color:#fff;border:0}
 .hero-btn:hover{transform:none}.hero-btn:active{transform:scale(.97)}
 /* menu cepat */
 .qm-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.2rem 0 1.2rem}
@@ -261,7 +262,7 @@ button,a{touch-action:manipulation}
 .ab-tab{border-radius:.7rem .7rem 0 0}
 .ab-pill{border-radius:999px;padding:.18rem .6rem}
 .ab-st-HADIR{background:#d8f3e5;color:#0b5d3b}.ab-st-TERLAMBAT{background:#fdecc8;color:#7a4a05}.ab-st-SAKIT{background:#dce9fb;color:#1d4f9c}.ab-st-IZIN{background:#e8e0fb;color:#4f2fa6}.ab-st-ALFA{background:#fbdcdd;color:#a31d28}
-.ab-jam{background:var(--ink)}
+.ab-jam{background:#10231f;color:#fff}
 .wa-btn{border-radius:999px}.wa-main{border-radius:999px}.ab-ghost{border-radius:999px;color:var(--p1);border-color:#b7ddd5}
 .date-nav button.arrow{background:var(--tint);color:var(--p1)}
 /* input */
@@ -280,7 +281,7 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
 @keyframes tab{from{transform:scaleX(0)}}
 .bnav-fab{width:3.4rem;height:3.4rem;margin-top:-1.5rem;border:0;box-shadow:0 8px 18px rgba(12,124,107,.4);transition:transform .2s var(--ease)}
 .bnav-fab:active{transform:scale(.92)}
-#bnav-scan.text-gray-800 .bnav-fab{background:var(--ink);box-shadow:0 8px 18px rgba(16,35,31,.35)}
+#bnav-scan.text-gray-800 .bnav-fab{background:#10231f;box-shadow:0 8px 18px rgba(16,35,31,.35)}
 /* scan */
 .scan-frame{border-radius:1.75rem;background:#0b1f1b}
 .scan-frame .c{border-color:#7ee8d3;filter:none}
@@ -298,10 +299,91 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
 [id^="modal-"] .fa-times{color:var(--mut)!important}
 @media(max-width:639px){[id^="modal-"]{align-items:flex-end!important;padding:0!important}[id^="modal-"]>div{max-width:none!important;border-radius:1.6rem 1.6rem 0 0;animation:slideup .3s var(--ease) both}}
 .sheet-panel{animation:slideup .3s var(--ease) both;border-radius:1.8rem 1.8rem 0 0!important}
-#mini-busy{background:var(--ink)}
+#mini-busy{background:#10231f;color:#fff}
 .swal2-popup{border-radius:1.5rem!important;font-family:'Plus Jakarta Sans',sans-serif!important}
 .swal2-confirm{border-radius:.9rem!important;background:var(--p1)!important}.swal2-cancel{border-radius:.9rem!important}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+
+<style id="ui-v3">
+/* logo transparan: tanpa kotak, tanpa latar */
+.logo-img,.logo-tile,.lg-mark img{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;outline:0}
+.logo-tile{display:grid;place-items:center;flex:none;height:2.6rem;min-width:2.6rem}
+.logo-tile img{height:2.5rem;width:auto;max-width:3.4rem;object-fit:contain}
+/* header: gradasi hijau + motif halus */
+.hero-bg,.app-bar{--pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M22 3l19 19-19 19L3 22z' fill='none' stroke='%23fff' stroke-opacity='.08' stroke-width='1.2'/%3E%3Ccircle cx='22' cy='22' r='2' fill='%23fff' fill-opacity='.09'/%3E%3C/svg%3E")}
+.hero-bg{background:var(--pat),linear-gradient(135deg,#075a4e 0%,#0c7c6b 55%,#1a9a84 100%)!important;background-size:44px 44px,auto!important}
+.app-bar:not(.is-hero){background:var(--pat),linear-gradient(135deg,#075a4e,#0c7c6b);background-size:44px 44px,auto}
+.hero-bg:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.14))}
+.app-bar.is-hero{padding-bottom:4.2rem!important;margin-bottom:3rem}
+#hero-greet{margin-top:1.1rem;padding-right:1rem}
+/* filter kelas & modal riwayat */
+#filter-kelas{background:#f5f8f7;max-width:9.5rem}
+.rw-bulan{display:inline-block;margin-top:.5rem;padding:.15rem .6rem;border-radius:999px;background:var(--tint);color:var(--p1);font-size:11px;font-weight:800}
+.rw-top{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.8rem}
+.rw-pct{font-size:2.2rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.rw-cap{font-size:12px;color:var(--mut)}
+.rw-chips{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin-bottom:.9rem}
+.rw-c{border-radius:.9rem;padding:.55rem .2rem;text-align:center;animation:pop .3s var(--ease) both}
+.rw-c b{display:block;font-size:1.15rem;font-weight:800;line-height:1.1}.rw-c span{font-size:10px;font-weight:700}
+.rw-c.H{background:#d8f3e5;color:#0b5d3b}.rw-c.T{background:#fdecc8;color:#7a4a05}.rw-c.S{background:#dce9fb;color:#1d4f9c}.rw-c.I{background:#e8e0fb;color:#4f2fa6}.rw-c.A{background:#fbdcdd;color:#a31d28}
+.rw-cal{border:1px solid var(--line);border-radius:1rem;overflow:hidden}
+.rw-cal>div{border-top:0!important}
+/* ===== MODE GELAP ===== */
+#btn-theme i{transition:transform .4s var(--ease)}
+#btn-theme:active i{transform:rotate(40deg) scale(.8)}
+html,body,#main-content,.bnav,.lg-card,.ab-stat,[id^="modal-"]>div,.sheet-panel,input,select{transition:background-color .3s,border-color .3s,color .3s}
+html[data-theme="dark"]{color-scheme:dark;--bg:#0d1614;--ink:#e5eeeb;--mut:#9db0aa;--line:#233531;--tint:#173530;--p1:#17a58c;--p2:#11876f;--sh:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25)}
+html[data-theme="dark"] body,html[data-theme="dark"] #main-content{background:var(--bg);color:var(--ink)}
+html[data-theme="dark"] .bg-white,html[data-theme="dark"] .lg-card,html[data-theme="dark"] .bnav{background:#15211e!important}
+html[data-theme="dark"] .bg-gray-50,html[data-theme="dark"] .bg-gray-100{background:#1a2824!important}
+html[data-theme="dark"] .bg-gray-200{background:#22332f!important}
+html[data-theme="dark"] .text-gray-800,html[data-theme="dark"] .text-gray-700,html[data-theme="dark"] .text-gray-900{color:var(--ink)!important}
+html[data-theme="dark"] .text-gray-600,html[data-theme="dark"] .text-gray-500,html[data-theme="dark"] .text-gray-400{color:var(--mut)!important}
+html[data-theme="dark"] .border-gray-100,html[data-theme="dark"] .border-gray-200,html[data-theme="dark"] .border-gray-300,html[data-theme="dark"] .divide-gray-100>*{border-color:var(--line)!important}
+html[data-theme="dark"] .bg-white.rounded-xl,html[data-theme="dark"] .bg-white.rounded-lg{border-color:var(--line)}
+html[data-theme="dark"] .hover\:bg-gray-100:hover,html[data-theme="dark"] .hover\:bg-blue-50:hover{background:#1f302b!important}
+html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea,html[data-theme="dark"] #filter-kelas{background:#1a2824!important;border-color:#2a3f3a!important;color:var(--ink)}
+html[data-theme="dark"] input:focus,html[data-theme="dark"] select:focus{background:#1d2e29!important;border-color:var(--p1)!important}
+html[data-theme="dark"] ::placeholder{color:#6f847d}
+html[data-theme="dark"] .ab-stat{background:#15211e!important;border-color:var(--line)}
+html[data-theme="dark"] .ab-stat.ab-red{background:#2c1719!important;border-color:#512a2d}
+html[data-theme="dark"] .ab-stat.ab-blue{--c:#6ea3ff}
+html[data-theme="dark"] .ab-stat.ab-green{--c:#4fd1a1}
+html[data-theme="dark"] .ab-table thead th{background:#1a2824;color:var(--mut);border-color:var(--line)}
+html[data-theme="dark"] .ab-table tbody td{border-color:#1f2f2b}
+html[data-theme="dark"] .ab-table tbody tr:hover{background:#1a2a26}
+html[data-theme="dark"] .ab-tab.on-sudah{background:#12281f}html[data-theme="dark"] .ab-tab.on-belum{background:#2c1719}
+html[data-theme="dark"] .ab-nis{background:#22332f;color:var(--ink)}
+html[data-theme="dark"] .ab-st-HADIR,html[data-theme="dark"] .rw-c.H{background:#12382b;color:#8fe3b8}
+html[data-theme="dark"] .ab-st-TERLAMBAT,html[data-theme="dark"] .rw-c.T{background:#3a2d0e;color:#f5c969}
+html[data-theme="dark"] .ab-st-SAKIT,html[data-theme="dark"] .rw-c.S{background:#14294a;color:#9cc2ff}
+html[data-theme="dark"] .ab-st-IZIN,html[data-theme="dark"] .rw-c.I{background:#261b48;color:#c3b2ff}
+html[data-theme="dark"] .ab-st-ALFA,html[data-theme="dark"] .rw-c.A{background:#3a1519;color:#ff9aa1}
+html[data-theme="dark"] .wa-kirim{background:#15211e;color:#5ee0a0}
+html[data-theme="dark"] .wa-off{background:#22332f;color:#8aa09a;border-color:#2f4540}
+html[data-theme="dark"] .ab-ghost{background:#15211e;color:#5ee0c4;border-color:#2a4b44}
+html[data-theme="dark"] .date-nav button.arrow{background:var(--tint);color:#5ee0c4}
+html[data-theme="dark"] .hero-btn.light{background:#e9f3f0;color:#0a5f52}
+html[data-theme="dark"] .hero-btn.dark{background:#000;border:1px solid #2a3f3a}
+html[data-theme="dark"] .qm{color:var(--ink)}
+html[data-theme="dark"] .qm span{background:color-mix(in srgb,var(--c) 22%,#15211e)}
+html[data-theme="dark"] .master-item{color:var(--ink)}html[data-theme="dark"] .master-item:active{background:#1f302b}
+html[data-theme="dark"] [id^="modal-"]>div>div:first-child{background:#15211e!important;border-color:var(--line)!important}
+html[data-theme="dark"] .st-chip{background:#1f302b;color:var(--mut)}
+html[data-theme="dark"] .bg-green-100{background:#12382b}html[data-theme="dark"] .text-green-700{color:#8fe3b8}
+html[data-theme="dark"] .bg-red-100,html[data-theme="dark"] .bg-red-50{background:#3a1519}html[data-theme="dark"] .text-red-600,html[data-theme="dark"] .text-red-500{color:#ff9aa1}
+html[data-theme="dark"] .bg-yellow-100{background:#3a2d0e}html[data-theme="dark"] .text-yellow-700{color:#f5c969}
+html[data-theme="dark"] .bg-orange-100{background:#3a210e}html[data-theme="dark"] .bg-purple-100{background:#261b48}html[data-theme="dark"] .text-purple-700{color:#c3b2ff}
+html[data-theme="dark"] .bg-blue-100{background:#14294a}html[data-theme="dark"] .text-blue-700,html[data-theme="dark"] .text-blue-600{color:#9cc2ff}
+html[data-theme="dark"] .bg-teal-50,html[data-theme="dark"] .bg-blue-50{background:#173530}
+html[data-theme="dark"] .sheet-panel .bg-gray-200{background:#2a3f3a!important}
+html[data-theme="dark"] #loader{background:rgba(13,22,20,.92)}
+html[data-theme="dark"] .swal2-popup{background:#15211e;color:var(--ink)}html[data-theme="dark"] .swal2-title,html[data-theme="dark"] .swal2-html-container{color:var(--ink)!important}
+html[data-theme="dark"] .hero-bg{background:var(--pat),linear-gradient(135deg,#053f37 0%,#085f52 55%,#0f7d6a 100%)!important;background-size:44px 44px,auto!important}
+html[data-theme="dark"] .app-bar:not(.is-hero){background:var(--pat),linear-gradient(135deg,#053f37,#085f52);background-size:44px 44px,auto}
+html[data-theme="dark"] .login-wrap{background:#085f52}
+html[data-theme="dark"] .lg-btn{background:#17a58c}
 </style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
@@ -353,13 +435,16 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
         <div class="hdr-content">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-3 min-w-0">
-              <span class="glass glass-tile">
-                <img id="top-logo" src="" alt="Logo" class="h-8 w-auto max-w-[2.2rem] logo-img hidden" onerror="this.style.display='none';document.getElementById('top-icon').style.display=''">
+              <span class="logo-tile">
+                <img id="top-logo" src="" alt="Logo" class="logo-img hidden" onerror="this.style.display='none';document.getElementById('top-icon').style.display=''">
                 <i id="top-icon" class="fas fa-mosque text-xl text-white"></i>
               </span>
               <span class="glass glass-pill"><span id="clock" class="font-semibold text-lg tabular-nums tracking-wide whitespace-nowrap">--:--:--</span></span>
             </div>
-            <button onclick="doLogout()" class="glass glass-tile text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="flex items-center gap-2">
+              <button id="btn-theme" onclick="toggleTheme()" class="glass glass-tile text-white" title="Mode gelap / terang" aria-label="Ganti mode gelap atau terang"><i id="ic-theme" class="fas fa-moon"></i></button>
+              <button onclick="doLogout()" class="glass glass-tile text-white" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
           </div>
           <div id="hero-greet">
             <p class="hg-sub" id="hero-date"></p>
@@ -422,6 +507,7 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
               </div>
               <div class="relative pb-2 flex-1 min-w-[10rem] max-w-xs"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
                 <input type="text" id="cari-pantauan" oninput="filterPantauan()" placeholder="Cari nama santri..." class="w-full border border-gray-200 rounded-full pl-9 pr-3 py-2 text-sm outline-none"></div>
+              <div class="pb-2 shrink-0"><select id="filter-kelas" onchange="filterPantauan()" aria-label="Filter kelas" class="border border-gray-200 rounded-full px-3 py-2 text-sm font-bold outline-none"><option value="">Semua Kelas</option></select></div>
             </div>
             <p id="hint-belum" class="hidden px-4 py-2 text-[12px] bg-red-50 text-red-600 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>Santri di tab ini dianggap Alfa. Kirim pesan setelah sesi selesai agar wali tidak salah paham.</p>
             <div class="overflow-x-auto">
@@ -652,6 +738,22 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
           <button type="button" onclick="simpanEditAbsen()" class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-lg shadow">Simpan</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL RIWAYAT SANTRI (bulan berjalan) -->
+  <div id="modal-riwayat" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4" onclick="if(event.target===this)closeModal('modal-riwayat')">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] overflow-y-auto">
+      <div class="p-4 border-b flex justify-between items-start gap-3">
+        <div class="min-w-0">
+          <h3 class="font-extrabold text-gray-800 leading-tight" id="rw-nama">-</h3>
+          <p class="text-xs text-gray-500 mt-0.5" id="rw-info">-</p>
+          <p class="rw-bulan" id="rw-bulan">-</p>
+        </div>
+        <button onclick="closeModal('modal-riwayat')" aria-label="Tutup"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-4" id="rw-body"></div>
+      <div class="px-4 pb-4"><button type="button" onclick="ubahDariRiwayat()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg"><i class="fas fa-pen mr-2"></i>Ubah status absen</button></div>
     </div>
   </div>
 
@@ -1278,7 +1380,8 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
     function filterPantauan() {
       const q = (el('cari-pantauan').value || '').trim().toLowerCase();
       const rows = el('tb-absen').querySelectorAll('tr[data-nama]'); let n = 0;
-      rows.forEach(tr => { const ok = !q || tr.dataset.nama.indexOf(q) !== -1; tr.style.display = ok ? '' : 'none'; if (ok) n++; });
+      const kls = el('filter-kelas') ? el('filter-kelas').value : '';
+      rows.forEach(tr => { const ok = (!q || tr.dataset.nama.indexOf(q) !== -1) && (!kls || tr.dataset.kelas === kls); tr.style.display = ok ? '' : 'none'; if (ok) n++; });
       el('pantauan-kosong').classList.toggle('hidden', !(rows.length && !n));
     }
 
@@ -1326,9 +1429,10 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
       el('hint-belum').classList.toggle('hidden', tab !== 'belum');
 
       const list = dashData[tab];
+      isiFilterKelas();
       const urut = list.map((it, i) => ({ it, i })).sort((a, b) => rankWA(a.it) - rankWA(b.it) || a.i - b.i);
       el('tb-absen').innerHTML = urut.length ? urut.map(({ it, i }, n) => `
-        <tr data-nama="${esc(String(it.nama || '').toLowerCase())}" onclick="bukaEditAbsen('${tab}',${i})" title="Klik untuk ubah status">
+        <tr data-nama="${esc(String(it.nama || '').toLowerCase())}" data-kelas="${esc(String(it.kelas || ''))}" onclick="bukaRiwayat('${tab}',${i})" title="Klik untuk lihat riwayat bulan ini">
           <td class="text-gray-500">${n + 1}</td>
           <td class="hidden md:table-cell">${it.jam ? `<span class="ab-pill ab-jam">${esc(it.jam)}</span>` : '<span class="text-gray-400">-</span>'}</td>
           <td class="hidden md:table-cell"><span class="ab-pill ab-nis">${esc(it.nis)}</span></td>
@@ -2033,6 +2137,69 @@ body button[class*="bg-gray-800"]:hover{background:var(--p2)}
   function tgl() { if (hd) hd.textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
   tgl(); setInterval(tgl, 60000);
 })();
+</script>
+
+<script>
+// ===== Mode gelap / terang =====
+function terapkanTema(gelap) {
+  var r = document.documentElement;
+  if (gelap) r.setAttribute('data-theme', 'dark'); else r.removeAttribute('data-theme');
+  var ic = document.getElementById('ic-theme'); if (ic) ic.className = 'fas ' + (gelap ? 'fa-sun' : 'fa-moon');
+  var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', gelap ? '#085f52' : '#0c7c6b');
+}
+function toggleTheme() {
+  var gelap = document.documentElement.getAttribute('data-theme') !== 'dark';
+  terapkanTema(gelap);
+  try { localStorage.setItem('eabsensi_theme', gelap ? 'dark' : 'light'); } catch (e) { }
+}
+terapkanTema(document.documentElement.getAttribute('data-theme') === 'dark');
+
+// ===== Filter kelas di tabel Absensi Hari Ini =====
+function isiFilterKelas() {
+  var sel = document.getElementById('filter-kelas'); if (!sel || !dashData) return;
+  var set = {};
+  (dashData.sudah || []).concat(dashData.belum || []).forEach(function (it) { if (it.kelas !== undefined && it.kelas !== '') set[String(it.kelas)] = 1; });
+  var daftar = Object.keys(set).sort(function (a, b) { return a.localeCompare(b, 'id', { numeric: true }); });
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">Semua Kelas</option>' + daftar.map(function (k) { return '<option value="' + esc(k) + '">Kelas ' + esc(k) + '</option>'; }).join('');
+  sel.value = daftar.indexOf(cur) !== -1 ? cur : '';
+}
+
+// ===== Riwayat absen santri (bulan berjalan) =====
+var riwayatCtx = null;
+function bukaRiwayat(tab, i) {
+  var it = dashData && dashData[tab] && dashData[tab][i]; if (!it) return;
+  var nis = String(it.nis);
+  riwayatCtx = { tab: tab, i: i, nis: nis };
+  var ym = String(dashData.hariIniISO || '').slice(0, 7) || ymStr();
+  el('rw-nama').innerText = it.nama;
+  el('rw-info').innerText = 'NIS ' + it.nis + ' · Kelas ' + it.kelas;
+  el('rw-bulan').innerText = BULAN[parseInt(ym.slice(5), 10) - 1] + ' ' + ym.slice(0, 4);
+  el('rw-body').innerHTML = loadingBlock();
+  showModal('modal-riwayat');
+  load('rekap:' + ym + ':ALL', 'getRekapBulanan', { bulan: ym, sesi: 'ALL' }, function (d) {
+    if (riwayatCtx && riwayatCtx.nis === nis) renderRiwayat(d);
+  }, { ttl: 30000 }).then(function (d) {
+    if (!d && riwayatCtx && riwayatCtx.nis === nis && el('rw-body').innerText.indexOf('Memuat') !== -1)
+      el('rw-body').innerHTML = '<p class="text-sm text-gray-500 text-center py-6">Riwayat belum bisa dimuat. Tutup lalu coba lagi.</p>';
+  });
+}
+function renderRiwayat(d) {
+  var s = d.santri.find(function (x) { return String(x.nis) === riwayatCtx.nis; });
+  if (!s) { el('rw-body').innerHTML = '<p class="text-sm text-gray-500 text-center py-6">Belum ada data bulan ini untuk santri ini.</p>'; return; }
+  var chips = ['H', 'T', 'S', 'I', 'A'].map(function (k) {
+    return '<div class="rw-c ' + k + '"><b>' + (s.c[k] || 0) + '</b><span>' + KODE[k].label + '</span></div>';
+  }).join('');
+  el('rw-body').innerHTML =
+    '<div class="rw-top"><p class="rw-pct ' + warnaPersen(s.persen) + '">' + (s.persen === null ? '-' : s.persen + '%') + '</p>' +
+    '<p class="rw-cap">kehadiran · ' + (d.totalSesiEfektif || 0) + ' sesi tercatat bulan ini</p></div>' +
+    '<div class="rw-chips">' + chips + '</div>' +
+    '<div class="rw-cal">' + detailRekap(s, d) + '</div>';
+}
+function ubahDariRiwayat() {
+  if (!riwayatCtx) return;
+  var c = riwayatCtx; closeModal('modal-riwayat'); bukaEditAbsen(c.tab, c.i);
+}
 </script>
 </body>
 </html>
