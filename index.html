@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
@@ -617,12 +617,9 @@ html[data-theme="dark"] .rk-card{background:#142230}
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
             <div id="scan-frame" class="scan-frame">
-              <div id="reader" class="w-full aspect-square flex items-center justify-center">
-                <div id="scanner-placeholder" class="text-gray-400 text-sm px-6">
-                  <i class="fas fa-qrcode text-5xl mb-3 text-sky-300"></i><br>Arahkan QR ke kamera.<br>Tekan <b>Mulai Kamera</b> untuk absen.
-                </div>
-              </div>
-              <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><div class="scan-line"></div>
+              <div id="reader" class="w-full aspect-square"></div>
+<div id="scanner-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 text-sm px-6 text-center"><i class="fas fa-qrcode text-5xl mb-3 text-sky-300"></i>Arahkan QR ke kamera.<br>Tekan <b>Mulai Kamera</b> untuk absen.</div>
+<i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><div class="scan-line"></div>
             </div>
             <div class="mt-4 flex gap-2 justify-center">
               <button onclick="startCustomScanner()" id="btn-start-scan" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-black w-full max-w-xs transition"><i class="fas fa-play mr-2"></i> Mulai Kamera</button>
@@ -1241,6 +1238,275 @@ html[data-theme="dark"] .rk-card{background:#142230}
       el('list-santri').innerHTML = html;
     }
 
+    /* ===== PERBAIKAN v3 (menimpa fungsi lama yang rusak / hilang) ===== */
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const normT = t => { const m = String(t || '').match(/(\d{1,2}):(\d{2})/); if (!m) return ''; let h = +m[1]; if (/PM/i.test(t) && h < 12) h += 12; if (/AM/i.test(t) && h === 12) h = 0; return String(h).padStart(2, '0') + ':' + m[2]; };
+    
+    // api() tidak boleh mengembalikan undefined (sesi habis -> reload)
+    const _api = api;
+    api = async function (...a) { return (await _api(...a)) || { success: false, message: 'Sesi berakhir' }; };
+    
+    const _showApp = showApp;
+    showApp = function () {
+      _showApp();
+      if (auth.role !== 'Admin') el('bnav-dashboard').style.display = 'none';
+      el('ic-theme').className = document.documentElement.getAttribute('data-theme') === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    };
+    
+    // ---------- SESI ----------
+    function sesiAktif() { return sesiData.filter(s => s.Status === 'Aktif'); }
+    function sesiAuto() {
+      const now = new Date().toTimeString().slice(0, 5); let p = null;
+      sesiAktif().slice().sort((a, b) => normT(a.Jam_Mulai).localeCompare(normT(b.Jam_Mulai))).forEach(s => { if (!p || normT(s.Jam_Mulai) <= now) p = s; });
+      return p;
+    }
+    function applyJadwal(data) {
+      sesiData = data || [];
+      const o = sesiAktif().map(s => `<option value="${esc(s.ID_Sesi)}">${esc(s.Nama_Sesi)} (${esc(normT(s.Jam_Mulai))} - ${esc(normT(s.Batas_Terlambat))})</option>`).join('') || '<option value="">-- Tidak ada sesi aktif --</option>';
+      ['select-sesi', 'man-sesi'].forEach(id => { const e = el(id); if (e) { const v = e.value; e.innerHTML = o; if (v) e.value = v; } });
+      const a = sesiAuto(); if (a && el('select-sesi') && !el('select-sesi').dataset.set) { el('select-sesi').value = a.ID_Sesi; el('select-sesi').dataset.set = 1; }
+    }
+    
+    // ---------- SCANNER (placeholder di luar #reader; error asli ditampilkan) ----------
+    let scanBusy = false;
+    function scanUI(on) {
+      el('btn-start-scan').classList.toggle('hidden', on); el('btn-stop-scan').classList.toggle('hidden', !on);
+      el('scanner-placeholder').classList.toggle('hidden', on); el('scan-frame').classList.toggle('scanning', on);
+    }
+    async function startCustomScanner() {
+      if (isScanning) return;
+      if (!window.Html5Qrcode) { Swal.fire('Scanner belum siap', 'Pustaka scanner gagal dimuat. Periksa koneksi lalu muat ulang halaman.', 'error'); return; }
+      try {
+        html5QrCode = new Html5Qrcode('reader');
+        await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * .7); return { width: s, height: s }; } }, onScanSuccess, () => {});
+        isScanning = true; scanUI(true);
+      } catch (err) {
+        const m = String((err && err.message) || err);
+        const pesan = /Permission|NotAllowed|denied/i.test(m) ? 'Izin kamera ditolak. Klik ikon gembok di address bar lalu izinkan kamera.'
+          : /NotFound|Requested device/i.test(m) ? 'Kamera tidak ditemukan di perangkat ini.'
+          : /secure|https/i.test(m) ? 'Kamera hanya bisa dipakai lewat HTTPS.' : /NotReadable|in use/i.test(m) ? 'Kamera sedang dipakai aplikasi/tab lain.' : m;
+        try { await html5QrCode.clear(); } catch (e) {}
+        isScanning = false; scanUI(false);
+        Swal.fire('Kamera tidak dapat diakses', pesan, 'error');
+      }
+    }
+    async function stopCustomScanner() {
+      if (!html5QrCode) return;
+      try { if (isScanning) await html5QrCode.stop(); html5QrCode.clear(); } catch (e) {}
+      isScanning = false; scanUI(false);
+    }
+    function onScanSuccess(txt) {
+      const now = Date.now();
+      if (scanBusy || (txt === lastScanned && now - lastScanTime < 3000)) return;
+      lastScanned = txt; lastScanTime = now;
+      const sesiId = el('select-sesi').value;
+      if (!sesiId) { toast('warning', 'Pilih sesi dulu'); return; }
+      suara('detect'); scanBusy = true;
+      api('scanAbsensi', { nis: String(txt).trim(), sesiId }, { noMini: true, bg: true, silent: true }).then(res => {
+        const sr = el('scan-result');
+        sr.classList.remove('hidden', 'bg-green-500', 'bg-yellow-500', 'bg-red-500');
+        if (res.success) {
+          const r = res.data, d = r.data;
+          el('res-status').innerText = r.status === 'DOUBLE' ? 'SUDAH ABSEN' : r.status === 'TERLAMBAT' ? 'TERLAMBAT' : 'BERHASIL';
+          el('res-nama').innerText = d.nama; el('res-nis').innerText = d.nis; el('res-jam').innerText = String(d.jam).slice(0, 8);
+          if (r.status === 'DOUBLE') { sr.classList.add('bg-yellow-500'); suara('late'); }
+          else if (r.status === 'TERLAMBAT') { sr.classList.add('bg-red-500'); suara('late'); }
+          else { sr.classList.add('bg-green-500'); suara('success'); }
+        } else {
+          sr.classList.add('bg-red-500'); el('res-status').innerText = 'GAGAL'; el('res-nama').innerText = res.message;
+          el('res-nis').innerText = txt; el('res-jam').innerText = '-'; suara('fail');
+        }
+        clearTimeout(onScanSuccess.t); onScanSuccess.t = setTimeout(() => sr.classList.add('hidden'), 3500);
+      }).finally(() => { scanBusy = false; });
+    }
+    
+    // ---------- DASHBOARD ----------
+    let dashView = [];
+    function loadDashboard(force) {
+      const key = 'dash|' + dashDate + '|' + dashSesi;
+      if (force) markStale(['dash']);
+      load(key, 'getAbsensiHariIni', { tanggal: dashDate, sesiId: dashSesi }, applyDashboard, { busy: 'dashboard' });
+    }
+    function refreshDashboard() { loadDashboard(true); }
+    function applyDashboard(data) {
+      if (!data) return;
+      dashData = data; dashSesi = data.sesiId;
+      el('dash-sesi').innerHTML = data.sesiList.map(s => `<option value="${esc(s.id)}">${esc(s.nama)}</option>`).join('');
+      el('dash-sesi').value = data.sesiId;
+      ['total', 'sudah', 'belum'].forEach(k => el('dash-' + k).innerText = data.stats[k]);
+      el('cnt-sudah').innerText = data.stats.sudah; el('cnt-belum').innerText = data.stats.belum;
+      el('dash-date-label').innerText = data.tanggal;
+      el('btn-tgl-today').classList.toggle('hidden', data.tanggalISO === data.hariIniISO);
+      el('btn-tgl-next').disabled = data.tanggalISO >= data.hariIniISO;
+      const cur = el('filter-kelas').value, kls = [...new Set([...data.sudah, ...data.belum].map(x => x.kelas))].sort();
+      el('filter-kelas').innerHTML = '<option value="">Semua Kelas</option>' + kls.map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join('');
+      el('filter-kelas').value = cur;
+      renderDashboardTable();
+    }
+    function gantiSesiDashboard() { dashSesi = el('dash-sesi').value; loadDashboard(); }
+    function geserTanggal(d) {
+      if (!dashData.tanggalISO) return;
+      const t = new Date(dashData.tanggalISO + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + d);
+      const s = t.toISOString().slice(0, 10); if (s > dashData.hariIniISO) return;
+      dashDate = s; loadDashboard();
+    }
+    function renderDashboardTable() {
+      const q = el('cari-pantauan').value.toLowerCase(), k = el('filter-kelas').value;
+      dashView = (dashData[dashTab] || []).filter(x => (!q || x.nama.toLowerCase().includes(q) || x.nis.toLowerCase().includes(q)) && (!k || x.kelas === k));
+      el('pantauan-kosong').classList.toggle('hidden', dashView.length > 0);
+      let unsent = 0;
+      el('tb-absen').innerHTML = dashView.map((x, i) => {
+        const bisa = !!x.wa; if (bisa && !x.terkirim) unsent++;
+        const btn = !bisa ? `<button class="wa-btn wa-off" disabled><i class="fab fa-whatsapp"></i> No. WA kosong</button>`
+          : `<button class="wa-btn ${x.terkirim ? 'wa-terkirim' : 'wa-kirim'}"><i class="fab fa-whatsapp"></i> ${x.terkirim ? 'Terkirim' : 'Kirim WA'}</button>`;
+        return `<tr data-i="${i}"><td class="text-center font-bold text-gray-400">${i + 1}</td>
+          <td class="hidden md:table-cell"><span class="ab-pill ab-jam">${esc(x.jam || '-')}</span></td>
+          <td class="hidden md:table-cell"><span class="ab-pill ab-nis">${esc(x.nis)}</span></td>
+          <td><p class="font-bold text-sm text-gray-800 leading-tight">${esc(x.nama)}</p>${x.catatan ? `<p class="text-[11px] text-red-500 mt-1 font-semibold">${esc(x.catatan)}</p>` : ''}</td>
+          <td class="hidden md:table-cell font-bold text-gray-600 text-xs">${esc(x.kelas)}</td>
+          <td><span class="ab-pill ab-st-${esc(x.status)}">${esc(x.status)}</span></td><td>${btn}</td></tr>`;
+      }).join('');
+      el('btn-wa-next').disabled = unsent === 0; el('wa-next-count').innerText = unsent ? `(${unsent})` : '';
+    }
+    document.addEventListener('click', e => {
+      const tr = e.target.closest('#tb-absen tr[data-i]'); if (!tr) return;
+      const x = dashView[+tr.dataset.i]; if (!x) return;
+      if (e.target.closest('.wa-btn')) { if (!e.target.closest('.wa-off')) kirimWA(null, x.wa, encodeURIComponent(x.pesan), x.nis, x.status); }
+      else bukaEditAbsen(x.nis, x.nama, x.status, x.catatan);
+    });
+    function kirimWABerikutnya() { const b = el('tb-absen').querySelector('.wa-kirim'); if (b) b.click(); }
+    
+    // ---------- INPUT MANUAL (ikut tanggal & sesi dashboard) ----------
+    function bukaModalManual() {
+      const isi = () => { fillSantriManual(); if (dashData.sesiId && el('man-sesi').querySelector(`option[value="${dashData.sesiId}"]`)) el('man-sesi').value = dashData.sesiId; };
+      if (!santriData.length) load('santri', 'getSantri', {}, d => { santriData = d; isi(); }, { silent: true }); else isi();
+      el('man-catatan').value = ''; showModal('modal-manual');
+    }
+    function submitManual(e) {
+      e.preventDefault();
+      const id = el('man-sesi').value, s = sesiData.find(x => x.ID_Sesi === id);
+      if (!el('man-nis').value || !s) { toast('warning', 'Pilih santri dan sesi'); return; }
+      api('inputManual', { nis: el('man-nis').value, sesi: s.Nama_Sesi, status: el('man-status').value, catatan: el('man-catatan').value, tanggal: dashData.tanggalISO || '' }).then(res => {
+        if (res.success) { toast('success', 'Tersimpan'); closeModal('modal-manual'); dashSesi = id; loadDashboard(true); }
+      });
+    }
+    
+    // ---------- MASTER: Putra / Putri terpisah ----------
+    let santriJK = 'Laki-laki';
+    function pilihMaster(t) { tutupMaster(); if (t === 'guru') nav('guru'); else { santriJK = t; nav('santri'); } }
+    function setJK(j) { santriJK = j; renderSantri(); }
+    function renderSantri() {
+      const q = el('cari-santri').value.toLowerCase();
+      const kosong = santriData.filter(s => !s.Jenis_Kelamin).length;
+      el('santri-title').innerText = santriJK === 'Perempuan' ? 'Data Santri Putri' : santriJK === '' ? 'Santri Belum Diatur Jenis Kelaminnya' : 'Data Santri Putra';
+      if (!el('jk-seg')) el('cari-santri').insertAdjacentHTML('beforebegin', '<div id="jk-seg" class="flex gap-1 mb-3 bg-gray-200 p-1 rounded-xl text-sm font-bold"></div>');
+      const tab = (v, l) => `<button onclick="setJK('${v}')" class="flex-1 py-2 rounded-lg ${santriJK === v ? 'bg-gray-800 text-white' : 'text-gray-500'}">${l}</button>`;
+      el('jk-seg').innerHTML = tab('Laki-laki', 'Putra') + tab('Perempuan', 'Putri') + (kosong ? tab('', `Belum diatur (${kosong})`) : '');
+      const l = santriData.map((s, i) => [s, i]).filter(([s]) => (s.Jenis_Kelamin || '') === santriJK && (!q || (s.Nama + s.NIS + s.Kelas).toLowerCase().includes(q)));
+      el('list-santri').innerHTML = l.map(([s, i]) => `<li class="p-3 flex justify-between items-center gap-2 text-sm cursor-pointer" onclick="formSantri(${i})">
+        <span class="min-w-0"><b class="block truncate">${esc(s.Nama)}</b><span class="text-xs text-gray-500">${esc(s.NIS)} · ${esc(s.Kelas)}${s.Status !== 'Aktif' ? ' · Nonaktif' : ''}</span></span><i class="fas fa-edit text-blue-500"></i></li>`).join('') || '<li class="p-6 text-center text-sm text-gray-400">Belum ada data.</li>';
+    }
+    
+    // ---------- FORM CRUD GENERIK ----------
+    function openForm(judul, fields, v, onSave, onDel) {
+      let m = el('modal-form');
+      if (!m) { m = document.createElement('div'); m.id = 'modal-form'; m.className = 'fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4'; document.body.appendChild(m); }
+      m.innerHTML = `<div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] overflow-y-auto"><div class="p-4 border-b flex justify-between bg-gray-50"><h3 class="font-bold">${esc(judul)}</h3><button type="button" onclick="closeModal('modal-form')"><i class="fas fa-times text-red-500"></i></button></div>
+      <form class="p-5 space-y-3">${fields.map(f => `<div><label class="block text-sm font-bold mb-1 text-gray-600">${esc(f.l)}</label>${f.o
+        ? `<select name="${f.k}" class="w-full border p-3 rounded-lg outline-none">${f.o.map(o => `<option value="${esc(o[0])}" ${String(v[f.k] ?? '') === o[0] ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>`
+        : `<input name="${f.k}" type="${f.t || 'text'}" value="${esc(f.t === 'password' ? '' : v[f.k])}" placeholder="${esc(f.p || '')}" ${f.ro && v[f.k] ? 'readonly' : ''} class="w-full border p-3 rounded-lg outline-none">`}</div>`).join('')}
+      <div class="flex gap-2 pt-2">${onDel ? '<button type="button" id="f-del" class="px-4 py-3 rounded-lg font-bold text-sm text-red-600 bg-red-50">Hapus</button>' : ''}<button type="submit" class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-lg">Simpan</button></div></form></div>`;
+      const f = m.querySelector('form');
+      f.onsubmit = e => { e.preventDefault(); const d = {}; new FormData(f).forEach((x, k) => d[k] = x); onSave(d); };
+      if (onDel) m.querySelector('#f-del').onclick = () => Swal.fire({ title: 'Hapus data ini?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal' }).then(r => r.isConfirmed && onDel());
+      showModal('modal-form');
+    }
+    function simpan(action, data, key, reload) { api(action, { data }).then(r => { if (r.success) { closeModal('modal-form'); toast('success', 'Tersimpan'); reload(); } }); }
+    const STAT = [['Aktif', 'Aktif'], ['Nonaktif', 'Nonaktif']];
+    function formSantri(i) {
+      const s = i === undefined ? { Jenis_Kelamin: santriJK || 'Laki-laki', Status: 'Aktif' } : santriData[i], baru = i === undefined;
+      openForm(baru ? 'Tambah Santri' : 'Ubah Santri', [
+        { k: 'NIS', l: 'NIS (jangan diubah bila QR sudah dicetak)', ro: 1 }, { k: 'Nama', l: 'Nama' }, { k: 'Kelas', l: 'Kelas' }, { k: 'No_WA_Wali', l: 'No. WA Wali', t: 'tel' },
+        { k: 'Jenis_Kelamin', l: 'Jenis Kelamin', o: [['Laki-laki', 'Laki-laki (Putra)'], ['Perempuan', 'Perempuan (Putri)']] }, { k: 'Status', l: 'Status', o: STAT }], s,
+        d => { santriJK = d.Jenis_Kelamin; simpan(baru ? 'addSantri' : 'updateSantri', d, 'santri', loadSantriFresh); },
+        baru ? null : () => api('deleteSantri', { nis: s.NIS }).then(r => { if (r.success) { closeModal('modal-form'); loadSantriFresh(); } }));
+    }
+    function bukaModalSantri() { formSantri(); }
+    function loadSantriFresh() { markStale(['santri']); loadSantri(); }
+    
+    function applyGuru(data) {
+      guruData = data;
+      el('list-guru').innerHTML = data.map((g, i) => `<li class="p-3 flex justify-between items-center cursor-pointer" onclick="bukaModalGuru(${i})"><span><b class="block">${esc(g.Nama)}</b><span class="text-xs text-gray-500">@${esc(g.Username)} · ${esc(g.Status)}</span></span><i class="fas fa-edit text-blue-500"></i></li>`).join('') || '<li class="p-6 text-center text-sm text-gray-400">Belum ada guru.</li>';
+    }
+    function bukaModalGuru(i) {
+      const g = i === undefined ? { Status: 'Aktif' } : guruData[i], baru = i === undefined, rl = () => { markStale(['guru']); loadGuru(); };
+      openForm(baru ? 'Tambah Guru' : 'Ubah Guru', [{ k: 'ID_Guru', l: 'ID Guru', ro: 1 }, { k: 'Nama', l: 'Nama' }, { k: 'Username', l: 'Username' }, { k: 'Password', l: baru ? 'Password' : 'Password (kosongkan jika tidak diubah)', t: 'password' }, { k: 'Status', l: 'Status', o: STAT }], g,
+        d => simpan(baru ? 'addGuru' : 'updateGuru', d, 'guru', rl), baru ? null : () => api('deleteGuru', { id: g.ID_Guru }).then(r => { if (r.success) { closeModal('modal-form'); rl(); } }));
+    }
+    
+    function renderSesiList(data) {
+      sesiData = data || [];
+      el('list-sesi-admin').innerHTML = sesiData.map((s, i) => `<div class="bg-white rounded-xl p-3 flex justify-between items-center cursor-pointer" onclick="bukaModalSesi(${i})"><span><b class="block">${esc(s.Nama_Sesi)}</b><span class="text-xs text-gray-500">${esc(normT(s.Jam_Mulai))} – batas ${esc(normT(s.Batas_Terlambat))} · ${esc(s.Status)}</span></span><i class="fas fa-edit text-blue-500"></i></div>`).join('');
+    }
+    function bukaModalSesi(i) {
+      const s = i === undefined ? { Status: 'Aktif' } : { ...sesiData[i], Jam_Mulai: normT(sesiData[i].Jam_Mulai), Batas_Terlambat: normT(sesiData[i].Batas_Terlambat) }, baru = i === undefined, rl = () => { markStale(['jadwal']); load('jadwal', 'getJadwal', {}, d => { applyJadwal(d); renderSesiList(d); }, { busy: 'pengaturan' }); };
+      openForm(baru ? 'Tambah Sesi' : 'Ubah Sesi', [{ k: 'Nama_Sesi', l: 'Nama Sesi' }, { k: 'Jam_Mulai', l: 'Jam Mulai', t: 'time' }, { k: 'Batas_Terlambat', l: 'Batas Terlambat', t: 'time' }, { k: 'Status', l: 'Status', o: STAT }], s,
+        d => { if (!baru) d.ID_Sesi = s.ID_Sesi; simpan(baru ? 'addSesi' : 'updateSesi', d, 'jadwal', rl); }, baru ? null : () => api('deleteSesi', { id: s.ID_Sesi }).then(r => { if (r.success) { closeModal('modal-form'); rl(); } }));
+    }
+    
+    function applyUser(data) {
+      userData = data;
+      el('list-user').innerHTML = data.map((u, i) => `<li class="p-3 flex justify-between items-center cursor-pointer" onclick="bukaModalUser(${i})"><span><b class="block">${esc(u.Nama)}</b><span class="text-xs text-gray-500">@${esc(u.Username)} · ${esc(u.Role)} · ${esc(u.Status)}</span></span><i class="fas fa-edit text-blue-500"></i></li>`).join('');
+    }
+    function bukaModalUser(i) {
+      const u = i === undefined ? { Role: 'Guru', Status: 'Aktif' } : userData[i], baru = i === undefined, rl = () => { markStale(['user']); load('user', 'getPengguna', {}, applyUser, { busy: 'pengaturan' }); };
+      openForm(baru ? 'Tambah Pengguna' : 'Ubah Pengguna', [{ k: 'Nama', l: 'Nama' }, { k: 'Username', l: 'Username' }, { k: 'Password', l: baru ? 'Password' : 'Password (kosongkan jika tidak diubah)', t: 'password' }, { k: 'Role', l: 'Role', o: [['Admin', 'Admin'], ['Guru', 'Guru']] }, { k: 'Status', l: 'Status', o: STAT }], u,
+        d => { if (!baru) d.ID_User = u.ID_User; simpan(baru ? 'addPengguna' : 'updatePengguna', d, 'user', rl); }, baru ? null : () => api('deletePengguna', { id: u.ID_User }).then(r => { if (r.success) { closeModal('modal-form'); rl(); } }));
+    }
+    
+    // ---------- REKAP BULANAN ----------
+    let rekapBulan = new Date().toISOString().slice(0, 7), rekapSesi = 'ALL', rekapData = null;
+    function loadRekap() { load('rekap|' + rekapBulan + '|' + rekapSesi, 'getRekapBulanan', { bulan: rekapBulan, sesi: rekapSesi }, d => { rekapData = d; renderRekap(); }, { busy: 'rekap' }); }
+    function geserBulan(d) { let [y, m] = rekapBulan.split('-').map(Number); m += d; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } rekapBulan = y + '-' + String(m).padStart(2, '0'); loadRekap(); }
+    function setRekapSesi(s) { rekapSesi = s; loadRekap(); }
+    function renderRekap() {
+      const d = rekapData; if (!d) return;
+      el('rekap-bulan-label').innerText = BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
+      el('rekap-info').innerText = d.totalSesiEfektif + ' sesi efektif';
+      el('rekap-sesi-chips').innerHTML = ['ALL', ...getSesiNames()].map(n => `<button onclick="setRekapSesi('${esc(n)}')" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${rekapSesi === n ? 'bg-gray-800 text-white' : 'bg-white text-gray-500'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`).join('');
+      const kc = el('rekap-kelas'), cur = kc.value; kc.innerHTML = '<option value="">Semua kelas</option>' + [...new Set(d.santri.map(s => s.kelas))].sort().map(k => `<option>${esc(k)}</option>`).join(''); kc.value = cur;
+      const q = el('rekap-cari').value.toLowerCase(), u = el('rekap-urut').value;
+      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q)) && (!kc.value || s.kelas === kc.value));
+      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101)); if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
+      const tot = { H: 0, T: 0, S: 0, I: 0, A: 0 }; l.forEach(s => Object.keys(tot).forEach(k => tot[k] += s.c[k]));
+      el('rekap-ringkas').innerHTML = [['H', 'Hadir'], ['T', 'Terlambat'], ['S', 'Sakit'], ['I', 'Izin'], ['A', 'Alfa']].map(([k, n]) => `<div class="rw-c ${k}"><b>${tot[k]}</b><span>${n}</span></div>`).join('');
+      el('rekap-ringkas').className = 'rw-chips';
+      el('rekap-list').innerHTML = l.map(s => `<div class="bg-white rounded-xl p-3"><div class="flex justify-between items-center"><span class="min-w-0"><b class="block truncate text-sm">${esc(s.nama)}</b><span class="text-xs text-gray-500">${esc(s.kelas)}</span></span><b class="text-lg">${s.persen === null ? '-' : s.persen + '%'}</b></div>
+        <div class="rw-chips mt-2 mb-0">${['H', 'T', 'S', 'I', 'A'].map(k => `<div class="rw-c ${k}"><b>${s.c[k]}</b><span>${k}</span></div>`).join('')}</div></div>`).join('') || '<p class="p-6 text-center text-sm text-gray-400">Tidak ada data.</p>';
+    }
+    function getSesiNames() { return rekapData ? rekapData.sesiList.length ? rekapData.sesiList : sesiData.map(s => s.Nama_Sesi) : []; }
+    
+    // ---------- CETAK PDF (iframe + dialog cetak browser; pilih "Simpan sebagai PDF") ----------
+    function cetakHTML(judul, sub, tabel) {
+      const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
+      const d = f.contentWindow.document; d.open();
+      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(judul)}</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px Arial,sans-serif;color:#000}h2{margin:0;font-size:16px;text-align:center}p.s{text-align:center;margin:3px 0 10px;font-size:11px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:3px 2px;text-align:center;font-size:9px}td.l{text-align:left;white-space:nowrap}th{background:#e5e5e5}tr{page-break-inside:avoid}thead{display:table-header-group}</style></head><body><h2>${esc(appSettings.nama_instansi || 'E-Absensi')}</h2><p class="s">${esc(appSettings.alamat || '')}</p><h2 style="font-size:13px">${esc(judul)}</h2><p class="s">${esc(sub)}</p>${tabel}</body></html>`);
+      d.close(); setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
+    }
+    function unduhRekapPDF() {
+      if (!dashData.sudah) { toast('warning', 'Data dashboard belum dimuat'); return; }
+      const rows = [...dashData.sudah, ...dashData.belum].sort((a, b) => a.nama.localeCompare(b.nama));
+      cetakHTML('Rekap Absensi Sesi ' + dashData.sesiNama, dashData.tanggal,
+        `<table><thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>Jam</th><th>Status</th><th>Catatan</th></tr></thead><tbody>${rows.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.nis)}</td><td class="l">${esc(x.nama)}</td><td>${esc(x.kelas)}</td><td>${esc(x.jam || '-')}</td><td>${esc(x.status)}</td><td class="l">${esc(x.catatan)}</td></tr>`).join('')}</tbody></table>`);
+    }
+    function cetakRekapBulanan() {
+      const d = rekapData; if (!d) { toast('warning', 'Data rekap belum dimuat'); return; }
+      const days = Array.from({ length: d.daysInMonth }, (_, i) => i + 1);
+      cetakHTML('Rekap Bulanan ' + BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4), rekapSesi === 'ALL' ? 'Semua sesi' : 'Sesi ' + rekapSesi,
+        `<table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th>${days.map(x => `<th>${x}</th>`).join('')}<th>H</th><th>T</th><th>S</th><th>I</th><th>A</th><th>%</th></tr></thead><tbody>${d.santri.map((s, i) => `<tr><td>${i + 1}</td><td class="l">${esc(s.nama)}</td><td>${esc(s.kelas)}</td>${days.map(x => `<td>${(s.days[x] || []).map(c => c[1]).join('/')}</td>`).join('')}<td>${s.c.H}</td><td>${s.c.T}</td><td>${s.c.S}</td><td>${s.c.I}</td><td>${s.c.A}</td><td>${s.persen === null ? '-' : s.persen}</td></tr>`).join('')}</tbody></table>`);
+    }
+    
     // INIT
     document.addEventListener('DOMContentLoaded', () => { tickClock(); initApp(); });
   </script>
