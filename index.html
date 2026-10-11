@@ -473,6 +473,20 @@ html[data-theme="dark"] .rk-card{background:#142230}
   .ab-table tbody td[colspan]{grid-column:1/-1}
 }
 </style>
+<style id="v4">
+.ab-head,.ab-row{display:grid;grid-template-columns:minmax(0,1fr) 4.6rem 4.8rem 2.3rem;gap:.4rem;align-items:center;padding:.6rem .8rem}
+.ab-head{font-size:10.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;background:#f1f6f4;border-bottom:1px solid var(--line)}.ab-head .c{text-align:center}
+.ab-row{border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}.ab-row:last-child{border:0}.ab-row:hover{background:#f0f7fc}
+.ab-nm b{display:block;font-size:13px;line-height:1.25;font-weight:800}.ab-nm small{display:block;font-size:11px;color:var(--mut);margin-top:1px}.ab-nm em{display:block;font-size:11px;font-style:normal;font-weight:600;color:#b91c1c}
+.ab-jm{font-size:11px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}.ab-row .ab-pill{justify-self:center;font-size:10.5px;padding:.2rem .45rem}
+.wa-ic{width:2.1rem;height:2.1rem;border-radius:50%;display:grid;place-items:center;background:#e7f8ee;color:#16a34a;font-size:1.1rem}.wa-ic.done{background:#16a34a;color:#fff;font-size:.95rem}.wa-ic.off{background:#eef2f5;color:#aab6c2;cursor:not-allowed}
+@media(min-width:768px){.ab-head,.ab-row{grid-template-columns:minmax(0,1fr) 6rem 6rem 2.5rem}}
+#filter-jk{background:#f3f7fb;max-width:9.5rem}
+.rk-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:.7rem}.rk-h{text-align:center;font-size:10px;color:var(--mut)}
+.rk-d{border-radius:.5rem;background:#f1f6f4;text-align:center;font-size:10.5px;font-weight:800;padding:2px 0;min-height:2rem}.rk-d small{display:block;font-size:9px;font-weight:600;opacity:.7}
+.rk-d.H{background:#d8f3e5;color:#0b5d3b}.rk-d.T{background:#fdecc8;color:#7a4a05}.rk-d.S{background:#dce9fb;color:#1d4f9c}.rk-d.I{background:#e8e0fb;color:#4f2fa6}.rk-d.A{background:#fbdcdd;color:#a31d28}
+html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-row:hover{background:#1b2d40}html[data-theme="dark"] .wa-ic{background:#12382b}html[data-theme="dark"] .wa-ic.off{background:#213446}html[data-theme="dark"] #filter-jk{background:#192b3b!important;color:var(--ink)}html[data-theme="dark"] .rk-d{background:#192b3b}
+</style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
 
@@ -588,19 +602,10 @@ html[data-theme="dark"] .rk-card{background:#142230}
               </div>
               <div class="relative pb-2 flex-1 min-w-[10rem] max-w-xs"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
                 <input type="text" id="cari-pantauan" oninput="filterPantauan()" placeholder="Cari nama..." class="w-full border border-gray-200 rounded-full pl-9 pr-3 py-2 text-sm outline-none"></div>
-              <div class="pb-2 shrink-0"><select id="filter-kelas" onchange="filterPantauan()" class="border border-gray-200 rounded-full px-3 py-2 text-sm font-bold outline-none"><option value="">Semua Kelas</option></select></div>
+              <div class="pb-2 shrink-0"><select id="filter-kelas" onchange="filterPantauan()" class="border border-gray-200 rounded-full px-3 py-2 text-sm font-bold outline-none"><option value="">Semua Kelas</option></select> <select id="filter-jk" onchange="filterPantauan()" class="border border-gray-200 rounded-full px-3 py-2 text-sm font-bold outline-none"><option value="">Putra &amp; Putri</option><option value="Laki-laki">Putra</option><option value="Perempuan">Putri</option></select></div>
             </div>
             <p id="hint-belum" class="hidden px-4 py-2 text-[12px] bg-red-50 text-red-600 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>Santri di tab ini dianggap Alfa. Kirim pesan setelah sesi selesai.</p>
-            <div class="overflow-x-auto">
-              <table class="ab-table">
-                <thead><tr>
-                  <th style="width:2.5rem">No</th><th class="hidden md:table-cell">Jam</th><th class="hidden md:table-cell">NIS</th>
-                  <th>Nama Lengkap</th><th class="hidden md:table-cell">Kelas</th><th>Status</th>
-                  <th>Aksi Notif <span class="tip-i" onmouseenter="tipWA(event,true)" onmouseleave="tipTutup()">i</span></th>
-                </tr></thead>
-                <tbody id="tb-absen"></tbody>
-              </table>
-            </div>
+            <div class="ab-head"><span>Nama</span><span class="c">Jam</span><span class="c">Ket.</span><span class="c">WA</span></div><div id="tb-absen"></div>
             <p id="pantauan-kosong" class="hidden p-6 text-center text-sm text-gray-400">Tidak ada data.</p>
           </div>
         </div>
@@ -637,7 +642,7 @@ html[data-theme="dark"] .rk-card{background:#142230}
         <div id="page-rekap" class="content-page hidden admin-only">
           <div class="pg-head mb-3">
             <button onclick="nav('dashboard')" class="pg-back"><i class="fas fa-arrow-left"></i></button><h2>Rekap Bulanan</h2>
-            <span id="busy-rekap" class="hidden"></span><button onclick="cetakRekapBulanan()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-print mr-1"></i> Cetak</button>
+            <span id="busy-rekap" class="hidden"></span><button onclick="cetakRekapBulanan()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-print mr-1"></i> Cetak</button><button onclick="eksporRekapCSV()" class="ml-1 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-file-excel mr-1"></i> Excel</button>
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2 flex items-center justify-between mb-3">
             <button onclick="geserBulan(-1)" class="w-11 h-11 rounded-lg hover:bg-gray-100 text-gray-600"><i class="fas fa-chevron-left"></i></button>
@@ -687,7 +692,7 @@ html[data-theme="dark"] .rk-card{background:#142230}
               <div class="mb-3"><label class="block text-sm font-bold mb-1">Nama Instansi</label><input type="text" id="set-nama" class="w-full border p-2 rounded outline-none" required></div>
               <div class="mb-3"><label class="block text-sm font-bold mb-1">Alamat</label><input type="text" id="set-alamat" class="w-full border p-2 rounded outline-none"></div>
               <div class="mb-3"><label class="block text-sm font-bold mb-1">Telepon / No Instansi</label><input type="text" id="set-telepon" class="w-full border p-2 rounded outline-none"></div>
-              <button type="submit" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg mt-2">SIMPAN PENGATURAN</button>
+              <div class="mb-3"><label class="block text-sm font-bold mb-1">Logo</label><div class="flex items-center gap-3"><img id="set-logo-prev" alt="" class="hidden h-14 w-auto"><input type="file" id="set-logo" accept="image/*" onchange="pilihLogo(this)" class="text-xs flex-1 min-w-0"><button type="button" onclick="hapusLogo()" class="text-xs font-bold text-red-600">Hapus</button></div></div><button type="submit" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg mt-2">SIMPAN PENGATURAN</button>
             </form>
           </div>
 
@@ -1370,9 +1375,9 @@ html[data-theme="dark"] .rk-card{background:#142230}
       el('btn-wa-next').disabled = unsent === 0; el('wa-next-count').innerText = unsent ? `(${unsent})` : '';
     }
     document.addEventListener('click', e => {
-      const tr = e.target.closest('#tb-absen tr[data-i]'); if (!tr) return;
+      const tr = e.target.closest('#tb-absen .ab-row[data-i]'); if (!tr) return;
       const x = dashView[+tr.dataset.i]; if (!x) return;
-      if (e.target.closest('.wa-btn')) { if (!e.target.closest('.wa-off')) kirimWA(null, x.wa, encodeURIComponent(x.pesan), x.nis, x.status); }
+      if (e.target.closest('.wa-ic')) { if (!e.target.closest('.off')) kirimWA(null, x.wa, encodeURIComponent(x.pesan), x.nis, x.status); }
       else bukaEditAbsen(x.nis, x.nama, x.status, x.catatan);
     });
     function kirimWABerikutnya() { const b = el('tb-absen').querySelector('.wa-kirim'); if (b) b.click(); }
@@ -1505,6 +1510,119 @@ html[data-theme="dark"] .rk-card{background:#142230}
       const days = Array.from({ length: d.daysInMonth }, (_, i) => i + 1);
       cetakHTML('Rekap Bulanan ' + BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4), rekapSesi === 'ALL' ? 'Semua sesi' : 'Sesi ' + rekapSesi,
         `<table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th>${days.map(x => `<th>${x}</th>`).join('')}<th>H</th><th>T</th><th>S</th><th>I</th><th>A</th><th>%</th></tr></thead><tbody>${d.santri.map((s, i) => `<tr><td>${i + 1}</td><td class="l">${esc(s.nama)}</td><td>${esc(s.kelas)}</td>${days.map(x => `<td>${(s.days[x] || []).map(c => c[1]).join('/')}</td>`).join('')}<td>${s.c.H}</td><td>${s.c.T}</td><td>${s.c.S}</td><td>${s.c.I}</td><td>${s.c.A}</td><td>${s.persen === null ? '-' : s.persen}</td></tr>`).join('')}</tbody></table>`);
+    }
+    
+    /* ===== PERBAIKAN v4 ===== */
+    const KET = { HADIR: 'Masuk', TERLAMBAT: 'Terlambat', SAKIT: 'Sakit', IZIN: 'Izin', ALFA: 'Alfa' };
+    function renderDashboardTable() {
+      const q = el('cari-pantauan').value.toLowerCase(), k = el('filter-kelas').value, jk = el('filter-jk').value;
+      dashView = (dashData[dashTab] || []).filter(x => (!q || x.nama.toLowerCase().includes(q) || x.nis.toLowerCase().includes(q)) && (!k || x.kelas === k) && (!jk || x.jk === jk));
+      el('pantauan-kosong').classList.toggle('hidden', dashView.length > 0);
+      let unsent = 0;
+      el('tb-absen').innerHTML = dashView.map((x, i) => {
+        let wa;
+        if (!x.wa) wa = '<button class="wa-ic off" title="Nomor WA wali kosong"><i class="fab fa-whatsapp"></i></button>';
+        else if (x.terkirim) wa = '<button class="wa-ic done" title="Sudah dikirim (klik untuk kirim ulang)"><i class="fas fa-check"></i></button>';
+        else { unsent++; wa = '<button class="wa-ic kirim" title="Kirim WA ke wali"><i class="fab fa-whatsapp"></i></button>'; }
+        return `<div class="ab-row" data-i="${i}"><div class="ab-nm"><b>${esc(x.nama)}</b><small>${esc(x.nis)} · ${esc(x.kelas)}</small>${x.catatan ? `<em>${esc(x.catatan)}</em>` : ''}</div>
+          <span class="ab-jm">${esc(x.jam || '–')}</span><span class="ab-pill ab-st-${esc(x.status)}">${esc(KET[x.status] || x.status)}</span>${wa}</div>`;
+      }).join('');
+      el('btn-wa-next').disabled = unsent === 0; el('wa-next-count').innerText = unsent ? `(${unsent})` : '';
+    }
+    function kirimWABerikutnya() { const b = el('tb-absen').querySelector('.wa-ic.kirim'); if (b) b.click(); }
+    
+    // ---------- LOGIN: token, tanpa menyimpan password ----------
+    async function handleLogin(e) {
+      e.preventDefault();
+      const res = await api('login', { username: el('username').value.trim(), password: el('password').value });
+      if (res.success) { auth = res.data; localStorage.setItem('eabsensi_auth', JSON.stringify(auth)); showApp(); }
+      else Swal.fire('Gagal', res.message, 'error');
+    }
+    
+    // ---------- LOGO & BRANDING ----------
+    let logoBaru;
+    function applyBranding() {
+      const n = appSettings.nama_instansi || 'E-Absensi'; document.title = n;
+      el('login-title').innerText = n; el('login-alamat').innerText = appSettings.alamat || '-';
+      if (appSettings.logo) {
+        ['login-logo', 'top-logo'].forEach(id => { const i = el(id); i.src = appSettings.logo; i.style.display = ''; i.classList.remove('hidden'); });
+        el('login-icon').style.display = 'none'; el('top-icon').style.display = 'none';
+      } else { el('login-logo').style.display = 'none'; el('login-icon').style.display = 'block'; el('top-logo').classList.add('hidden'); el('top-icon').style.display = ''; }
+    }
+    async function initApp() {
+      el('loader').classList.add('hidden');
+      if (auth) showApp(); else { el('page-login').classList.remove('hidden'); el('app-layout').classList.add('hidden'); }
+      const r = await api('getPengaturanInfo', {}, { silent: true });
+      if (r.success) { appSettings = {}; r.data.forEach(i => appSettings[i.Key] = i.Value); applyBranding(); }
+    }
+    function pilihLogo(inp) {
+      const f = inp.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        const im = new Image();
+        im.onload = () => {
+          let w = Math.min(192, im.width), out;
+          for (let k = 0; k < 8; k++) {
+            const h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = h;
+            c.getContext('2d').drawImage(im, 0, 0, w, h); out = c.toDataURL('image/png');
+            if (out.length <= 47000) break; w = Math.round(w * .8);
+          }
+          if (out.length > 49000) { toast('error', 'Logo terlalu kompleks, pakai gambar yang lebih sederhana'); return; }
+          logoBaru = out; el('set-logo-prev').src = out; el('set-logo-prev').classList.remove('hidden');
+        };
+        im.src = r.result;
+      };
+      r.readAsDataURL(f);
+    }
+    function hapusLogo() { logoBaru = ''; el('set-logo-prev').classList.add('hidden'); el('set-logo').value = ''; }
+    function fillPengaturan() {
+      el('set-nama').value = appSettings.nama_instansi || ''; el('set-alamat').value = appSettings.alamat || ''; el('set-telepon').value = appSettings.telepon || '';
+      logoBaru = undefined; const p = el('set-logo-prev');
+      if (appSettings.logo) { p.src = appSettings.logo; p.classList.remove('hidden'); } else p.classList.add('hidden');
+    }
+    function savePengaturan(e) {
+      e.preventDefault();
+      const p = { nama_instansi: el('set-nama').value, alamat: el('set-alamat').value, telepon: el('set-telepon').value };
+      if (logoBaru !== undefined) p.logo = logoBaru;
+      api('savePengaturan', p).then(r => { if (r.success) { toast('success', 'Pengaturan disimpan'); appSettings = { ...appSettings, ...p }; logoBaru = undefined; applyBranding(); } });
+    }
+    
+    // ---------- REKAP: detail per hari + ekspor ----------
+    const rekapOpen = new Set();
+    function toggleRekap(n) { rekapOpen.has(n) ? rekapOpen.delete(n) : rekapOpen.add(n); renderRekap(); }
+    function kalenderRekap(s, d) {
+      const sev = { A: 4, S: 3, I: 3, T: 2, H: 1 }, notes = [];
+      let h = ['Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb', 'Mg'].map(x => `<b class="rk-h">${x}</b>`).join('') + '<i></i>'.repeat(d.firstWeekday);
+      for (let x = 1; x <= d.daysInMonth; x++) {
+        const r = s.days[x] || [], top = r.map(c => c[1]).sort((a, b) => sev[b] - sev[a])[0];
+        h += `<div class="rk-d ${top || ''}"><small>${x}</small>${r.map(c => c[1]).join('/') || '·'}</div>`;
+        r.forEach(c => { if (c[2]) notes.push(`${x} ${BLN[+d.bulan.slice(5) - 1].slice(0, 3)} (${d.sesiList[c[0]] || ''}): ${c[2]}`); });
+      }
+      return `<div class="rk-cal">${h}</div>${notes.length ? '<p class="text-[11px] text-gray-500 mt-2">' + notes.map(esc).join('<br>') + '</p>' : ''}`;
+    }
+    function renderRekap() {
+      const d = rekapData; if (!d) return;
+      el('rekap-bulan-label').innerText = BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
+      el('rekap-info').innerText = d.totalSesiEfektif + ' sesi efektif';
+      el('rekap-sesi-chips').innerHTML = ['ALL', ...getSesiNames()].map(n => `<button onclick="setRekapSesi(this.dataset.n)" data-n="${esc(n)}" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${rekapSesi === n ? 'bg-gray-800 text-white' : 'bg-white text-gray-500'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`).join('');
+      const kc = el('rekap-kelas'), cur = kc.value; kc.innerHTML = '<option value="">Semua kelas</option>' + [...new Set(d.santri.map(s => s.kelas))].sort().map(k => `<option>${esc(k)}</option>`).join(''); kc.value = cur;
+      const q = el('rekap-cari').value.toLowerCase(), u = el('rekap-urut').value;
+      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q)) && (!kc.value || s.kelas === kc.value));
+      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101)); if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
+      const tot = { H: 0, T: 0, S: 0, I: 0, A: 0 }; l.forEach(s => Object.keys(tot).forEach(k => tot[k] += s.c[k]));
+      el('rekap-ringkas').className = 'rw-chips';
+      el('rekap-ringkas').innerHTML = [['H', 'Hadir'], ['T', 'Telat'], ['S', 'Sakit'], ['I', 'Izin'], ['A', 'Alfa']].map(([k, n]) => `<div class="rw-c ${k}"><b>${tot[k]}</b><span>${n}</span></div>`).join('');
+      el('rekap-list').innerHTML = l.map(s => `<div class="bg-white rounded-xl p-3 cursor-pointer" data-n="${esc(s.nis)}" onclick="toggleRekap(this.dataset.n)"><div class="flex justify-between items-center"><span class="min-w-0"><b class="block truncate text-sm">${esc(s.nama)}</b><span class="text-xs text-gray-500">${esc(s.kelas)} · ketuk untuk detail</span></span><b class="text-lg">${s.persen === null ? '-' : s.persen + '%'}</b></div>
+        <div class="rw-chips mt-2 mb-0">${['H', 'T', 'S', 'I', 'A'].map(k => `<div class="rw-c ${k}"><b>${s.c[k]}</b><span>${k}</span></div>`).join('')}</div>${rekapOpen.has(s.nis) ? kalenderRekap(s, d) : ''}</div>`).join('') || '<p class="p-6 text-center text-sm text-gray-400">Tidak ada data.</p>';
+    }
+    function eksporRekapCSV() {
+      const d = rekapData; if (!d) { toast('warning', 'Data rekap belum dimuat'); return; }
+      const days = Array.from({ length: d.daysInMonth }, (_, i) => i + 1), q = v => '"' + String(v).replace(/"/g, '""') + '"';
+      const rows = [['No', 'NIS', 'Nama', 'Kelas', ...days, 'H', 'T', 'S', 'I', 'A', '%']];
+      d.santri.forEach((s, i) => rows.push([i + 1, s.nis, s.nama, s.kelas, ...days.map(x => (s.days[x] || []).map(c => c[1]).join('/')), s.c.H, s.c.T, s.c.S, s.c.I, s.c.A, s.persen === null ? '' : s.persen]));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+      a.download = 'rekap-' + d.bulan + '.csv'; document.body.appendChild(a); a.click(); a.remove();
     }
     
     // INIT
