@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
@@ -509,17 +511,16 @@ html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-
 .qr-btn{width:2rem;height:2rem;border-radius:.6rem;background:#eef5fb;color:#2f6fd0;display:grid;place-items:center}
 html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b3b}html[data-theme="dark"] .rk-bar{background:#243648}html[data-theme="dark"] .qr-btn{background:#1b2d40;color:#8fb8ff}
 </style>
-<style id="v6">
-.idc-wrap{display:grid;gap:.75rem}@media(min-width:1024px){.idc-wrap{grid-template-columns:minmax(0,1fr) 20rem}}
-.idc-card{background:#fff;border:1px solid var(--line);border-radius:1rem;padding:.7rem}
-.idc-stage{overflow:auto;background:#e8eef3;border-radius:1rem;padding:.5rem}
-#idc-cv{display:block;margin:0 auto;max-width:none;background:#fff;border-radius:.3rem;box-shadow:0 2px 14px rgba(0,0,0,.2);touch-action:none}
-.idc-b{padding:.4rem .65rem;border-radius:.6rem;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700;white-space:nowrap}.idc-b.p{background:#1f2937;color:#fff;border-color:#1f2937}
-.idc-sel{border:1px solid var(--line);border-radius:.6rem;padding:.4rem .5rem;font-size:13px;background:transparent;max-width:100%}
-.idc-r{display:grid;grid-template-columns:5.5rem 1fr;gap:.4rem;align-items:center;font-size:12px;margin:.3rem 0}.idc-r input:not([type=checkbox]):not([type=range]),.idc-r select{border:1px solid var(--line);border-radius:.5rem;padding:.3rem .4rem;width:100%;font-size:13px;background:transparent}
-.idc-r input[type=color]{padding:0;height:1.9rem}.idc-r input[type=checkbox]{width:1.1rem;height:1.1rem}
-.idc-lay{display:flex;gap:.45rem;align-items:center;padding:.4rem .5rem;border-radius:.5rem;font-size:12px;font-weight:600;cursor:pointer}.idc-lay.on{background:#e3edfb;color:#1d4f9c}
-html[data-theme="dark"] .idc-card,html[data-theme="dark"] .idc-b:not(.p){background:#192b3b}html[data-theme="dark"] .idc-stage{background:#0f1c28}html[data-theme="dark"] .idc-lay.on{background:#1b2d40;color:#8fb8ff}
+<style id="v7">
+.qx-grid{display:grid;gap:.75rem}@media(min-width:900px){.qx-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.qx-card{background:#fff;border:1px solid var(--line);border-radius:1rem;padding:.8rem;margin-bottom:.6rem}
+.qx-list{max-height:15rem;overflow-y:auto;border:1px solid var(--line);border-radius:.7rem}
+.qx-it{display:flex;align-items:center;gap:.6rem;padding:.45rem .6rem;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}.qx-it small{color:var(--mut);font-size:11px}
+.qx-f{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}.qx-f label{display:block;font-size:11px;font-weight:700;color:var(--mut);margin-bottom:.15rem}
+.qx-f input,.qx-f select,.qx-s{width:100%;border:1px solid var(--line);border-radius:.6rem;padding:.4rem .5rem;font-size:13px;background:transparent}
+.qx-b{padding:.4rem .65rem;border-radius:.6rem;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700;white-space:nowrap}.qx-b.p{background:#1f2937;color:#fff;border-color:#1f2937}.qx-b:disabled{opacity:.45}
+#qx-cv{width:100%;max-width:26rem;display:block;margin:.6rem auto;border:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.12);background:#fff}
+html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){background:#192b3b}
 </style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
@@ -673,32 +674,32 @@ html[data-theme="dark"] .idc-card,html[data-theme="dark"] .idc-b:not(.p){backgro
         </div>
 
         <!-- REKAP -->
-        <div id="page-idcard" class="content-page hidden admin-only">
-  <div class="pg-head mb-3"><button onclick="nav('santri')" class="pg-back"><i class="fas fa-arrow-left"></i></button><h2>ID Card Builder</h2></div>
-  <div class="idc-wrap">
+        <div id="page-qrexport" class="content-page hidden admin-only">
+  <div class="pg-head mb-3"><button onclick="nav('santri')" class="pg-back"><i class="fas fa-arrow-left"></i></button><h2>Ekspor QR A4</h2></div>
+  <div class="qx-grid">
     <div class="min-w-0">
-      <div class="idc-card mb-2"><div class="flex items-center gap-2 flex-wrap">
-        <select id="idc-tpl" onchange="idcPilih(this.value)" class="idc-sel"></select>
-        <button class="idc-b p" onclick="idcSimpan()"><i class="fas fa-floppy-disk"></i> Simpan</button>
-        <button class="idc-b" onclick="idcRename()">Ganti nama</button><button class="idc-b text-red-600" onclick="idcHapus()">Hapus</button></div>
-        <p class="text-[11px] text-gray-500 mt-1">Template: <b id="idc-name">-</b> · Kartu 85,6 × 54 mm (1011 × 638 px = 300 DPI)</p></div>
-      <div class="idc-card mb-2 flex items-center gap-2 flex-wrap">
-        <label class="idc-b p cursor-pointer"><i class="fas fa-upload"></i> Upload Desain<input type="file" accept="image/png,image/jpeg" class="hidden" onchange="idcUploadBg(this)"></label>
-        <label class="text-xs font-bold flex items-center gap-1"><input type="checkbox" id="idc-lock" checked onchange="idcToggleLock(this.checked)"> Kunci latar</label>
-        <input type="range" id="idc-bgz" class="hidden w-24" min="1" max="2" step="0.02" value="1" oninput="idcBgZoom(this.value)" title="Zoom latar (geser latar dengan drag di area kosong)">
-        <span class="ml-auto flex items-center gap-1"><button class="idc-b" onclick="idcUndo(true)" title="Undo"><i class="fas fa-rotate-left"></i></button><button class="idc-b" onclick="idcUndo(false)" title="Redo"><i class="fas fa-rotate-right"></i></button>
-        <button class="idc-b" onclick="idcZoom(0.8)">−</button><b id="idc-zoom" class="text-xs w-10 text-center">100%</b><button class="idc-b" onclick="idcZoom(1.25)">+</button><button class="idc-b" onclick="idcZoom(0)">Fit</button></span></div>
-      <div id="idc-stage" class="idc-stage"><canvas id="idc-cv" width="1011" height="638"></canvas></div>
-      <div class="idc-card mt-2"><label class="text-xs font-bold text-gray-600">Pratinjau santri</label>
-        <div class="flex gap-2 items-center mt-1"><select id="idc-santri" onchange="idcPilihSantri(this.value)" class="idc-sel flex-1 min-w-0"></select>
-        <label id="idc-foto-btn" class="idc-b cursor-pointer hidden"><i class="fas fa-camera"></i> Foto<input type="file" accept="image/*" class="hidden" onchange="idcUploadFoto(this)"></label></div>
-        <p id="idc-warn" class="text-xs text-amber-700 mt-1"></p></div>
+      <div class="qx-card"><p class="font-bold text-sm mb-2">1. Pilih santri</p>
+        <div class="qx-f mb-2"><select id="qx-jk" class="qx-s" onchange="qxList()"><option value="">Putra &amp; Putri</option><option value="Laki-laki">Putra</option><option value="Perempuan">Putri</option></select><select id="qx-kls" class="qx-s" onchange="qxList()"></select></div>
+        <input id="qx-cari" class="qx-s mb-2" placeholder="Cari nama / NIS..." oninput="qxList()">
+        <div class="flex items-center gap-2 mb-2"><button class="qx-b" onclick="qxAll(true)">Pilih semua tampil</button><button class="qx-b" onclick="qxAll(false)">Kosongkan</button><span id="qx-count" class="ml-auto text-xs font-bold text-gray-500"></span></div>
+        <div id="qx-list" class="qx-list"></div></div>
+      <div class="qx-card"><p class="font-bold text-sm mb-2">2. Ukuran &amp; tata letak</p>
+        <label class="text-[11px] font-bold text-gray-500">Ukuran QR (cm, sisi kotak termasuk area tenang putih)</label>
+        <div class="flex gap-1.5 items-center mb-2"><input id="qx-size" type="number" min="1" max="15" step="0.1" value="3" class="qx-s" style="max-width:6rem" oninput="qxRefresh()">
+          <button class="qx-b" onclick="qxSize(2)">2</button><button class="qx-b" onclick="qxSize(2.5)">2.5</button><button class="qx-b" onclick="qxSize(3)">3</button><button class="qx-b" onclick="qxSize(4)">4</button><button class="qx-b" onclick="qxSize(5)">5</button></div>
+        <div class="qx-f"><div><label>Orientasi</label><select id="qx-ori" class="qx-s" onchange="qxRefresh()"><option value="p">Portrait</option><option value="l">Landscape</option></select></div>
+          <div><label>Kolom (0 = otomatis)</label><input id="qx-cols" type="number" min="0" max="20" step="1" value="0" oninput="qxRefresh()"></div>
+          <div><label>Jarak horizontal (mm)</label><input id="qx-gx" type="number" min="0" max="30" step="1" value="6" oninput="qxRefresh()"></div>
+          <div><label>Jarak vertikal (mm)</label><input id="qx-gy" type="number" min="0" max="30" step="1" value="6" oninput="qxRefresh()"></div>
+          <div><label>Margin halaman (mm)</label><input id="qx-m" type="number" min="0" max="30" step="1" value="10" oninput="qxRefresh()"></div></div></div>
     </div>
     <div class="min-w-0">
-      <div class="idc-card mb-2"><p class="text-xs font-bold text-gray-600 mb-2">Tambah elemen</p><div class="flex flex-wrap gap-1.5">
-        <button class="idc-b" onclick="idcAdd('foto')"><i class="fas fa-image"></i> Foto</button><button class="idc-b" onclick="idcAdd('nama')"><i class="fas fa-user"></i> Nama</button><button class="idc-b" onclick="idcAdd('id')"><i class="fas fa-hashtag"></i> ID</button><button class="idc-b" onclick="idcAdd('qr')"><i class="fas fa-qrcode"></i> QR</button><button class="idc-b" onclick="idcAdd('teks')"><i class="fas fa-font"></i> Teks</button></div></div>
-      <div class="idc-card mb-2"><p class="text-xs font-bold text-gray-600 mb-1">Layer (atas → bawah)</p><div id="idc-lay"></div></div>
-      <div class="idc-card"><p class="text-xs font-bold text-gray-600 mb-1">Properti</p><div id="idc-props"></div></div>
+      <div class="qx-card"><p class="font-bold text-sm mb-1">3. Pratinjau &amp; ekspor</p>
+        <p id="qx-info" class="text-xs font-bold text-gray-600"></p><p id="qx-warn" class="text-xs text-amber-700 mt-1"></p>
+        <canvas id="qx-cv" width="1" height="1"></canvas>
+        <div class="flex items-center justify-center gap-3 mb-3"><button class="qx-b" onclick="qxPage(-1)"><i class="fas fa-chevron-left"></i></button><b id="qx-pg" class="text-xs">-</b><button class="qx-b" onclick="qxPage(1)"><i class="fas fa-chevron-right"></i></button></div>
+        <div class="flex gap-2"><button id="qx-pdf" class="qx-b p flex-1" onclick="qxPDF()"><i class="fas fa-file-pdf"></i> Ekspor PDF A4</button><button id="qx-png" class="qx-b flex-1" onclick="qxPNG()"><i class="fas fa-image"></i> Ekspor PNG</button></div>
+        <p class="text-[11px] text-gray-500 mt-2 leading-relaxed"><b>Cetak PDF:</b> pilih skala <b>100% / Actual Size</b> (jangan "Fit to page") agar ukuran QR sesuai angka cm. Ukur dengan penggaris setelah dicetak.<br><b>PNG:</b> 300 DPI per halaman A4, DPI ditanam di file. Ukuran fisik hanya terjaga jika aplikasi tujuan (mis. CorelDRAW) membaca DPI gambar; yang dijamin hanya PDF. Beberapa halaman dikemas dalam ZIP.</p></div>
     </div>
   </div>
 </div>
@@ -729,7 +730,7 @@ html[data-theme="dark"] .idc-card,html[data-theme="dark"] .idc-b:not(.p){backgro
             <span id="busy-santri" class="hidden"></span><button onclick="bukaModalSantri()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow">+ Tambah</button>
           </div>
           <input type="text" id="cari-santri" oninput="renderSantri()" placeholder="Cari nama / NIS / kelas..." class="w-full border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none mb-3">
-          <button onclick="cetakQRSemua()" class="w-full mb-3 bg-white border border-gray-200 text-gray-700 font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-qrcode mr-1"></i> Cetak Kartu QR (sesuai tab &amp; pencarian)</button><button onclick="nav('idcard')" class="w-full mb-3 bg-gray-800 text-white font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-id-card mr-1"></i> ID Card Builder</button><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><ul id="list-santri" class="divide-y divide-gray-100"></ul></div>
+          <button onclick="nav('qrexport')" class="w-full mb-3 bg-gray-800 text-white font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-qrcode mr-1"></i> Ekspor QR A4 (PDF / PNG)</button><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><ul id="list-santri" class="divide-y divide-gray-100"></ul></div>
         </div>
 
         <!-- GURU -->
@@ -786,7 +787,7 @@ html[data-theme="dark"] .idc-card,html[data-theme="dark"] .idc-b:not(.p){backgro
         <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div><h3 class="font-bold text-gray-800 mb-3">Data Master</h3>
         <button onclick="pilihMaster('Laki-laki')" class="master-item"><span class="master-ic" style="--c:#2563eb"><i class="fas fa-mars"></i></span>Santri Putra<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
         <button onclick="pilihMaster('Perempuan')" class="master-item"><span class="master-ic" style="--c:#db2777"><i class="fas fa-venus"></i></span>Santri Putri<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
-        <button onclick="pilihMaster('guru')" class="master-item"><span class="master-ic" style="--c:#2b8cc8"><i class="fas fa-chalkboard-teacher"></i></span>Data Guru<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button><button onclick="tutupMaster();nav('idcard')" class="master-item"><span class="master-ic" style="--c:#7c3aed"><i class="fas fa-id-card"></i></span>ID Card Builder<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
+        <button onclick="pilihMaster('guru')" class="master-item"><span class="master-ic" style="--c:#2b8cc8"><i class="fas fa-chalkboard-teacher"></i></span>Data Guru<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button><button onclick="tutupMaster();nav('qrexport')" class="master-item"><span class="master-ic" style="--c:#7c3aed"><i class="fas fa-qrcode"></i></span>Ekspor QR A4<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
       </div>
     </div>
   </div>
@@ -1724,285 +1725,144 @@ html[data-theme="dark"] .idc-card,html[data-theme="dark"] .idc-b:not(.p){backgro
     const qrOk = () => { if (typeof qrcode === 'undefined') { Swal.fire('QR belum siap', 'Pustaka QR gagal dimuat. Periksa koneksi lalu muat ulang.', 'error'); return false; } return true; };
     function tampilQR(i) {
       const s = santriData[i]; if (!s || !qrOk()) return;
-      Swal.fire({ html: `<div style="max-width:220px;margin:0 auto">${qrSvg(s.NIS)}</div><b style="display:block;margin-top:.6rem;font-size:1.05rem">${esc(s.Nama)}</b><span style="font-size:.85rem;color:#64748b">${esc(s.NIS)} · ${esc(s.Kelas)}</span>`, showCancelButton: true, confirmButtonText: '<i class="fas fa-print"></i> Cetak', cancelButtonText: 'Tutup' })
-        .then(r => r.isConfirmed && cetakKartuQR([s]));
+      Swal.fire({ html: `<div style="max-width:220px;margin:0 auto">${qrSvg(s.NIS)}</div><b style="display:block;margin-top:.6rem;font-size:1.05rem">${esc(s.Nama)}</b><span style="font-size:.85rem;color:#64748b">${esc(s.NIS)} · ${esc(s.Kelas)}</span>`, showCancelButton: true, confirmButtonText: '<i class="fas fa-file-pdf"></i> Ekspor A4', cancelButtonText: 'Tutup' })
+        .then(r => r.isConfirmed && qxBuka([s.NIS]));
     }
-    function santriTampil() {
-      const q = el('cari-santri').value.toLowerCase();
-      return santriData.filter(s => (s.Jenis_Kelamin || '') === santriJK && (!q || (s.Nama + s.NIS + s.Kelas).toLowerCase().includes(q)));
+    /* ===== EKSPOR QR A4 (QR santri + nama di bawahnya) ===== */
+    const QX = { sel: new Set(), page: 0, items: [], lay: null, cfg: null, init: false, preset: false };
+    const qxNonLatin = s => /[^\u0000-\u00FF\u2018\u2019\u201C\u201D\u2013\u2014\u2026]/.test(s);
+    const qxCtx = document.createElement('canvas').getContext('2d');
+    const qxW = (t, pt) => { qxCtx.font = '100px Arial,sans-serif'; return qxCtx.measureText(t).width / 100 * pt * .3528 * 1.03; };
+    const qxBase = (y, s, pt, j) => y + s + 2 + pt * .3528 * .8 + j * pt * .3528 * 1.15;
+    function qxCfg() {
+      const n = (id, d, lo, hi) => { const v = parseFloat(el(id).value); return isNaN(v) ? d : Math.min(hi, Math.max(lo, v)); };
+      return { s: n('qx-size', 3, 1, 15) * 10, gx: n('qx-gx', 6, 0, 30), gy: n('qx-gy', 6, 0, 30), m: n('qx-m', 10, 0, 30), cols: Math.round(n('qx-cols', 0, 0, 20)), land: el('qx-ori').value === 'l' };
     }
-    function cetakQRSemua() { const l = santriTampil(); if (!l.length) { toast('warning', 'Tidak ada santri untuk dicetak'); return; } cetakKartuQR(l); }
-    function cetakKartuQR(list) {
-      if (!qrOk()) return;
-      const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
-      const d = f.contentWindow.document; d.open();
-      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kartu QR Santri</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;margin:0}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}.c{border:1px dashed #666;border-radius:3mm;padding:4mm;text-align:center;page-break-inside:avoid}.c svg{width:42mm;height:42mm}.c small{display:block;font-size:8px;color:#555}.c b{display:block;font-size:12px;margin-top:2mm}.c span{font-size:10px}</style></head><body><div class="g">${list.map(s => `<div class="c"><small>${esc(appSettings.nama_instansi || 'E-Absensi Santri')}</small>${qrSvg(s.NIS)}<b>${esc(s.Nama)}</b><span>${esc(s.NIS)} · ${esc(s.Kelas)}</span></div>`).join('')}</div></body></html>`);
-      d.close(); setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
+    function qxLayout(c) {
+      const PW = c.land ? 297 : 210, PH = c.land ? 210 : 297, uw = PW - 2 * c.m, uh = PH - 2 * c.m, nameH = 2 * 9 * .3528 * 1.15, cellH = c.s + 2 + nameH;
+      if (c.s > uw || cellH > uh) return { err: `QR ${c.s / 10} cm + nama tidak muat di area cetak (${(uw / 10).toFixed(1)} × ${(uh / 10).toFixed(1)} cm). Kecilkan ukuran QR atau margin.` };
+      const maxC = Math.floor((uw + c.gx + 1e-6) / (c.s + c.gx)), cols = c.cols ? Math.min(c.cols, maxC) : maxC, rows = Math.floor((uh + c.gy + 1e-6) / (cellH + c.gy));
+      return { PW, PH, cols, rows, per: cols * rows, x0: (PW - (cols * c.s + (cols - 1) * c.gx)) / 2, y0: c.m, cellH, nameH, maxW: Math.max(c.s, c.s + c.gx - 2) };
     }
+    const qxPos = (L, c, i) => { const k = i % L.per; return { x: L.x0 + (k % L.cols) * (c.s + c.gx), y: L.y0 + Math.floor(k / L.cols) * (L.cellH + c.gy) }; };
+    function qxWrap(name, maxW) {
+      const words = String(name).trim().split(/\s+/), split = pt => { const L = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (!cur || qxW(t, pt) <= maxW) cur = t; else { L.push(cur); cur = w; } } L.push(cur); return L; };
+      for (let pt = 9; pt >= 6.5; pt -= .5) { const l = split(pt); if (l.length <= 2 && l.every(x => qxW(x, pt) <= maxW)) return { lines: l, pt, over: false }; }
+      const fit = t => { const o = t; while (t.length > 1 && qxW(t, 6.5) > maxW) t = t.slice(0, -1); return t === o ? t : t.slice(0, -1) + '…'; };
+      const l = split(6.5); return { lines: [fit(l[0]), ...(l.length > 1 ? [fit(l.slice(1).join(' '))] : [])], pt: 6.5, over: true };
+    }
+    function qxMat(nis) { const q = qrcode(0, 'M'); q.addData(String(nis)); q.make(); const n = q.getModuleCount(), m = []; for (let r = 0; r < n; r++) { m[r] = []; for (let c = 0; c < n; c++) m[r][c] = q.isDark(r, c); } return { n, m }; }
+    const qxCmp = (a, b) => (a.Kelas || '').localeCompare(b.Kelas || '') || a.Nama.localeCompare(b.Nama);
+    const qxSelected = () => santriData.filter(s => QX.sel.has(String(s.NIS))).sort(qxCmp);
     
-    /* ===== ID CARD BUILDER (tahap 1: editor, template, upload) ===== */
-    const IDC = { W: 1011, H: 638, MMW: 85.6, MMH: 54, tpls: [], cur: null, sel: null, imgs: {}, bgImg: null, pendingBg: null, santri: null, foto: null, zoom: 1, undo: [], redo: [], d: null, g: [], k: 1, lt: 0 };
-    const IDC_FONTS = ['Arial', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New'];
-    const IDC_NM = { foto: 'Foto', nama: 'Nama', id: 'ID / NIS', qr: 'QR Code', teks: 'Teks' }, IDC_IC = { foto: 'image', nama: 'user', id: 'hashtag', qr: 'qrcode', teks: 'font' };
-    const idcSq = e => e.type === 'qr' || (e.type === 'foto' && e.shape === 'circle');
-    const idcSelEl = () => IDC.cur && IDC.cur.els.find(e => e.id === IDC.sel);
-    const idcLoadImg = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('Gambar rusak')); i.src = src; });
-    async function idcImgGet(id) {
-      if (!id) return null; if (IDC.imgs[id]) return IDC.imgs[id];
-      const r = await api('getFiles', { ids: [id] }, { silent: true });
-      if (!r.success || !r.data[id]) return null;
-      return (IDC.imgs[id] = await idcLoadImg(r.data[id]));
+    // ----- daftar santri -----
+    function qxList() {
+      const j = el('qx-jk').value, k = el('qx-kls').value, q = el('qx-cari').value.toLowerCase();
+      const v = santriData.filter(s => s.Status === 'Aktif' && (!j || s.Jenis_Kelamin === j) && (!k || s.Kelas === k) && (!q || (s.Nama + s.NIS).toLowerCase().includes(q))).sort(qxCmp);
+      QX.vis = v;
+      el('qx-list').innerHTML = v.map(s => `<label class="qx-it"><input type="checkbox" data-n="${esc(s.NIS)}" ${QX.sel.has(String(s.NIS)) ? 'checked' : ''}><span class="min-w-0"><b class="block truncate">${esc(s.Nama)}</b><small>${esc(s.NIS)} · ${esc(s.Kelas)}</small></span></label>`).join('') || '<p class="p-3 text-xs text-gray-500">Tidak ada santri.</p>';
+      el('qx-count').innerText = QX.sel.size + ' santri dipilih';
     }
-    function idcReadImg(file, max, mime, q) {
-      return new Promise((ok, no) => {
-        const r = new FileReader();
-        r.onerror = () => no(new Error('File tidak bisa dibaca'));
-        r.onload = () => idcLoadImg(r.result).then(im => {
-          const k = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement('canvas');
-          c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-          let url = c.toDataURL(mime, q); if (url.length > 7.5e6) url = c.toDataURL('image/jpeg', .9);
-          ok({ url, w: im.width, h: im.height });
-        }, no);
-        r.readAsDataURL(file);
-      });
-    }
-    
-    // ----- render (dipakai juga untuk ekspor di tahap 2) -----
-    function idcCover(ctx, im, x, y, w, h, z, fx, fy) {
-      const sc = Math.max(w / im.width, h / im.height) * (z || 1), dw = im.width * sc, dh = im.height * sc;
-      ctx.drawImage(im, x - (dw - w) * (fx ?? .5), y - (dh - h) * (fy ?? .5), dw, dh);
-    }
-    function idcEl(ctx, e, s, fi, o) {
-      const W = IDC.W, H = IDC.H, x = e.x * W, y = e.y * H, w = e.w * W, h = e.h * H;
-      if (e.type === 'foto') {
-        ctx.save(); ctx.beginPath(); e.shape === 'circle' ? ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, 7) : ctx.rect(x, y, w, h); ctx.clip();
-        if (fi) idcCover(ctx, fi, x, y, w, h, e.z, e.fx, e.fy);
-        else if (o.ph !== false) { ctx.fillStyle = '#d5dde5'; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#6b7c8c'; ctx.font = `${h * .09}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Foto', x + w / 2, y + h / 2); }
-        ctx.restore();
-      } else if (e.type === 'qr') {
-        const q = qrcode(0, 'M'); q.addData(s ? String(s.NIS) : 'CONTOH'); q.make();
-        const n = q.getModuleCount(), sz = Math.max(1, Math.floor(Math.min(w, h) / (n + 4)));
-        ctx.fillStyle = e.bg || '#fff'; ctx.fillRect(x, y, w, h); ctx.fillStyle = e.fg || '#000';
-        const ox = Math.round(x + (w - sz * n) / 2), oy = Math.round(y + (h - sz * n) / 2);
-        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect(ox + c * sz, oy + r * sz, sz, sz);
-      } else {
-        const t = e.type === 'nama' ? (s ? s.Nama : 'Nama Santri') : e.type === 'id' ? (s ? s.NIS : 'ID Santri')
-          : String(e.text || '').replace(/\{(nama|nis|kelas)\}/gi, (m, k) => s ? ({ nama: s.Nama, nis: s.NIS, kelas: s.Kelas }[k.toLowerCase()] || '') : m);
-        const F = px => `${e.bold ? 'bold ' : ''}${px}px ${e.font || 'Arial'},sans-serif`;
-        let fs = e.size * H; ctx.font = F(fs); const tw = ctx.measureText(t).width;
-        if (tw > w) { fs = Math.max(fs * .5, fs * w / tw); ctx.font = F(fs); }
-        let tt = t; while (tt.length > 1 && ctx.measureText(tt).width > w) tt = tt.slice(0, -1);
-        if (tt !== t) tt = tt.slice(0, -1) + '…';
-        ctx.fillStyle = e.color || '#111'; ctx.textBaseline = 'middle'; ctx.textAlign = e.align || 'left';
-        ctx.fillText(tt, e.align === 'center' ? x + w / 2 : e.align === 'right' ? x + w : x, y + h / 2);
-      }
-      if (o.ed) { ctx.save(); ctx.strokeStyle = 'rgba(80,110,150,.5)'; ctx.setLineDash([6 * o.k, 4 * o.k]); ctx.lineWidth = o.k; ctx.strokeRect(x, y, w, h); ctx.restore(); }
-    }
-    function idcDraw(ctx, cfg, bg, s, fi, o = {}) {
-      const W = IDC.W, H = IDC.H; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
-      if (bg) idcCover(ctx, bg, 0, 0, W, H, cfg.bg.z, cfg.bg.fx, cfg.bg.fy);
-      cfg.els.forEach(e => idcEl(ctx, e, s, fi, o));
-      if (!o.ed) return;
-      ctx.save(); ctx.strokeStyle = '#d6249f'; ctx.lineWidth = o.k; o.g.forEach(g => { ctx.beginPath(); g.x !== undefined ? (ctx.moveTo(g.x, 0), ctx.lineTo(g.x, H)) : (ctx.moveTo(0, g.y), ctx.lineTo(W, g.y)); ctx.stroke(); });
-      const e = o.sel; if (e) {
-        const x = e.x * W, y = e.y * H, w = e.w * W, h = e.h * H, hs = 10 * o.k;
-        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2 * o.k; ctx.strokeRect(x, y, w, h);
-        if (!e.lock) [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].forEach(([a, b]) => { ctx.fillStyle = '#fff'; ctx.fillRect(a - hs / 2, b - hs / 2, hs, hs); ctx.strokeRect(a - hs / 2, b - hs / 2, hs, hs); });
-      }
-      ctx.restore();
-    }
-    function idcRedraw() {
-      const cv = el('idc-cv'); if (!cv || !IDC.cur) return;
-      IDC.k = cv.width / (cv.getBoundingClientRect().width || cv.width);
-      idcDraw(cv.getContext('2d'), IDC.cur, IDC.bgImg, IDC.santri, IDC.foto, { ed: true, sel: idcSelEl(), k: IDC.k, g: IDC.g });
-    }
-    
-    // ----- state, undo/redo -----
-    const idcState = () => JSON.stringify({ els: IDC.cur.els, bg: IDC.cur.bg });
-    function idcPush(force) {
-      const s = idcState(); if (IDC.undo[IDC.undo.length - 1] === s) return;
-      if (!force && Date.now() - IDC.lt < 600) return; IDC.lt = Date.now();
-      IDC.undo.push(s); if (IDC.undo.length > 60) IDC.undo.shift(); IDC.redo = [];
-    }
-    function idcUndo(back) {
-      const from = back ? IDC.undo : IDC.redo, to = back ? IDC.redo : IDC.undo; if (!from.length) return;
-      to.push(idcState()); const s = JSON.parse(from.pop()); IDC.cur.els = s.els; IDC.cur.bg = s.bg;
-      if (!idcSelEl()) IDC.sel = null; idcSync();
-    }
-    function idcSync() {
-      const C = IDC.cur, sel = el('idc-tpl');
-      sel.innerHTML = '<option value="">— Template baru —</option>' + IDC.tpls.map(t => `<option value="${esc(t.id)}">${esc(t.nama)}</option>`).join(''); sel.value = C.id || '';
-      el('idc-name').innerText = C.nama || 'Belum diberi nama';
-      el('idc-lock').checked = C.bg.lock; el('idc-bgz').classList.toggle('hidden', C.bg.lock); el('idc-bgz').value = C.bg.z;
-      idcLayers(); idcProps(); idcFit(); idcRedraw();
-    }
-    function idcFit() { const st = el('idc-stage'); el('idc-cv').style.width = Math.max(200, (st.clientWidth - 16) * IDC.zoom) + 'px'; el('idc-zoom').innerText = Math.round(IDC.zoom * 100) + '%'; setTimeout(idcRedraw, 0); }
-    function idcZoom(f) { IDC.zoom = Math.min(4, Math.max(.5, f === 0 ? 1 : IDC.zoom * f)); idcFit(); }
-    
-    // ----- elemen -----
-    function idcAdd(type) {
-      const b = { id: 'e' + Date.now() + Math.random().toString(36).slice(2, 5), type, lock: false };
-      const E = {
-        foto: { x: .06, y: .27, w: .26, h: .5, shape: 'rect', z: 1, fx: .5, fy: .4 },
-        qr: { x: .7, y: .3, w: .22, h: .22 * 1011 / 638, fg: '#000000', bg: '#ffffff' },
-        nama: { x: .36, y: .3, w: .58, h: .1, size: .075, font: 'Arial', bold: true, color: '#111111', align: 'left' },
-        id: { x: .36, y: .42, w: .3, h: .08, size: .06, font: 'Arial', bold: false, color: '#111111', align: 'left' },
-        teks: { x: .36, y: .54, w: .3, h: .08, text: '{kelas}', size: .055, font: 'Arial', bold: false, color: '#111111', align: 'left' }
-      }[type];
-      idcPush(true); const e = { ...b, ...E }; IDC.cur.els.push(e); IDC.sel = e.id; idcSync();
-    }
-    function idcSelect(id) { IDC.sel = id; idcLayers(); idcProps(); idcRedraw(); }
-    function idcLayers() {
-      el('idc-lay').innerHTML = [...IDC.cur.els].reverse().map(e => `<div class="idc-lay ${e.id === IDC.sel ? 'on' : ''}" onclick="idcSelect('${e.id}')"><i class="fas fa-${IDC_IC[e.type]}"></i>${IDC_NM[e.type]}${e.lock ? ' <i class="fas fa-lock text-[10px] text-gray-400"></i>' : ''}</div>`).join('') || '<p class="text-xs text-gray-500">Belum ada elemen. Tambahkan dengan tombol di atas.</p>';
-    }
-    function idcProps() {
-      const e = idcSelEl(), P = el('idc-props');
-      if (!e) { P.innerHTML = '<p class="text-xs text-gray-500">Pilih elemen pada kartu atau daftar layer untuk mengatur.</p>'; return; }
-      const R = (l, h) => `<div class="idc-r"><label>${l}</label>${h}</div>`, N = (k, v, st = '0.1') => `<input type="number" step="${st}" value="${v}" onchange="idcF('${k}',this)">`;
-      const S = (k, o, v) => `<select onchange="idcF('${k}',this)">${o.map(([a, b]) => `<option value="${a}" ${v === a ? 'selected' : ''}>${b}</option>`).join('')}</select>`;
-      const G = (k, v, mn, mx, st) => `<input type="range" min="${mn}" max="${mx}" step="${st}" value="${v}" oninput="idcF('${k}',this)">`;
-      let h = R('X (mm)', N('x', (e.x * IDC.MMW).toFixed(1))) + R('Y (mm)', N('y', (e.y * IDC.MMH).toFixed(1))) + R('Lebar (mm)', N('w', (e.w * IDC.MMW).toFixed(1))) + R('Tinggi (mm)', N('h', (e.h * IDC.MMH).toFixed(1)));
-      if (e.type === 'teks') h += R('Teks', `<input value="${esc(e.text)}" oninput="idcF('text',this)">`) + '<p class="text-[11px] text-gray-500">Bisa memakai {nama} {nis} {kelas}</p>';
-      if (['nama', 'id', 'teks'].includes(e.type)) h += R('Font', S('font', IDC_FONTS.map(f => [f, f]), e.font)) + R('Ukuran (pt)', N('size', Math.round(e.size / .006533), '1')) + R('Tebal', `<input type="checkbox" ${e.bold ? 'checked' : ''} onchange="idcF('bold',this)">`) + R('Warna', `<input type="color" value="${e.color}" oninput="idcF('color',this)">`) + R('Rata', S('align', [['left', 'Kiri'], ['center', 'Tengah'], ['right', 'Kanan']], e.align));
-      if (e.type === 'foto') h += R('Bentuk', S('shape', [['rect', 'Persegi'], ['circle', 'Lingkaran']], e.shape)) + R('Zoom', G('z', e.z, 1, 3, .05)) + R('Geser X', G('fx', e.fx, 0, 1, .01)) + R('Geser Y', G('fy', e.fy, 0, 1, .01));
-      if (e.type === 'qr') h += R('Warna QR', `<input type="color" value="${e.fg}" oninput="idcF('fg',this)">`) + R('Latar QR', `<input type="color" value="${e.bg}" oninput="idcF('bg',this)">`) + '<p class="text-[11px] text-gray-500">Isi QR = NIS santri (sama dengan QR absensi).</p>';
-      h += R('Kunci', `<input type="checkbox" ${e.lock ? 'checked' : ''} onchange="idcF('lock',this)">`) + `<div class="flex flex-wrap gap-1.5 mt-2"><button class="idc-b" onclick="idcDup()">Duplikat</button><button class="idc-b" onclick="idcLayer(1)">▲ Atas</button><button class="idc-b" onclick="idcLayer(-1)">▼ Bawah</button><button class="idc-b text-red-600" onclick="idcDel()">Hapus</button></div>`;
-      P.innerHTML = h;
-    }
-    function idcF(k, inp) {
-      const e = idcSelEl(); if (!e) return; idcPush();
-      const v = inp.type === 'checkbox' ? inp.checked : (inp.type === 'number' || inp.type === 'range') ? parseFloat(inp.value) : inp.value, W = IDC.MMW, Hh = IDC.MMH;
-      if (inp.type === 'number' && isNaN(v)) return;
-      if (k === 'x') e.x = v / W; else if (k === 'y') e.y = v / Hh;
-      else if (k === 'w') { e.w = v / W; if (idcSq(e)) e.h = v / Hh; } else if (k === 'h') { e.h = v / Hh; if (idcSq(e)) e.w = v / W; }
-      else if (k === 'size') e.size = v * .006533;
-      else { e[k] = v; if (k === 'shape' && v === 'circle') e.h = e.w * IDC.W / IDC.H; }
-      if (['x', 'y', 'w', 'h', 'shape'].includes(k) || k === 'lock') { idcProps(); idcLayers(); }
-      idcRedraw();
-    }
-    function idcDup() { const e = idcSelEl(); if (!e) return; idcPush(true); const c = { ...JSON.parse(JSON.stringify(e)), id: 'e' + Date.now(), x: Math.min(.9, e.x + .03), y: Math.min(.9, e.y + .04) }; IDC.cur.els.push(c); IDC.sel = c.id; idcSync(); }
-    function idcDel() { const e = idcSelEl(); if (!e) return; idcPush(true); IDC.cur.els = IDC.cur.els.filter(x => x !== e); IDC.sel = null; idcSync(); }
-    function idcLayer(d) { const a = IDC.cur.els, i = a.findIndex(e => e.id === IDC.sel), j = i + d; if (i < 0 || j < 0 || j >= a.length) return; idcPush(true); [a[i], a[j]] = [a[j], a[i]]; idcLayers(); idcRedraw(); }
-    
-    // ----- interaksi kanvas (mouse & sentuh) -----
-    function idcPt(ev) { const r = el('idc-cv').getBoundingClientRect(); return { x: (ev.clientX - r.left) * IDC.W / r.width, y: (ev.clientY - r.top) * IDC.H / r.height }; }
-    const idcBest = (vals, cands, th) => { let b = null; vals.forEach(v => cands.forEach(c => { const d = c - v; if (Math.abs(d) <= th && (!b || Math.abs(d) < Math.abs(b.d))) b = { d, c }; })); return b; };
-    function idcBind() {
-      const cv = el('idc-cv'), W = IDC.W, H = IDC.H;
-      cv.onpointerdown = ev => {
-        const p = idcPt(ev), e = idcSelEl(); let d = null;
-        if (e && !e.lock) {
-          const x = e.x * W, y = e.y * H, w = e.w * W, h = e.h * H;
-          const c = [['tl', x, y], ['tr', x + w, y], ['bl', x, y + h], ['br', x + w, y + h]].find(([, a, b]) => Math.abs(p.x - a) < 14 * IDC.k && Math.abs(p.y - b) < 14 * IDC.k);
-          if (c) d = { m: 'r', c: c[0], e, o: { x0: x, y0: y, x1: x + w, y1: y + h } };
-        }
-        if (!d) {
-          const hit = [...IDC.cur.els].reverse().find(q => p.x >= q.x * W && p.x <= (q.x + q.w) * W && p.y >= q.y * H && p.y <= (q.y + q.h) * H);
-          if (hit) { IDC.sel = hit.id; if (!hit.lock) d = { m: 'm', e: hit, sx: p.x, sy: p.y, ox: hit.x, oy: hit.y }; }
-          else { IDC.sel = null; if (!IDC.cur.bg.lock && IDC.bgImg) d = { m: 'b', sx: p.x, sy: p.y, fx: IDC.cur.bg.fx, fy: IDC.cur.bg.fy }; }
-          idcLayers(); idcProps();
-        }
-        IDC.d = d; if (d) { idcPush(true); cv.setPointerCapture(ev.pointerId); } idcRedraw();
-      };
-      cv.onpointermove = ev => {
-        const d = IDC.d; if (!d) return; const p = idcPt(ev); IDC.g = [];
-        if (d.m === 'm') {
-          const e = d.e, w = e.w * W, h = e.h * H; let nx = d.ox * W + p.x - d.sx, ny = d.oy * H + p.y - d.sy;
-          const xs = [0, W / 2, W], ys = [0, H / 2, H]; IDC.cur.els.forEach(o => { if (o !== e) { xs.push(o.x * W, (o.x + o.w / 2) * W, (o.x + o.w) * W); ys.push(o.y * H, (o.y + o.h / 2) * H, (o.y + o.h) * H); } });
-          const bx = idcBest([nx, nx + w / 2, nx + w], xs, 7 * IDC.k), by = idcBest([ny, ny + h / 2, ny + h], ys, 7 * IDC.k);
-          if (bx) { nx += bx.d; IDC.g.push({ x: bx.c }); } if (by) { ny += by.d; IDC.g.push({ y: by.c }); }
-          e.x = nx / W; e.y = ny / H;
-        } else if (d.m === 'r') {
-          const o = d.o, c = d.c, ax = c.includes('l') ? o.x1 : o.x0, ay = c.includes('t') ? o.y1 : o.y0;
-          let w = Math.max(20, Math.abs(p.x - ax)), h = Math.max(20, Math.abs(p.y - ay)); if (idcSq(d.e)) w = h = Math.max(w, h);
-          d.e.x = (c.includes('l') ? ax - w : ax) / W; d.e.y = (c.includes('t') ? ay - h : ay) / H; d.e.w = w / W; d.e.h = h / H;
-        } else {
-          const im = IDC.bgImg, sc = Math.max(W / im.width, H / im.height) * IDC.cur.bg.z, ow = im.width * sc - W, oh = im.height * sc - H;
-          if (ow > 1) IDC.cur.bg.fx = Math.min(1, Math.max(0, d.fx - (p.x - d.sx) / ow)); if (oh > 1) IDC.cur.bg.fy = Math.min(1, Math.max(0, d.fy - (p.y - d.sy) / oh));
-        }
-        idcRedraw();
-      };
-      cv.onpointerup = cv.onpointercancel = () => { IDC.d = null; IDC.g = []; idcProps(); idcRedraw(); };
-      document.addEventListener('keydown', ev => {
-        if (el('page-idcard').classList.contains('hidden') || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
-        const e = idcSelEl();
-        if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); idcUndo(!ev.shiftKey); }
-        else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); idcUndo(false); }
-        else if (e && ev.key === 'Delete') idcDel();
-        else if (e && !e.lock && ev.key.startsWith('Arrow')) { ev.preventDefault(); idcPush(); const s = ev.shiftKey ? 10 : 1; if (ev.key === 'ArrowLeft') e.x -= s / W; if (ev.key === 'ArrowRight') e.x += s / W; if (ev.key === 'ArrowUp') e.y -= s / H; if (ev.key === 'ArrowDown') e.y += s / H; idcProps(); idcRedraw(); }
-      });
-      window.addEventListener('resize', () => { if (!el('page-idcard').classList.contains('hidden')) idcFit(); });
-    }
-    
-    // ----- latar, template, santri -----
-    async function idcUploadBg(inp) {
-      const f = inp.files[0]; inp.value = ''; if (!f) return;
-      if (!/^image\/(png|jpeg)$/.test(f.type)) { toast('error', 'Gunakan file PNG atau JPG'); return; }
-      try {
-        const r = await idcReadImg(f, 2022, f.type, .93), ratio = r.w / r.h, std = IDC.MMW / IDC.MMH;
-        if (Math.abs(ratio - std) / std > .02) {
-          const ok = await Swal.fire({ icon: 'warning', title: 'Rasio gambar berbeda', html: `Gambar ${r.w}×${r.h} px (rasio ${ratio.toFixed(3)}), sedangkan kartu 85,6×54 mm (rasio ${std.toFixed(3)}).<br>Gambar <b>tidak diregangkan</b>, tetapi tepinya akan terpotong. Sebaiknya ekspor desain CorelDRAW dengan rasio yang sama.`, showCancelButton: true, confirmButtonText: 'Tetap pakai', cancelButtonText: 'Batal' });
-          if (!ok.isConfirmed) return;
-        } else if (r.w < IDC.W) toast('warning', `Resolusi ${r.w}px di bawah 1011px (300 DPI). Hasil cetak bisa kurang tajam.`);
-        IDC.pendingBg = r.url; IDC.bgImg = await idcLoadImg(r.url); idcPush(true); IDC.cur.bg = { ...IDC.cur.bg, z: 1, fx: .5, fy: .5 }; idcSync();
-      } catch (e) { toast('error', e.message); }
-    }
-    async function idcLoadTpl() { const r = await api('getTemplates', {}, { silent: true }); if (r.success) IDC.tpls = r.data; }
-    function idcBaru() { IDC.cur = { id: '', nama: '', bgId: '', bg: { lock: true, z: 1, fx: .5, fy: .5 }, els: [] }; IDC.bgImg = null; IDC.pendingBg = null; IDC.sel = null; IDC.undo = []; IDC.redo = []; idcSync(); }
-    async function idcPilih(id) {
-      if (!id) { idcBaru(); return; }
-      const t = IDC.tpls.find(x => x.id === id); if (!t) return; let c = {}; try { c = JSON.parse(t.config || '{}'); } catch (e) { }
-      IDC.cur = { id: t.id, nama: t.nama, bgId: t.bgId, bg: { lock: true, z: 1, fx: .5, fy: .5, ...(c.bg || {}) }, els: c.els || [] };
-      IDC.sel = null; IDC.pendingBg = null; IDC.undo = []; IDC.redo = []; IDC.bgImg = null; idcSync();
-      IDC.bgImg = await idcImgGet(t.bgId); if (!IDC.bgImg) toast('error', 'Gambar latar template tidak bisa dimuat'); idcRedraw();
-    }
-    async function idcSimpan() {
-      const C = IDC.cur;
-      if (!C.nama) { const r = await Swal.fire({ title: 'Nama template', input: 'text', showCancelButton: true, confirmButtonText: 'Simpan' }); if (!r.isConfirmed || !String(r.value || '').trim()) return; C.nama = r.value.trim(); }
-      let bgId = C.bgId;
-      if (IDC.pendingBg) { const r = await api('saveImage', { kind: 'bg', data: IDC.pendingBg }); if (!r.success) return; bgId = r.data.id; }
-      if (!bgId) { toast('warning', 'Unggah desain latar kartu terlebih dahulu'); return; }
-      const r = await api('saveTemplate', { id: C.id, nama: C.nama, bgId, config: JSON.stringify({ v: 1, bg: C.bg, els: C.els }) });
-      if (!r.success) return;
-      C.id = r.data.id; C.bgId = bgId; IDC.pendingBg = null; IDC.imgs[bgId] = IDC.bgImg; await idcLoadTpl(); idcSync(); toast('success', 'Template tersimpan');
-    }
-    async function idcRename() { const r = await Swal.fire({ title: 'Ganti nama template', input: 'text', inputValue: IDC.cur.nama, showCancelButton: true }); if (!r.isConfirmed || !String(r.value || '').trim()) return; IDC.cur.nama = r.value.trim(); IDC.cur.id ? idcSimpan() : idcSync(); }
-    async function idcHapus() {
-      if (!IDC.cur.id) { toast('info', 'Template belum disimpan'); return; }
-      const r = await Swal.fire({ icon: 'warning', title: `Hapus template "${IDC.cur.nama}"?`, text: 'Gambar latarnya juga ikut dihapus.', showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal' });
-      if (!r.isConfirmed) return; const x = await api('deleteTemplate', { id: IDC.cur.id }); if (x.success) { await idcLoadTpl(); idcBaru(); toast('success', 'Template dihapus'); }
-    }
-    function idcToggleLock(v) { IDC.cur.bg.lock = v; el('idc-bgz').classList.toggle('hidden', v); }
-    function idcBgZoom(v) { idcPush(); IDC.cur.bg.z = parseFloat(v); idcRedraw(); }
-    async function idcPilihSantri(nis) {
-      IDC.santri = santriData.find(s => String(s.NIS) === String(nis)) || null; IDC.foto = null; idcWarn(); idcRedraw();
-      if (IDC.santri && IDC.santri.Foto_ID) { IDC.foto = await idcImgGet(IDC.santri.Foto_ID); idcWarn(); idcRedraw(); }
-    }
-    function idcWarn() {
-      const s = IDC.santri, w = [];
-      if (s) { if (!s.Foto_ID) w.push('Santri ini belum punya foto.'); else if (!IDC.foto) w.push('Foto tidak bisa dimuat.'); if (!s.Nama) w.push('Nama kosong.'); }
-      el('idc-warn').innerHTML = w.length ? '<i class="fas fa-triangle-exclamation"></i> ' + w.join(' ') : (s ? '<span class="text-green-700">Data lengkap.</span>' : 'Pilih santri untuk pratinjau data asli.');
-      el('idc-foto-btn').classList.toggle('hidden', !s);
-    }
-    async function idcUploadFoto(inp) {
-      const f = inp.files[0]; inp.value = ''; const s = IDC.santri; if (!f || !s) return;
-      if (!/^image\//.test(f.type)) { toast('error', 'File harus berupa gambar'); return; }
-      try {
-        const r = await idcReadImg(f, 800, 'image/jpeg', .88), x = await api('saveImage', { kind: 'foto', nis: s.NIS, data: r.url });
-        if (!x.success) return; s.Foto_ID = x.data.id; IDC.foto = IDC.imgs[x.data.id] = await idcLoadImg(r.url); markStale(['santri']); idcWarn(); idcRedraw(); toast('success', 'Foto tersimpan');
-      } catch (e) { toast('error', e.message); }
-    }
-    async function idcInit() {
+    function qxAll(on) { if (on) (QX.vis || []).forEach(s => QX.sel.add(String(s.NIS))); else QX.sel.clear(); qxList(); qxRefresh(); }
+    function qxSize(v) { el('qx-size').value = v; qxRefresh(); }
+    function qxBuka(list) { QX.sel = new Set(list.map(String)); QX.preset = true; nav('qrexport'); }
+    async function qxInit() {
       if (!window.qrcode) { Swal.fire('QR belum siap', 'Pustaka QR gagal dimuat. Muat ulang halaman.', 'error'); return; }
-      if (!IDC.bound) { idcBind(); IDC.bound = true; }
-      if (!IDC.cur) idcBaru(); else idcSync();
       if (!santriData.length) { const r = await api('getSantri', {}, { silent: true }); if (r.success) santriData = r.data; }
-      const l = santriData.filter(s => s.Status === 'Aktif').sort((a, b) => a.Nama.localeCompare(b.Nama));
-      el('idc-santri').innerHTML = '<option value="">— Pilih santri —</option>' + l.map(s => `<option value="${esc(s.NIS)}">${esc(s.Nama)} · ${esc(s.Kelas)}</option>`).join('');
-      if (IDC.santri) el('idc-santri').value = IDC.santri.NIS;
-      idcWarn(); await idcLoadTpl(); idcSync();
+      const kls = [...new Set(santriData.filter(s => s.Status === 'Aktif').map(s => s.Kelas))].sort();
+      el('qx-kls').innerHTML = '<option value="">Semua kelas</option>' + kls.map(k => `<option>${esc(k)}</option>`).join('');
+      if (!QX.init) {
+        QX.init = true; if (!QX.preset) santriData.filter(s => s.Status === 'Aktif').forEach(s => QX.sel.add(String(s.NIS)));
+        el('qx-list').onchange = e => { const n = e.target.dataset.n; if (n === undefined) return; e.target.checked ? QX.sel.add(n) : QX.sel.delete(n); el('qx-count').innerText = QX.sel.size + ' santri dipilih'; qxRefresh(); };
+      }
+      QX.preset = false; QX.page = 0; qxList(); qxRefresh();
     }
-    const _navIdc = nav; nav = function (p) { _navIdc(p); if (p === 'idcard') idcInit(); };
+    
+    // ----- hitung & pratinjau -----
+    function qxRefresh() {
+      const c = qxCfg(), L = qxLayout(c), info = el('qx-info'), warn = el('qx-warn'), ok = !L.err;
+      ['qx-pdf', 'qx-png'].forEach(id => el(id).disabled = !ok);
+      if (!ok) { QX.lay = null; info.innerText = ''; warn.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + L.err; el('qx-cv').width = 1; return; }
+      QX.cfg = c; QX.lay = L;
+      QX.items = qxSelected().map(s => ({ nis: String(s.NIS), nama: s.Nama, ...qxWrap(s.Nama, L.maxW) }));
+      const pages = Math.max(1, Math.ceil(QX.items.length / L.per)); if (QX.page >= pages) QX.page = pages - 1;
+      info.innerText = `${QX.items.length} santri · ${L.cols} kolom × ${L.rows} baris = ${L.per} QR/halaman · ${pages} halaman`;
+      const w = [], over = QX.items.filter(i => i.over).map(i => i.nama);
+      if (c.s < 20) w.push('QR di bawah 2 cm berisiko sulit dipindai setelah dicetak.');
+      if (over.length) w.push(`Nama terlalu panjang dan dipotong "…": ${over.slice(0, 5).map(esc).join(', ')}${over.length > 5 ? ` (+${over.length - 5})` : ''}. Perbesar jarak antar kolom atau kecilkan jumlah kolom.`);
+      if (QX.items.some(i => qxNonLatin(i.nama))) w.push('Nama berhuruf non-Latin diekspor sebagai gambar (bukan teks yang bisa diedit).');
+      warn.innerHTML = w.length ? w.map(x => '<i class="fas fa-triangle-exclamation"></i> ' + x).join('<br>') : '';
+      qxDrawPrev();
+    }
+    function qxDrawItem(x, K, it, p, c, outline) {
+      const q = qxMat(it.nis), box = Math.round(c.s * K), px = Math.round(p.x * K), py = Math.round(p.y * K);
+      x.fillStyle = '#fff'; x.fillRect(px, py, box, box);
+      if (outline) { x.strokeStyle = '#d5dde5'; x.lineWidth = 1; x.strokeRect(px + .5, py + .5, box - 1, box - 1); }
+      const mp = Math.max(1, Math.floor(box / (q.n + 4))), off = Math.round((box - mp * q.n) / 2);
+      x.fillStyle = '#000'; for (let r = 0; r < q.n; r++) for (let k = 0; k < q.n; k++) if (q.m[r][k]) x.fillRect(px + off + k * mp, py + off + r * mp, mp, mp);
+      x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.font = `${it.pt * .3528 * K}px Arial,sans-serif`;
+      it.lines.forEach((l, j) => x.fillText(l, (p.x + c.s / 2) * K, qxBase(p.y, c.s, it.pt, j) * K));
+    }
+    function qxDrawPrev() {
+      const cv = el('qx-cv'), L = QX.lay, c = QX.cfg, K = 3, x = cv.getContext('2d'), pages = Math.max(1, Math.ceil(QX.items.length / L.per));
+      cv.width = L.PW * K; cv.height = L.PH * K; x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height);
+      x.setLineDash([4, 4]); x.strokeStyle = '#e5e9ee'; x.strokeRect(c.m * K, c.m * K, (L.PW - 2 * c.m) * K, (L.PH - 2 * c.m) * K); x.setLineDash([]);
+      for (let i = QX.page * L.per; i < Math.min(QX.items.length, (QX.page + 1) * L.per); i++) qxDrawItem(x, K, QX.items[i], qxPos(L, c, i), c, true);
+      el('qx-pg').innerText = `Halaman ${QX.page + 1} / ${pages}`;
+    }
+    function qxPage(d) { const pages = Math.max(1, Math.ceil(QX.items.length / QX.lay.per)); QX.page = Math.min(pages - 1, Math.max(0, QX.page + d)); qxDrawPrev(); }
+    
+    // ----- ekspor -----
+    const qxDl = (b, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+    const qxWait = () => new Promise(r => setTimeout(r, 30));
+    const qxGo = t => { if (!QX.items.length) { toast('warning', 'Pilih santri terlebih dahulu'); return false; } Swal.fire({ title: t, allowOutsideClick: false, didOpen: () => Swal.showLoading() }); return true; };
+    async function qxPDF() {
+      if (!window.jspdf) { Swal.fire('PDF belum siap', 'Pustaka PDF gagal dimuat. Muat ulang halaman.', 'error'); return; }
+      if (!qxGo('Membuat PDF…')) return;
+      try {
+        await qxWait(); const c = QX.cfg, L = QX.lay, doc = new window.jspdf.jsPDF({ orientation: c.land ? 'l' : 'p', unit: 'mm', format: 'a4' });
+        QX.items.forEach((it, i) => {
+          if (i > 0 && i % L.per === 0) doc.addPage();
+          const p = qxPos(L, c, i), q = qxMat(it.nis), mod = c.s / (q.n + 4);
+          doc.setFillColor(255, 255, 255); doc.rect(p.x, p.y, c.s, c.s, 'F'); doc.setFillColor(0, 0, 0);
+          for (let r = 0; r < q.n; r++) { let k = 0; while (k < q.n) { if (!q.m[r][k]) { k++; continue; } let e = k; while (e < q.n && q.m[r][e]) e++; doc.rect(p.x + (2 + k) * mod, p.y + (2 + r) * mod, (e - k) * mod + .015, mod + .015, 'F'); k = e; } }
+          if (qxNonLatin(it.nama)) {
+            const D = 600 / 25.4, cv = document.createElement('canvas'), x = cv.getContext('2d'); cv.width = Math.round(L.maxW * D); cv.height = Math.round(L.nameH * D);
+            x.fillStyle = '#000'; x.textAlign = 'center'; x.font = `${it.pt * .3528 * D}px Arial,sans-serif`; it.lines.forEach((l, j) => x.fillText(l, cv.width / 2, (qxBase(0, 0, it.pt, j) - 2) * D));
+            doc.addImage(cv.toDataURL('image/png'), 'PNG', p.x + c.s / 2 - L.maxW / 2, p.y + c.s + 2, L.maxW, L.nameH);
+          } else { doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal'); doc.setFontSize(it.pt); it.lines.forEach((l, j) => doc.text(l, p.x + c.s / 2, qxBase(p.y, c.s, it.pt, j), { align: 'center' })); }
+        });
+        doc.save(`qr-santri-A4-${c.s / 10}cm.pdf`); Swal.close(); toast('success', 'PDF dibuat. Cetak dengan skala 100%');
+      } catch (e) { Swal.fire('Gagal membuat PDF', e.message, 'error'); }
+    }
+    const QX_CRC = (() => { const t = []; for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+    const qxCrc = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = QX_CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+    async function qxDpi(blob, dpi) {
+      const buf = new Uint8Array(await blob.arrayBuffer()), dv = new DataView(buf.buffer); let pos = 8, at = -1;
+      while (pos < buf.length) { const len = dv.getUint32(pos), t = String.fromCharCode(...buf.slice(pos + 4, pos + 8)); if (t === 'pHYs') return blob; if (t === 'IDAT') { at = pos; break; } pos += 12 + len; }
+      if (at < 0) return blob;
+      const ppm = Math.round(dpi / .0254), ch = new Uint8Array(21), cd = new DataView(ch.buffer);
+      cd.setUint32(0, 9); ch.set([0x70, 0x48, 0x59, 0x73], 4); cd.setUint32(8, ppm); cd.setUint32(12, ppm); ch[16] = 1; cd.setUint32(17, qxCrc(ch.subarray(4, 17)));
+      return new Blob([buf.subarray(0, at), ch, buf.subarray(at)], { type: 'image/png' });
+    }
+    async function qxPNG() {
+      if (!qxGo('Membuat PNG…')) return;
+      try {
+        const c = QX.cfg, L = QX.lay, D = 300 / 25.4, pages = Math.ceil(QX.items.length / L.per), files = [];
+        for (let p = 0; p < pages; p++) {
+          Swal.update({ title: `Membuat PNG ${p + 1}/${pages}…` }); Swal.showLoading(); await qxWait();
+          const cv = document.createElement('canvas'); cv.width = Math.round(L.PW * D); cv.height = Math.round(L.PH * D); const x = cv.getContext('2d');
+          x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height);
+          for (let i = p * L.per; i < Math.min(QX.items.length, (p + 1) * L.per); i++) qxDrawItem(x, D, QX.items[i], qxPos(L, c, i), c, false);
+          const b = await new Promise(r => cv.toBlob(r, 'image/png'));
+          files.push([`qr-santri-hal-${String(p + 1).padStart(2, '0')}.png`, await qxDpi(b, 300)]);
+        }
+        if (files.length === 1) qxDl(files[0][1], files[0][0]);
+        else { if (!window.JSZip) throw new Error('Pustaka ZIP gagal dimuat. Muat ulang halaman.'); const z = new JSZip(); files.forEach(([n, b]) => z.file(n, b)); qxDl(await z.generateAsync({ type: 'blob' }), 'qr-santri-png.zip'); }
+        Swal.close(); toast('success', 'PNG dibuat (300 DPI)');
+      } catch (e) { Swal.fire('Gagal membuat PNG', e.message, 'error'); }
+    }
+    const _navQx = nav; nav = function (p) { _navQx(p); if (p === 'qrexport') qxInit(); };
     
     // INIT
     document.addEventListener('DOMContentLoaded', () => { tickClock(); initApp(); });
