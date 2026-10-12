@@ -460,6 +460,59 @@ html[data-theme="dark"] .rk-card{background:#142230}
   html[data-theme="dark"] .ab-table tbody tr{background:#142230}
 }
 </style>
+<style id="ui-rekap-tabel">
+/* ===== REKAP BULANAN: tabel ala Excel ===== */
+.rt-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-bottom:.6rem}
+.rt-bar .rt-per{grid-column:1/-1;display:flex;gap:.4rem;align-items:center}
+.rt-bar #rekap-cari{grid-column:1/-1}
+.rt-bar select,.rt-bar input{height:2.6rem;padding:0 .65rem!important;font-size:.85rem;min-width:0;width:100%}
+.rt-per select{flex:1}
+.rt-nav{flex:none;width:2.6rem;height:2.6rem;border-radius:.9rem;background:#fff;border:1px solid var(--line);color:var(--mut)}
+@media(min-width:768px){.rt-bar{display:flex;flex-wrap:wrap;align-items:center}.rt-bar .rt-per{width:auto;flex:none}.rt-bar select{width:auto}.rt-bar #rekap-cari{order:5;flex:1;min-width:12rem;width:auto}}
+.rt-sum{font-size:.8rem;font-weight:700;color:var(--mut);margin:.2rem .1rem .35rem}
+.rt-leg{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .85rem;font-size:11px;font-weight:600;color:var(--mut);margin:0 .1rem .5rem}
+.rt-k{display:inline-grid;place-items:center;min-width:1.3rem;height:1.3rem;border-radius:.35rem;font-size:11px;font-weight:800;margin-right:.3rem}
+.rt-note{flex-basis:100%}
+.rt-wrap{overflow:auto;max-height:calc(100dvh - 23rem);min-height:18rem;background:#fff;border:1px solid var(--line);border-radius:1rem;box-shadow:var(--sh);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.rt{border-collapse:separate;border-spacing:0;font-size:.8rem;--dw:2.1rem;width:max-content;min-width:100%}
+.rt th,.rt td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;background:#fff;padding:0;height:2.6rem}
+.rt thead th{position:sticky;top:0;z-index:3;background:#eef3f7;height:2.4rem;font-size:.75rem;font-weight:800;color:var(--mut)}
+.rt .rt-no{position:sticky;left:0;z-index:2;width:2.4rem;min-width:2.4rem;color:var(--mut);font-size:.75rem}
+.rt .rt-nm{position:sticky;left:2.4rem;z-index:2;width:8.5rem;min-width:8.5rem;max-width:8.5rem;text-align:left;padding:0 .5rem;box-shadow:2px 0 0 var(--line)}
+.rt thead .rt-no,.rt thead .rt-nm{z-index:4}
+.rt-nm b{display:block;font-size:.8rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rt-nm small{display:block;font-size:10.5px;line-height:1.2;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(min-width:768px){.rt .rt-nm{width:13rem;min-width:13rem;max-width:13rem}}
+.rt-c{position:relative;width:var(--dw);min-width:var(--dw);font-weight:800;font-size:.78rem;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rt-c.n{color:#64748b;font-weight:600;background:#f8fafc;cursor:default}
+.rt-c.nt:after{content:'';position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
+.rt-c.H,.rt-k.H{background:#dcf5e7;color:#0b5d3b}
+.rt-c.T,.rt-k.T{background:#ffe6d2;color:#9a3a0c}
+.rt-c.I,.rt-k.I{background:#dbeafe;color:#1e4fa3}
+.rt-c.S,.rt-k.S{background:#fdf1c2;color:#7a5200}
+.rt-c.A,.rt-k.A{background:#fcdcdd;color:#a31d28}
+.rt-k.n{background:#eef2f5;color:#64748b}
+.rt .rt-t{width:2.5rem;min-width:2.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.rt .rt-t0{border-left:2px solid var(--line)}
+.rt td.rt-t.H,.rt th.rt-t.H{color:#0b5d3b}.rt td.rt-t.T,.rt th.rt-t.T{color:#9a3a0c}.rt td.rt-t.I,.rt th.rt-t.I{color:#1e4fa3}.rt td.rt-t.S,.rt th.rt-t.S{color:#7a5200}.rt td.rt-t.A,.rt th.rt-t.A{color:#a31d28}
+.rt thead th.rt-t{background:#eef3f7}
+.rt td.rt-t.z{color:#64748b;font-weight:600}
+.rt .rt-p{width:3.2rem;min-width:3.2rem}
+.rt-msg{padding:3rem 1rem;text-align:center;font-size:.85rem;font-weight:600;color:var(--mut)}
+.rt-retry{margin-left:.4rem;padding:.4rem .9rem;border-radius:.8rem;background:var(--p1);color:#fff;font-weight:700}
+html[data-theme="dark"] .rt-nav,html[data-theme="dark"] .rt-wrap,html[data-theme="dark"] .rt td,html[data-theme="dark"] .rt th{background:#142230}
+html[data-theme="dark"] .rt thead th,html[data-theme="dark"] .rt thead th.rt-t{background:#192b3b}
+html[data-theme="dark"] .rt td.rt-c.n{background:#101c28;color:#8da3b5}
+html[data-theme="dark"] .rt td.rt-c.H,html[data-theme="dark"] .rt-k.H{background:#12382b;color:#8fe3b8}
+html[data-theme="dark"] .rt td.rt-c.T,html[data-theme="dark"] .rt-k.T{background:#40240f;color:#ffb98a}
+html[data-theme="dark"] .rt td.rt-c.I,html[data-theme="dark"] .rt-k.I{background:#14294a;color:#9cc2ff}
+html[data-theme="dark"] .rt td.rt-c.S,html[data-theme="dark"] .rt-k.S{background:#3a2d0e;color:#f5c969}
+html[data-theme="dark"] .rt td.rt-c.A,html[data-theme="dark"] .rt-k.A{background:#3a1519;color:#ff9aa1}
+html[data-theme="dark"] .rt-k.n{background:#1b2d40;color:#9db4c6}
+html[data-theme="dark"] .rt td.rt-t.H,html[data-theme="dark"] .rt th.rt-t.H{color:#8fe3b8}html[data-theme="dark"] .rt td.rt-t.T,html[data-theme="dark"] .rt th.rt-t.T{color:#ffb98a}html[data-theme="dark"] .rt td.rt-t.I,html[data-theme="dark"] .rt th.rt-t.I{color:#9cc2ff}html[data-theme="dark"] .rt td.rt-t.S,html[data-theme="dark"] .rt th.rt-t.S{color:#f5c969}html[data-theme="dark"] .rt td.rt-t.A,html[data-theme="dark"] .rt th.rt-t.A{color:#ff9aa1}
+html[data-theme="dark"] .rt td.rt-t.z{color:#8da3b5}
+</style>
+
 <style id="ui-v7">
 #btn-back{display:none;place-items:center;width:2.5rem;height:2.5rem;border-radius:50%;flex:none}
 .app-bar.is-sub #btn-back{display:grid;animation:pop .25s var(--ease) both}
@@ -1622,60 +1675,7 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
     function cetakHTML(judul, sub, tabel) {
       const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
       const d = f.contentWindow.document; d.open();
-      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(judul)}</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px Arial,sans-serif;color:#000}h2{margin:0;font-size:16px;text-align:center}p.s{text-align:center;margin:3px 0 10px;font-size:11px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:3px 2px;text-align:center;font-size:9px}td.l{text-align:left;white-space:nowrap}th{background:#e5e5e5}tr{page-break-inside:avoid}thead{display:table-header-group}</style>
-<style id="ui-rekap-tabel">
-/* ===== REKAP BULANAN: tabel ala Excel ===== */
-.rt-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-bottom:.6rem}
-.rt-bar .rt-per{grid-column:1/-1;display:flex;gap:.4rem;align-items:center}
-.rt-bar #rekap-cari{grid-column:1/-1}
-.rt-bar select,.rt-bar input{height:2.6rem;padding:0 .65rem!important;font-size:.85rem;min-width:0;width:100%}
-.rt-per select{flex:1}
-.rt-nav{flex:none;width:2.6rem;height:2.6rem;border-radius:.9rem;background:#fff;border:1px solid var(--line);color:var(--mut)}
-@media(min-width:768px){.rt-bar{display:flex;flex-wrap:wrap;align-items:center}.rt-bar .rt-per{width:auto;flex:none}.rt-bar select{width:auto}.rt-bar #rekap-cari{order:5;flex:1;min-width:12rem;width:auto}}
-.rt-sum{font-size:.8rem;font-weight:700;color:var(--mut);margin:.2rem .1rem .35rem}
-.rt-leg{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .85rem;font-size:11px;font-weight:600;color:var(--mut);margin:0 .1rem .5rem}
-.rt-k{display:inline-grid;place-items:center;min-width:1.3rem;height:1.3rem;border-radius:.35rem;font-size:11px;font-weight:800;margin-right:.3rem}
-.rt-note{flex-basis:100%}
-.rt-wrap{overflow:auto;max-height:calc(100dvh - 23rem);min-height:18rem;background:#fff;border:1px solid var(--line);border-radius:1rem;box-shadow:var(--sh);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.rt{border-collapse:separate;border-spacing:0;font-size:.8rem;--dw:2.1rem;width:max-content;min-width:100%}
-.rt th,.rt td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;background:#fff;padding:0;height:2.6rem}
-.rt thead th{position:sticky;top:0;z-index:3;background:#eef3f7;height:2.4rem;font-size:.75rem;font-weight:800;color:var(--mut)}
-.rt .rt-no{position:sticky;left:0;z-index:2;width:2.4rem;min-width:2.4rem;color:var(--mut);font-size:.75rem}
-.rt .rt-nm{position:sticky;left:2.4rem;z-index:2;width:8.5rem;min-width:8.5rem;max-width:8.5rem;text-align:left;padding:0 .5rem;box-shadow:2px 0 0 var(--line)}
-.rt thead .rt-no,.rt thead .rt-nm{z-index:4}
-.rt-nm b{display:block;font-size:.8rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rt-nm small{display:block;font-size:10.5px;line-height:1.2;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media(min-width:768px){.rt .rt-nm{width:13rem;min-width:13rem;max-width:13rem}}
-.rt-c{position:relative;width:var(--dw);min-width:var(--dw);font-weight:800;font-size:.78rem;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.rt-c.n{color:#64748b;font-weight:600;background:#f8fafc;cursor:default}
-.rt-c.nt:after{content:'';position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
-.rt-c.H,.rt-k.H{background:#dcf5e7;color:#0b5d3b}
-.rt-c.T,.rt-k.T{background:#ffe6d2;color:#9a3a0c}
-.rt-c.I,.rt-k.I{background:#dbeafe;color:#1e4fa3}
-.rt-c.S,.rt-k.S{background:#fdf1c2;color:#7a5200}
-.rt-c.A,.rt-k.A{background:#fcdcdd;color:#a31d28}
-.rt-k.n{background:#eef2f5;color:#64748b}
-.rt .rt-t{width:2.5rem;min-width:2.5rem;font-weight:800;font-variant-numeric:tabular-nums}
-.rt .rt-t0{border-left:2px solid var(--line)}
-.rt td.rt-t.H,.rt th.rt-t.H{color:#0b5d3b}.rt td.rt-t.T,.rt th.rt-t.T{color:#9a3a0c}.rt td.rt-t.I,.rt th.rt-t.I{color:#1e4fa3}.rt td.rt-t.S,.rt th.rt-t.S{color:#7a5200}.rt td.rt-t.A,.rt th.rt-t.A{color:#a31d28}
-.rt thead th.rt-t{background:#eef3f7}
-.rt td.rt-t.z{color:#64748b;font-weight:600}
-.rt .rt-p{width:3.2rem;min-width:3.2rem}
-.rt-msg{padding:3rem 1rem;text-align:center;font-size:.85rem;font-weight:600;color:var(--mut)}
-.rt-retry{margin-left:.4rem;padding:.4rem .9rem;border-radius:.8rem;background:var(--p1);color:#fff;font-weight:700}
-html[data-theme="dark"] .rt-nav,html[data-theme="dark"] .rt-wrap,html[data-theme="dark"] .rt td,html[data-theme="dark"] .rt th{background:#142230}
-html[data-theme="dark"] .rt thead th,html[data-theme="dark"] .rt thead th.rt-t{background:#192b3b}
-html[data-theme="dark"] .rt td.rt-c.n{background:#101c28;color:#8da3b5}
-html[data-theme="dark"] .rt td.rt-c.H,html[data-theme="dark"] .rt-k.H{background:#12382b;color:#8fe3b8}
-html[data-theme="dark"] .rt td.rt-c.T,html[data-theme="dark"] .rt-k.T{background:#40240f;color:#ffb98a}
-html[data-theme="dark"] .rt td.rt-c.I,html[data-theme="dark"] .rt-k.I{background:#14294a;color:#9cc2ff}
-html[data-theme="dark"] .rt td.rt-c.S,html[data-theme="dark"] .rt-k.S{background:#3a2d0e;color:#f5c969}
-html[data-theme="dark"] .rt td.rt-c.A,html[data-theme="dark"] .rt-k.A{background:#3a1519;color:#ff9aa1}
-html[data-theme="dark"] .rt-k.n{background:#1b2d40;color:#9db4c6}
-html[data-theme="dark"] .rt td.rt-t.H,html[data-theme="dark"] .rt th.rt-t.H{color:#8fe3b8}html[data-theme="dark"] .rt td.rt-t.T,html[data-theme="dark"] .rt th.rt-t.T{color:#ffb98a}html[data-theme="dark"] .rt td.rt-t.I,html[data-theme="dark"] .rt th.rt-t.I{color:#9cc2ff}html[data-theme="dark"] .rt td.rt-t.S,html[data-theme="dark"] .rt th.rt-t.S{color:#f5c969}html[data-theme="dark"] .rt td.rt-t.A,html[data-theme="dark"] .rt th.rt-t.A{color:#ff9aa1}
-html[data-theme="dark"] .rt td.rt-t.z{color:#8da3b5}
-</style>
-</head><body><h2>${esc(appSettings.nama_instansi || 'E-Absensi')}</h2><p class="s">${esc(appSettings.alamat || '')}</p><h2 style="font-size:13px">${esc(judul)}</h2><p class="s">${esc(sub)}</p>${tabel}</body></html>`);
+      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(judul)}</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px Arial,sans-serif;color:#000}h2{margin:0;font-size:16px;text-align:center}p.s{text-align:center;margin:3px 0 10px;font-size:11px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:3px 2px;text-align:center;font-size:9px}td.l{text-align:left;white-space:nowrap}th{background:#e5e5e5}tr{page-break-inside:avoid}thead{display:table-header-group}</style></head><body><h2>${esc(appSettings.nama_instansi || 'E-Absensi')}</h2><p class="s">${esc(appSettings.alamat || '')}</p><h2 style="font-size:13px">${esc(judul)}</h2><p class="s">${esc(sub)}</p>${tabel}</body></html>`);
       d.close(); setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
     }
     function unduhRekapPDF() {
