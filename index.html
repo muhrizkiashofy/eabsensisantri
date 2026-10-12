@@ -654,7 +654,7 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
                 <button type="button" id="btn-tgl-today" onclick="keHariIni()" class="hidden ml-1 text-[11px] font-bold text-teal-700 underline">Hari ini</button>
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
+            <div id="dash-actions" class="flex flex-wrap items-center gap-2">
               <button id="btn-wa-next" onclick="kirimWABerikutnya()" class="wa-main" disabled><i class="fab fa-whatsapp text-base"></i> Kirim WA Berikutnya <span id="wa-next-count"></span></button>
               <button type="button" onclick="refreshDashboard()" class="ab-ghost"><i id="ic-refresh" class="fas fa-sync-alt"></i> Refresh</button>
             </div>
@@ -666,7 +666,7 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
           </div>
 
           <p class="sec-t admin-only">Absen Hari Ini</p>
-          <div class="admin-only grid grid-cols-3 gap-2 md:gap-3 mb-4">
+          <div id="dash-stats" class="admin-only grid grid-cols-3 gap-2 md:gap-3 mb-4">
             <div class="ab-stat ab-blue"><i class="st-ic fas fa-users"></i><p>Total Santri</p><h3><span id="dash-total">0</span></h3></div>
             <div class="ab-stat ab-green"><i class="st-ic fas fa-user-check"></i><p>Sudah Absen</p><h3><span id="dash-sudah">0</span></h3></div>
             <div id="card-belum" class="ab-stat ab-neutral"><i class="st-ic fas fa-user-clock"></i><p>Belum Absen</p><h3><span id="dash-belum">0</span></h3></div>
@@ -682,7 +682,7 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
             <button onclick="nav('rekap')" class="qm"><span><i class="fas fa-calendar-check"></i></span>Rekap</button>
           </div>
 
-          <div class="admin-only bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+          <div id="dash-card" class="admin-only bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
             <div class="px-3 pt-2 flex flex-wrap items-end justify-between gap-2 border-b border-gray-100">
               <div class="flex gap-1">
                 <button id="tab-sudah" onclick="setTabDash('sudah')" class="ab-tab on-sudah"><i class="fas fa-circle-check"></i> Sudah Absen (<span id="cnt-sudah">0</span>)</button>
@@ -706,8 +706,9 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
               <label class="text-sm font-bold">Pilih Sesi</label><span id="busy-scan" class="hidden"></span>
               <button id="btn-sound" onclick="toggleSound()" class="ml-auto w-9 h-9 rounded-lg bg-gray-100 text-gray-600"><i id="icon-sound" class="fas fa-volume-up"></i></button>
             </div>
-            <select id="select-sesi" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 font-bold outline-none"></select>
+            <select id="select-sesi" onchange="guruMuat()" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 font-bold outline-none"></select>
           </div>
+          <div id="gp-stats"></div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
             <div id="scan-frame" class="scan-frame">
               <div id="reader" class="w-full aspect-square"></div>
@@ -723,6 +724,10 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
             <strong class="font-bold block text-lg mb-1" id="res-status">BERHASIL!</strong>
             <span class="block font-bold text-xl mb-1" id="res-nama">Nama</span>
             <span class="block text-sm">NIS: <span id="res-nis"></span> | Jam: <span id="res-jam"></span></span>
+          </div>
+          <div id="gp-panel" class="hidden mt-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2"><p class="sec-t" style="margin:0">Pantauan Santri Putra &amp; Putri</p><div id="gp-actions"></div></div>
+            <div id="gp-card"></div>
           </div>
         </div>
 
@@ -1927,6 +1932,70 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
     }
     const _navQx = nav; nav = function (p) { _navQx(p); if (p === 'qrexport') qxInit(); };
     
+    // ---------- GURU / PENGURUS: pantauan sudah & belum absen di halaman Scan ----------
+    const isGuru = () => !!auth && auth.role !== 'Admin';
+    const guruWaOk = {};
+    function guruSetup() {
+      const box = el('gp-panel'); if (!box || box.dataset.ok) return;
+      [['dash-stats', 'gp-stats'], ['dash-actions', 'gp-actions'], ['dash-card', 'gp-card']].forEach(([a, b]) => {
+        const n = el(a), t = el(b); if (n && t) { n.classList.remove('admin-only'); n.style.display = ''; t.appendChild(n); }
+      });
+      box.classList.remove('hidden'); box.dataset.ok = '1';
+      setTabDash('belum');
+    }
+    function guruMuat(force) {
+      if (!isGuru()) return;
+      const s = el('select-sesi'); if (!s || !s.value) return;
+      dashDate = ''; dashSesi = s.value;
+      const c = el('gp-card'); if (c && !cache['dash||' + s.value]) c.style.opacity = '.5';
+      loadDashboard(force);
+    }
+    const _applyDashG = applyDashboard;
+    applyDashboard = function (d) { _applyDashG(d); const c = el('gp-card'); if (c) c.style.opacity = ''; };
+    const _applyJadwalG = applyJadwal;
+    applyJadwal = function (data) {
+      const s = el('select-sesi'), prev = s ? s.value : '';
+      _applyJadwalG(data);
+      if (s && prev && s.querySelector(`option[value="${prev}"]`)) s.value = prev;
+      guruMuat();
+    };
+    // setelah scan berhasil: pindahkan santri ke "Sudah Absen" langsung, lalu sinkron ulang dengan server
+    function guruSetelahScan(r) {
+      if (!isGuru() || !r || !r.data || r.status === 'DOUBLE' || !dashData || !dashData.belum) return;
+      const d = r.data; if (dashData.sesiNama !== d.sesi) return;
+      const i = dashData.belum.findIndex(x => x.nis === String(d.nis));
+      if (i >= 0) {
+        const it = dashData.belum.splice(i, 1)[0];
+        it.status = d.status; it.jam = String(d.jam).slice(0, 8); it.catatan = ''; it.sync = true;
+        dashData.sudah.unshift(it);
+        dashData.stats.sudah++; dashData.stats.belum--;
+        ['dash-sudah', 'cnt-sudah'].forEach(id => el(id).innerText = dashData.stats.sudah);
+        ['dash-belum', 'cnt-belum'].forEach(id => el(id).innerText = dashData.stats.belum);
+        renderDashboardTable();
+      }
+      clearTimeout(guruSetelahScan.t); guruSetelahScan.t = setTimeout(() => guruMuat(true), 2500);
+    }
+    const _apiG = api;
+    api = async function (...a) { const r = await _apiG(...a); try { if (a[0] === 'scanAbsensi' && r && r.success) guruSetelahScan(r.data); } catch (e) {} return r; };
+    // kirim WA oleh guru: ingatkan bila sesi belum berakhir (pesan Alfa sebaiknya setelah sesi selesai)
+    const _kirimWAG = kirimWA;
+    kirimWA = function (e, wa, msg, nis, status) {
+      if (isGuru() && dashData) {
+        const it = (dashData.sudah || []).find(x => x.nis === nis);
+        if (it && it.sync) { toast('info', 'Data sedang disinkronkan, coba lagi sebentar'); return; }
+        const k = dashData.tanggalISO + '|' + dashData.sesiId;
+        if (dashData.sesiSelesai === false && !guruWaOk[k]) {
+          Swal.fire({ icon: 'question', title: 'Sesi belum selesai?', html: `Sesi <b>${esc(dashData.sesiNama)}</b> belum berakhir. Kirim pesan sebaiknya setelah sesi selesai, karena santri yang belum absen dianggap Alfa.`, showCancelButton: true, confirmButtonText: 'Sesi sudah selesai, kirim', cancelButtonText: 'Nanti' })
+            .then(r => { if (r.isConfirmed) { guruWaOk[k] = true; _kirimWAG(null, wa, msg, nis, status); } });
+          return;
+        }
+      }
+      return _kirimWAG(e, wa, msg, nis, status);
+    };
+    const _showAppG = showApp;
+    showApp = function () { _showAppG(); if (isGuru()) guruSetup(); };
+    setInterval(() => { if (isGuru() && !document.hidden && !el('page-scan').classList.contains('hidden')) guruMuat(true); }, 60000);
+
     // INIT
     document.addEventListener('DOMContentLoaded', () => { tickClock(); initApp(); });
   </script>
