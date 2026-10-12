@@ -708,19 +708,21 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
             <button onclick="nav('dashboard')" class="pg-back"><i class="fas fa-arrow-left"></i></button><h2>Rekap Bulanan</h2>
             <span id="busy-rekap" class="hidden"></span><button onclick="cetakRekapBulanan()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-print mr-1"></i> Cetak</button><button onclick="eksporRekapCSV()" class="ml-1 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-file-excel mr-1"></i> Excel</button>
           </div>
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2 flex items-center justify-between mb-3">
-            <button onclick="geserBulan(-1)" class="w-11 h-11 rounded-lg hover:bg-gray-100 text-gray-600"><i class="fas fa-chevron-left"></i></button>
-            <div class="text-center"><p class="font-bold text-gray-800" id="rekap-bulan-label">-</p><p class="text-[11px] text-gray-500" id="rekap-info">-</p></div>
-            <button onclick="geserBulan(1)" class="w-11 h-11 rounded-lg hover:bg-gray-100 text-gray-600"><i class="fas fa-chevron-right"></i></button>
+          <div class="rt-bar">
+            <div class="rt-per">
+              <button type="button" onclick="geserBulan(-1)" class="rt-nav" aria-label="Bulan sebelumnya"><i class="fas fa-chevron-left"></i></button>
+              <select id="rekap-bln" onchange="setRekapPeriode()" aria-label="Bulan"></select>
+              <select id="rekap-thn" onchange="setRekapPeriode()" aria-label="Tahun"></select>
+              <button type="button" onclick="geserBulan(1)" class="rt-nav" aria-label="Bulan berikutnya"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <input type="search" id="rekap-cari" oninput="rekapCari()" placeholder="Cari nama atau NIS..." aria-label="Cari nama atau NIS">
+            <select id="rekap-sesi" onchange="setRekapSesi(this.value)" aria-label="Sesi"><option value="ALL">Semua sesi</option></select>
+            <select id="rekap-kelas" onchange="renderRekap()" aria-label="Kelas"><option value="">Semua kelas</option></select>
+            <select id="rekap-urut" onchange="renderRekap()" aria-label="Urutan"><option value="nama">Urut nama</option><option value="rendah">Kehadiran terendah</option><option value="alfa">Alfa terbanyak</option></select>
           </div>
-          <div id="rekap-sesi-chips" class="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-1"></div>
-          <div class="grid grid-cols-2 gap-2 mb-3">
-            <input type="text" id="rekap-cari" oninput="renderRekap()" placeholder="Cari nama santri..." class="col-span-2 border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-800">
-            <select id="rekap-kelas" onchange="renderRekap()" class="border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none"><option value="">Semua kelas</option></select>
-            <select id="rekap-urut" onchange="renderRekap()" class="border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none"><option value="nama">Urut nama</option><option value="rendah">Kehadiran terendah</option><option value="alfa">Alfa terbanyak</option></select>
-          </div>
-          <div id="rekap-ringkas" class="grid grid-cols-3 gap-2 mb-3"></div>
-          <div id="rekap-list" class="space-y-2"></div>
+          <div id="rekap-ringkas" class="rt-sum"></div>
+          <div id="rekap-legend" class="rt-leg"></div>
+          <div id="rekap-list" class="rt-wrap" onclick="rekapKlik(event)"></div>
         </div>
 
         <!-- SANTRI -->
@@ -1534,33 +1536,146 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
         d => { if (!baru) d.ID_User = u.ID_User; simpan(baru ? 'addPengguna' : 'updatePengguna', d, 'user', rl); }, baru ? null : () => api('deletePengguna', { id: u.ID_User }).then(r => { if (r.success) { closeModal('modal-form'); rl(); } }));
     }
     
-    // ---------- REKAP BULANAN ----------
+    // ---------- REKAP BULANAN (tabel ala Excel) ----------
     let rekapBulan = new Date().toISOString().slice(0, 7), rekapSesi = 'ALL', rekapData = null;
-    function loadRekap() { load('rekap|' + rekapBulan + '|' + rekapSesi, 'getRekapBulanan', { bulan: rekapBulan, sesi: rekapSesi }, d => { rekapData = d; renderRekap(); }, { busy: 'rekap' }); }
-    function geserBulan(d) { let [y, m] = rekapBulan.split('-').map(Number); m += d; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } rekapBulan = y + '-' + String(m).padStart(2, '0'); loadRekap(); }
-    function setRekapSesi(s) { rekapSesi = s; loadRekap(); }
-    function renderRekap() {
-      const d = rekapData; if (!d) return;
-      el('rekap-bulan-label').innerText = BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
-      el('rekap-info').innerText = d.totalSesiEfektif + ' sesi efektif';
-      el('rekap-sesi-chips').innerHTML = ['ALL', ...getSesiNames()].map(n => `<button onclick="setRekapSesi('${esc(n)}')" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${rekapSesi === n ? 'bg-gray-800 text-white' : 'bg-white text-gray-500'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`).join('');
-      const kc = el('rekap-kelas'), cur = kc.value; kc.innerHTML = '<option value="">Semua kelas</option>' + [...new Set(d.santri.map(s => s.kelas))].sort().map(k => `<option>${esc(k)}</option>`).join(''); kc.value = cur;
-      const q = el('rekap-cari').value.toLowerCase(), u = el('rekap-urut').value;
-      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q)) && (!kc.value || s.kelas === kc.value));
-      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101)); if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
-      const tot = { H: 0, T: 0, S: 0, I: 0, A: 0 }; l.forEach(s => Object.keys(tot).forEach(k => tot[k] += s.c[k]));
-      el('rekap-ringkas').innerHTML = [['H', 'Hadir'], ['T', 'Terlambat'], ['S', 'Sakit'], ['I', 'Izin'], ['A', 'Alfa']].map(([k, n]) => `<div class="rw-c ${k}"><b>${tot[k]}</b><span>${n}</span></div>`).join('');
-      el('rekap-ringkas').className = 'rw-chips';
-      el('rekap-list').innerHTML = l.map(s => `<div class="bg-white rounded-xl p-3"><div class="flex justify-between items-center"><span class="min-w-0"><b class="block truncate text-sm">${esc(s.nama)}</b><span class="text-xs text-gray-500">${esc(s.kelas)}</span></span><b class="text-lg">${s.persen === null ? '-' : s.persen + '%'}</b></div>
-        <div class="rw-chips mt-2 mb-0">${['H', 'T', 'S', 'I', 'A'].map(k => `<div class="rw-c ${k}"><b>${s.c[k]}</b><span>${k}</span></div>`).join('')}</div></div>`).join('') || '<p class="p-6 text-center text-sm text-gray-400">Tidak ada data.</p>';
+    let rekapReq = 0, rekapState = 'loading'; // loading | ok | error
+    const REKAP_NAMA = { H: 'Hadir', T: 'Terlambat', I: 'Izin', S: 'Sakit', A: 'Alfa' };
+    const REKAP_SEV = { A: 4, S: 3, I: 3, T: 2, H: 1 };
+    function loadRekap() {
+      const tok = ++rekapReq, key = 'rekap|' + rekapBulan + '|' + rekapSesi;
+      if (!cache[key]) { rekapState = 'loading'; renderRekap(); } // jangan tampilkan data periode lama
+      load(key, 'getRekapBulanan', { bulan: rekapBulan, sesi: rekapSesi }, d => { if (tok !== rekapReq) return; rekapData = d; rekapState = 'ok'; renderRekap(); }, { busy: 'rekap' })
+        .then(d => { if (tok === rekapReq && !d && !cache[key]) { rekapState = 'error'; renderRekap(); } })
+        .catch(() => { if (tok === rekapReq && !cache[key]) { rekapState = 'error'; renderRekap(); } });
     }
-    function getSesiNames() { return rekapData ? rekapData.sesiList.length ? rekapData.sesiList : sesiData.map(s => s.Nama_Sesi) : []; }
+    function geserBulan(d) { let [y, m] = rekapBulan.split('-').map(Number); m += d; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } rekapBulan = y + '-' + String(m).padStart(2, '0'); loadRekap(); }
+    function setRekapPeriode() { rekapBulan = el('rekap-thn').value + '-' + el('rekap-bln').value; loadRekap(); }
+    function setRekapSesi(s) { rekapSesi = s; loadRekap(); }
+    function rekapCari() { clearTimeout(rekapCari.t); rekapCari.t = setTimeout(renderRekap, 150); }
+
+    // isi <select> hanya jika daftar pilihannya berubah (tidak mengganggu select yang sedang dibuka)
+    function rekapFill(sel, opts, val) {
+      const sig = opts.map(o => o[0] + '\u0001' + o[1]).join('\u0002');
+      if (sel.dataset.sig !== sig) { sel.innerHTML = opts.map(o => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join(''); sel.dataset.sig = sig; }
+      if (sel.value !== String(val)) sel.value = String(val);
+      if (sel.selectedIndex < 0) sel.selectedIndex = 0;
+    }
+    function rekapKontrol() {
+      const [y, m] = rekapBulan.split('-'), cy = new Date().getFullYear(), ys = [];
+      for (let v = cy - 5; v <= cy + 1; v++) ys.push(v);
+      if (ys.indexOf(+y) === -1) { ys.push(+y); ys.sort((a, b) => a - b); }
+      rekapFill(el('rekap-bln'), BLN.map((n, i) => [String(i + 1).padStart(2, '0'), n]), m);
+      rekapFill(el('rekap-thn'), ys.map(v => [String(v), String(v)]), y);
+      const names = [...new Set([...sesiData.map(s => s.Nama_Sesi), ...(rekapData ? rekapData.sesiList : []), ...(rekapSesi !== 'ALL' ? [rekapSesi] : [])])];
+      rekapFill(el('rekap-sesi'), [['ALL', 'Semua sesi'], ...names.map(n => [n, n])], rekapSesi);
+      const kc = el('rekap-kelas'), kl = rekapData ? [...new Set(rekapData.santri.map(s => s.kelas))].sort() : [];
+      rekapFill(kc, [['', 'Semua kelas'], ...kl.map(k => [k, k])], kc.value);
+    }
+
+    // satu sel tanggal. multi = "Semua sesi" dengan lebih dari satu sesi: kode ditampilkan per posisi sesi
+    function rekapSel(s, x, d, multi) {
+      const r = s.days[x];
+      if (!r || !r.length) return '<td class="rt-c n">–</td>';
+      let top = 'H', note = false;
+      r.forEach(c => { if (REKAP_SEV[c[1]] > REKAP_SEV[top]) top = c[1]; if (c[2]) note = true; });
+      const txt = multi ? d.sesiList.map((_, i) => { const e = r.find(c => c[0] === i); return e ? e[1] : '·'; }).join(' ') : r.map(c => c[1]).join(' ');
+      return `<td class="rt-c ${top}${note ? ' nt' : ''}" data-n="${esc(s.nis)}" data-d="${x}">${txt}</td>`;
+    }
+    function rekapTotal(k, v) { return `<td class="rt-t ${k}${v ? '' : ' z'}">${v}</td>`; }
+
+    function renderRekap() {
+      rekapKontrol();
+      const box = el('rekap-list'), sum = el('rekap-ringkas'), leg = el('rekap-legend'), d = rekapData;
+      if (rekapState === 'loading') { sum.innerText = ''; leg.innerHTML = ''; box.innerHTML = '<div class="rt-msg"><i class="fas fa-circle-notch fa-spin"></i> Memuat rekap...</div>'; return; }
+      if (rekapState === 'error' || !d) { sum.innerText = ''; leg.innerHTML = ''; box.innerHTML = '<div class="rt-msg">Rekap gagal dimuat. Periksa koneksi, lalu <button type="button" class="rt-retry" onclick="loadRekap()">Coba lagi</button></div>'; return; }
+
+      const days = Array.from({ length: d.daysInMonth }, (_, i) => i + 1);
+      const multi = rekapSesi === 'ALL' && d.sesiList.length > 1, slots = multi ? d.sesiList.length : 1;
+      const q = el('rekap-cari').value.trim().toLowerCase(), u = el('rekap-urut').value, kls = el('rekap-kelas').value;
+      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q) || String(s.nis).toLowerCase().includes(q)) && (!kls || s.kelas === kls));
+      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101));
+      if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
+
+      const ps = l.filter(s => s.persen !== null), avg = ps.length ? Math.round(ps.reduce((a, s) => a + s.persen, 0) / ps.length) : null;
+      sum.innerText = l.length + ' santri · ' + d.totalSesiEfektif + ' sesi efektif' + (avg === null ? '' : ' · rata-rata kehadiran ' + avg + '%') + (d.totalSesiEfektif ? '' : ' · belum ada data absensi pada periode ini');
+      leg.innerHTML = ['H', 'T', 'I', 'S', 'A'].map(k => `<span><b class="rt-k ${k}">${k}</b>${REKAP_NAMA[k]}</span>`).join('') + '<span><b class="rt-k n">–</b>Belum ada data</span>'
+        + (multi ? `<span class="rt-note">Satu sel = ${d.sesiList.map(esc).join(' · ')} (· = tidak tercatat). Total dihitung per sesi.</span>` : '')
+        + '<span class="rt-note">Ketuk sel untuk detail dan catatan. Geser tabel ke samping untuk melihat tanggal lain.</span>';
+
+      if (!d.santri.length) { box.innerHTML = '<div class="rt-msg">Belum ada santri aktif.</div>'; return; }
+      if (!l.length) { box.innerHTML = '<div class="rt-msg">Tidak ada santri yang cocok dengan pencarian atau filter.</div>'; return; }
+
+      const head = `<tr><th class="rt-no">No.</th><th class="rt-nm">Nama Santri</th>${days.map(x => `<th class="rt-dh">${x}</th>`).join('')}<th class="rt-t rt-t0 H" title="Hadir">H</th><th class="rt-t T" title="Terlambat">T</th><th class="rt-t I" title="Izin">I</th><th class="rt-t S" title="Sakit">S</th><th class="rt-t A" title="Alfa">A</th><th class="rt-t rt-p" title="Persentase kehadiran">%</th></tr>`;
+      const rows = l.map((s, i) => `<tr><td class="rt-no">${i + 1}</td><td class="rt-nm" title="${esc(s.nama)}"><b>${esc(s.nama)}</b><small>${esc(s.kelas)}</small></td>${days.map(x => rekapSel(s, x, d, multi)).join('')}${rekapTotal('H', s.c.H).replace('rt-t ', 'rt-t rt-t0 ')}${rekapTotal('T', s.c.T)}${rekapTotal('I', s.c.I)}${rekapTotal('S', s.c.S)}${rekapTotal('A', s.c.A)}<td class="rt-t rt-p">${s.persen === null ? '–' : s.persen + '%'}</td></tr>`).join('');
+      box.innerHTML = `<table class="rt" style="--dw:${(1.2 + 0.9 * slots).toFixed(1)}rem"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+    }
+    function rekapKlik(e) { const c = e.target.closest ? e.target.closest('td[data-d]') : null; if (c) rekapDetail(c.dataset.n, +c.dataset.d); }
+    function rekapDetail(nis, x) {
+      const d = rekapData; if (!d) return;
+      const s = d.santri.find(v => String(v.nis) === String(nis)), r = s && s.days[x]; if (!r || !r.length) return;
+      const tgl = x + ' ' + BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
+      const rows = r.map(c => `<div style="display:flex;justify-content:space-between;gap:.75rem;padding:.35rem 0;border-top:1px solid #e5e7eb;text-align:left"><span>${esc(d.sesiList[c[0]] || '')}</span><b>${esc(REKAP_NAMA[c[1]] || c[1])}</b></div>${c[2] ? `<div style="font-size:.8rem;color:#64748b;text-align:left;padding-bottom:.3rem">${esc(c[2])}</div>` : ''}`).join('');
+      Swal.fire({ title: esc(s.nama), html: `<div style="font-size:.85rem;color:#64748b;margin-bottom:.4rem">${esc(s.kelas)} · ${esc(tgl)}</div>${rows}`, confirmButtonText: 'Tutup' });
+    }
     
     // ---------- CETAK PDF (iframe + dialog cetak browser; pilih "Simpan sebagai PDF") ----------
     function cetakHTML(judul, sub, tabel) {
       const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
       const d = f.contentWindow.document; d.open();
-      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(judul)}</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px Arial,sans-serif;color:#000}h2{margin:0;font-size:16px;text-align:center}p.s{text-align:center;margin:3px 0 10px;font-size:11px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:3px 2px;text-align:center;font-size:9px}td.l{text-align:left;white-space:nowrap}th{background:#e5e5e5}tr{page-break-inside:avoid}thead{display:table-header-group}</style></head><body><h2>${esc(appSettings.nama_instansi || 'E-Absensi')}</h2><p class="s">${esc(appSettings.alamat || '')}</p><h2 style="font-size:13px">${esc(judul)}</h2><p class="s">${esc(sub)}</p>${tabel}</body></html>`);
+      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(judul)}</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px Arial,sans-serif;color:#000}h2{margin:0;font-size:16px;text-align:center}p.s{text-align:center;margin:3px 0 10px;font-size:11px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:3px 2px;text-align:center;font-size:9px}td.l{text-align:left;white-space:nowrap}th{background:#e5e5e5}tr{page-break-inside:avoid}thead{display:table-header-group}</style>
+<style id="ui-rekap-tabel">
+/* ===== REKAP BULANAN: tabel ala Excel ===== */
+.rt-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-bottom:.6rem}
+.rt-bar .rt-per{grid-column:1/-1;display:flex;gap:.4rem;align-items:center}
+.rt-bar #rekap-cari{grid-column:1/-1}
+.rt-bar select,.rt-bar input{height:2.6rem;padding:0 .65rem!important;font-size:.85rem;min-width:0;width:100%}
+.rt-per select{flex:1}
+.rt-nav{flex:none;width:2.6rem;height:2.6rem;border-radius:.9rem;background:#fff;border:1px solid var(--line);color:var(--mut)}
+@media(min-width:768px){.rt-bar{display:flex;flex-wrap:wrap;align-items:center}.rt-bar .rt-per{width:auto;flex:none}.rt-bar select{width:auto}.rt-bar #rekap-cari{order:5;flex:1;min-width:12rem;width:auto}}
+.rt-sum{font-size:.8rem;font-weight:700;color:var(--mut);margin:.2rem .1rem .35rem}
+.rt-leg{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .85rem;font-size:11px;font-weight:600;color:var(--mut);margin:0 .1rem .5rem}
+.rt-k{display:inline-grid;place-items:center;min-width:1.3rem;height:1.3rem;border-radius:.35rem;font-size:11px;font-weight:800;margin-right:.3rem}
+.rt-note{flex-basis:100%}
+.rt-wrap{overflow:auto;max-height:calc(100dvh - 23rem);min-height:18rem;background:#fff;border:1px solid var(--line);border-radius:1rem;box-shadow:var(--sh);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.rt{border-collapse:separate;border-spacing:0;font-size:.8rem;--dw:2.1rem;width:max-content;min-width:100%}
+.rt th,.rt td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;background:#fff;padding:0;height:2.6rem}
+.rt thead th{position:sticky;top:0;z-index:3;background:#eef3f7;height:2.4rem;font-size:.75rem;font-weight:800;color:var(--mut)}
+.rt .rt-no{position:sticky;left:0;z-index:2;width:2.4rem;min-width:2.4rem;color:var(--mut);font-size:.75rem}
+.rt .rt-nm{position:sticky;left:2.4rem;z-index:2;width:8.5rem;min-width:8.5rem;max-width:8.5rem;text-align:left;padding:0 .5rem;box-shadow:2px 0 0 var(--line)}
+.rt thead .rt-no,.rt thead .rt-nm{z-index:4}
+.rt-nm b{display:block;font-size:.8rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rt-nm small{display:block;font-size:10.5px;line-height:1.2;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(min-width:768px){.rt .rt-nm{width:13rem;min-width:13rem;max-width:13rem}}
+.rt-c{position:relative;width:var(--dw);min-width:var(--dw);font-weight:800;font-size:.78rem;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rt-c.n{color:#64748b;font-weight:600;background:#f8fafc;cursor:default}
+.rt-c.nt:after{content:'';position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
+.rt-c.H,.rt-k.H{background:#dcf5e7;color:#0b5d3b}
+.rt-c.T,.rt-k.T{background:#ffe6d2;color:#9a3a0c}
+.rt-c.I,.rt-k.I{background:#dbeafe;color:#1e4fa3}
+.rt-c.S,.rt-k.S{background:#fdf1c2;color:#7a5200}
+.rt-c.A,.rt-k.A{background:#fcdcdd;color:#a31d28}
+.rt-k.n{background:#eef2f5;color:#64748b}
+.rt .rt-t{width:2.5rem;min-width:2.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.rt .rt-t0{border-left:2px solid var(--line)}
+.rt td.rt-t.H,.rt th.rt-t.H{color:#0b5d3b}.rt td.rt-t.T,.rt th.rt-t.T{color:#9a3a0c}.rt td.rt-t.I,.rt th.rt-t.I{color:#1e4fa3}.rt td.rt-t.S,.rt th.rt-t.S{color:#7a5200}.rt td.rt-t.A,.rt th.rt-t.A{color:#a31d28}
+.rt thead th.rt-t{background:#eef3f7}
+.rt td.rt-t.z{color:#64748b;font-weight:600}
+.rt .rt-p{width:3.2rem;min-width:3.2rem}
+.rt-msg{padding:3rem 1rem;text-align:center;font-size:.85rem;font-weight:600;color:var(--mut)}
+.rt-retry{margin-left:.4rem;padding:.4rem .9rem;border-radius:.8rem;background:var(--p1);color:#fff;font-weight:700}
+html[data-theme="dark"] .rt-nav,html[data-theme="dark"] .rt-wrap,html[data-theme="dark"] .rt td,html[data-theme="dark"] .rt th{background:#142230}
+html[data-theme="dark"] .rt thead th,html[data-theme="dark"] .rt thead th.rt-t{background:#192b3b}
+html[data-theme="dark"] .rt td.rt-c.n{background:#101c28;color:#8da3b5}
+html[data-theme="dark"] .rt td.rt-c.H,html[data-theme="dark"] .rt-k.H{background:#12382b;color:#8fe3b8}
+html[data-theme="dark"] .rt td.rt-c.T,html[data-theme="dark"] .rt-k.T{background:#40240f;color:#ffb98a}
+html[data-theme="dark"] .rt td.rt-c.I,html[data-theme="dark"] .rt-k.I{background:#14294a;color:#9cc2ff}
+html[data-theme="dark"] .rt td.rt-c.S,html[data-theme="dark"] .rt-k.S{background:#3a2d0e;color:#f5c969}
+html[data-theme="dark"] .rt td.rt-c.A,html[data-theme="dark"] .rt-k.A{background:#3a1519;color:#ff9aa1}
+html[data-theme="dark"] .rt-k.n{background:#1b2d40;color:#9db4c6}
+html[data-theme="dark"] .rt td.rt-t.H,html[data-theme="dark"] .rt th.rt-t.H{color:#8fe3b8}html[data-theme="dark"] .rt td.rt-t.T,html[data-theme="dark"] .rt th.rt-t.T{color:#ffb98a}html[data-theme="dark"] .rt td.rt-t.I,html[data-theme="dark"] .rt th.rt-t.I{color:#9cc2ff}html[data-theme="dark"] .rt td.rt-t.S,html[data-theme="dark"] .rt th.rt-t.S{color:#f5c969}html[data-theme="dark"] .rt td.rt-t.A,html[data-theme="dark"] .rt th.rt-t.A{color:#ff9aa1}
+html[data-theme="dark"] .rt td.rt-t.z{color:#8da3b5}
+</style>
+</head><body><h2>${esc(appSettings.nama_instansi || 'E-Absensi')}</h2><p class="s">${esc(appSettings.alamat || '')}</p><h2 style="font-size:13px">${esc(judul)}</h2><p class="s">${esc(sub)}</p>${tabel}</body></html>`);
       d.close(); setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
     }
     function unduhRekapPDF() {
@@ -1651,34 +1766,7 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
       api('savePengaturan', p).then(r => { if (r.success) { toast('success', 'Pengaturan disimpan'); appSettings = { ...appSettings, ...p }; logoBaru = undefined; applyBranding(); } });
     }
     
-    // ---------- REKAP: detail per hari + ekspor ----------
-    const rekapOpen = new Set();
-    function toggleRekap(n) { rekapOpen.has(n) ? rekapOpen.delete(n) : rekapOpen.add(n); renderRekap(); }
-    function kalenderRekap(s, d) {
-      const sev = { A: 4, S: 3, I: 3, T: 2, H: 1 }, notes = [];
-      let h = ['Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb', 'Mg'].map(x => `<b class="rk-h">${x}</b>`).join('') + '<i></i>'.repeat(d.firstWeekday);
-      for (let x = 1; x <= d.daysInMonth; x++) {
-        const r = s.days[x] || [], top = r.map(c => c[1]).sort((a, b) => sev[b] - sev[a])[0];
-        h += `<div class="rk-d ${top || ''}"><small>${x}</small>${r.map(c => c[1]).join('/') || '·'}</div>`;
-        r.forEach(c => { if (c[2]) notes.push(`${x} ${BLN[+d.bulan.slice(5) - 1].slice(0, 3)} (${d.sesiList[c[0]] || ''}): ${c[2]}`); });
-      }
-      return `<div class="rk-cal">${h}</div>${notes.length ? '<p class="text-[11px] text-gray-500 mt-2">' + notes.map(esc).join('<br>') + '</p>' : ''}`;
-    }
-    function renderRekap() {
-      const d = rekapData; if (!d) return;
-      el('rekap-bulan-label').innerText = BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
-      el('rekap-info').innerText = d.totalSesiEfektif + ' sesi efektif';
-      el('rekap-sesi-chips').innerHTML = ['ALL', ...getSesiNames()].map(n => `<button onclick="setRekapSesi(this.dataset.n)" data-n="${esc(n)}" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${rekapSesi === n ? 'bg-gray-800 text-white' : 'bg-white text-gray-500'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`).join('');
-      const kc = el('rekap-kelas'), cur = kc.value; kc.innerHTML = '<option value="">Semua kelas</option>' + [...new Set(d.santri.map(s => s.kelas))].sort().map(k => `<option>${esc(k)}</option>`).join(''); kc.value = cur;
-      const q = el('rekap-cari').value.toLowerCase(), u = el('rekap-urut').value;
-      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q)) && (!kc.value || s.kelas === kc.value));
-      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101)); if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
-      const tot = { H: 0, T: 0, S: 0, I: 0, A: 0 }; l.forEach(s => Object.keys(tot).forEach(k => tot[k] += s.c[k]));
-      el('rekap-ringkas').className = 'rw-chips';
-      el('rekap-ringkas').innerHTML = [['H', 'Hadir'], ['T', 'Telat'], ['S', 'Sakit'], ['I', 'Izin'], ['A', 'Alfa']].map(([k, n]) => `<div class="rw-c ${k}"><b>${tot[k]}</b><span>${n}</span></div>`).join('');
-      el('rekap-list').innerHTML = l.map(s => `<div class="bg-white rounded-xl p-3 cursor-pointer" data-n="${esc(s.nis)}" onclick="toggleRekap(this.dataset.n)"><div class="flex justify-between items-center"><span class="min-w-0"><b class="block truncate text-sm">${esc(s.nama)}</b><span class="text-xs text-gray-500">${esc(s.kelas)} · ketuk untuk detail</span></span><b class="text-lg">${s.persen === null ? '-' : s.persen + '%'}</b></div>
-        <div class="rw-chips mt-2 mb-0">${['H', 'T', 'S', 'I', 'A'].map(k => `<div class="rw-c ${k}"><b>${s.c[k]}</b><span>${k}</span></div>`).join('')}</div>${rekapOpen.has(s.nis) ? kalenderRekap(s, d) : ''}</div>`).join('') || '<p class="p-6 text-center text-sm text-gray-400">Tidak ada data.</p>';
-    }
+    // ---------- REKAP: ekspor CSV ----------
     function eksporRekapCSV() {
       const d = rekapData; if (!d) { toast('warning', 'Data rekap belum dimuat'); return; }
       const days = Array.from({ length: d.daysInMonth }, (_, i) => i + 1), q = v => '"' + String(v).replace(/"/g, '""') + '"';
@@ -1689,32 +1777,7 @@ html[data-theme="dark"] .qx-card,html[data-theme="dark"] .qx-b:not(.p){backgroun
       a.download = 'rekap-' + d.bulan + '.csv'; document.body.appendChild(a); a.click(); a.remove();
     }
     
-    /* ===== PERBAIKAN v5: rekap sederhana + QR santri ===== */
-    const SEG = [['H', 'Hadir'], ['T', 'Terlambat'], ['S', 'Sakit'], ['I', 'Izin'], ['A', 'Alfa']];
-    const segBar = c => { const t = SEG.reduce((a, [k]) => a + c[k], 0); return `<div class="rk-bar">${t ? SEG.map(([k]) => c[k] ? `<i class="sg-${k}" style="width:${c[k] / t * 100}%"></i>` : '').join('') : ''}</div>`; };
-    const segLeg = (c, all) => `<div class="rk-leg">${SEG.filter(([k]) => all || c[k]).map(([k, n]) => `<span class="lg-${k}"><b>${c[k]}</b> ${n}</span>`).join('')}</div>`;
-    function renderRekap() {
-      const d = rekapData; if (!d) return;
-      el('rekap-bulan-label').innerText = BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
-      el('rekap-info').innerText = d.totalSesiEfektif + ' sesi efektif bulan ini';
-      el('rekap-sesi-chips').innerHTML = ['ALL', ...getSesiNames()].map(n => `<button onclick="setRekapSesi(this.dataset.n)" data-n="${esc(n)}" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${rekapSesi === n ? 'bg-gray-800 text-white' : 'bg-white text-gray-500'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`).join('');
-      const kc = el('rekap-kelas'), cur = kc.value; kc.innerHTML = '<option value="">Semua kelas</option>' + [...new Set(d.santri.map(s => s.kelas))].sort().map(k => `<option>${esc(k)}</option>`).join(''); kc.value = cur;
-      const q = el('rekap-cari').value.toLowerCase(), u = el('rekap-urut').value;
-      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q)) && (!kc.value || s.kelas === kc.value));
-      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101)); if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
-      const tot = { H: 0, T: 0, S: 0, I: 0, A: 0 }; l.forEach(s => SEG.forEach(([k]) => tot[k] += s.c[k]));
-      const ps = l.filter(s => s.persen !== null), avg = ps.length ? Math.round(ps.reduce((a, s) => a + s.persen, 0) / ps.length) : null;
-      el('rekap-ringkas').className = '';
-      el('rekap-ringkas').innerHTML = `<div class="rk-sum"><div class="flex justify-between items-end"><div><p class="text-xs font-bold text-gray-500">Rata-rata kehadiran</p><span class="rk-big">${avg === null ? '–' : avg + '%'}</span></div><span class="text-xs font-bold text-gray-500">${l.length} santri</span></div>${segBar(tot)}${segLeg(tot, true)}</div>`;
-      el('rekap-list').innerHTML = l.map(s => {
-        const cls = s.persen === null ? 'n' : s.persen >= 90 ? 'g' : s.persen >= 75 ? 'y' : 'r', ini = s.nama.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(), open = rekapOpen.has(s.nis);
-        return `<div class="rk-row" data-n="${esc(s.nis)}" onclick="toggleRekap(this.dataset.n)"><div class="rk-hd"><span class="rk-av ${cls}">${esc(ini)}</span>
-          <span class="min-w-0 flex-1"><b class="block truncate text-sm">${esc(s.nama)}</b><span class="text-xs text-gray-500">${esc(s.kelas)}</span></span>
-          <span class="text-right"><b class="text-lg leading-none">${s.persen === null ? '–' : s.persen + '%'}</b><i class="fas fa-chevron-${open ? 'up' : 'down'} block text-[10px] text-gray-400 mt-1"></i></span></div>
-          ${segBar(s.c)}${segLeg(s.c, false)}${open ? kalenderRekap(s, d) : ''}</div>`;
-      }).join('') || '<p class="p-6 text-center text-sm text-gray-400">Tidak ada data.</p>';
-    }
-    
+    /* ===== PERBAIKAN v5: QR santri ===== */
     // ---------- QR CODE SANTRI (isi QR = NIS, sesuai yang dibaca scanner) ----------
     function qrSvg(t) {
       const q = qrcode(0, 'M'); q.addData(String(t)); q.make();
