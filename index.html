@@ -509,6 +509,18 @@ html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-
 .qr-btn{width:2rem;height:2rem;border-radius:.6rem;background:#eef5fb;color:#2f6fd0;display:grid;place-items:center}
 html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b3b}html[data-theme="dark"] .rk-bar{background:#243648}html[data-theme="dark"] .qr-btn{background:#1b2d40;color:#8fb8ff}
 </style>
+<style id="v6">
+.idc-wrap{display:grid;gap:.75rem}@media(min-width:1024px){.idc-wrap{grid-template-columns:minmax(0,1fr) 20rem}}
+.idc-card{background:#fff;border:1px solid var(--line);border-radius:1rem;padding:.7rem}
+.idc-stage{overflow:auto;background:#e8eef3;border-radius:1rem;padding:.5rem}
+#idc-cv{display:block;margin:0 auto;max-width:none;background:#fff;border-radius:.3rem;box-shadow:0 2px 14px rgba(0,0,0,.2);touch-action:none}
+.idc-b{padding:.4rem .65rem;border-radius:.6rem;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700;white-space:nowrap}.idc-b.p{background:#1f2937;color:#fff;border-color:#1f2937}
+.idc-sel{border:1px solid var(--line);border-radius:.6rem;padding:.4rem .5rem;font-size:13px;background:transparent;max-width:100%}
+.idc-r{display:grid;grid-template-columns:5.5rem 1fr;gap:.4rem;align-items:center;font-size:12px;margin:.3rem 0}.idc-r input:not([type=checkbox]):not([type=range]),.idc-r select{border:1px solid var(--line);border-radius:.5rem;padding:.3rem .4rem;width:100%;font-size:13px;background:transparent}
+.idc-r input[type=color]{padding:0;height:1.9rem}.idc-r input[type=checkbox]{width:1.1rem;height:1.1rem}
+.idc-lay{display:flex;gap:.45rem;align-items:center;padding:.4rem .5rem;border-radius:.5rem;font-size:12px;font-weight:600;cursor:pointer}.idc-lay.on{background:#e3edfb;color:#1d4f9c}
+html[data-theme="dark"] .idc-card,html[data-theme="dark"] .idc-b:not(.p){background:#192b3b}html[data-theme="dark"] .idc-stage{background:#0f1c28}html[data-theme="dark"] .idc-lay.on{background:#1b2d40;color:#8fb8ff}
+</style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
 
@@ -661,7 +673,36 @@ html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b
         </div>
 
         <!-- REKAP -->
-        <div id="page-rekap" class="content-page hidden admin-only">
+        <div id="page-idcard" class="content-page hidden admin-only">
+  <div class="pg-head mb-3"><button onclick="nav('santri')" class="pg-back"><i class="fas fa-arrow-left"></i></button><h2>ID Card Builder</h2></div>
+  <div class="idc-wrap">
+    <div class="min-w-0">
+      <div class="idc-card mb-2"><div class="flex items-center gap-2 flex-wrap">
+        <select id="idc-tpl" onchange="idcPilih(this.value)" class="idc-sel"></select>
+        <button class="idc-b p" onclick="idcSimpan()"><i class="fas fa-floppy-disk"></i> Simpan</button>
+        <button class="idc-b" onclick="idcRename()">Ganti nama</button><button class="idc-b text-red-600" onclick="idcHapus()">Hapus</button></div>
+        <p class="text-[11px] text-gray-500 mt-1">Template: <b id="idc-name">-</b> · Kartu 85,6 × 54 mm (1011 × 638 px = 300 DPI)</p></div>
+      <div class="idc-card mb-2 flex items-center gap-2 flex-wrap">
+        <label class="idc-b p cursor-pointer"><i class="fas fa-upload"></i> Upload Desain<input type="file" accept="image/png,image/jpeg" class="hidden" onchange="idcUploadBg(this)"></label>
+        <label class="text-xs font-bold flex items-center gap-1"><input type="checkbox" id="idc-lock" checked onchange="idcToggleLock(this.checked)"> Kunci latar</label>
+        <input type="range" id="idc-bgz" class="hidden w-24" min="1" max="2" step="0.02" value="1" oninput="idcBgZoom(this.value)" title="Zoom latar (geser latar dengan drag di area kosong)">
+        <span class="ml-auto flex items-center gap-1"><button class="idc-b" onclick="idcUndo(true)" title="Undo"><i class="fas fa-rotate-left"></i></button><button class="idc-b" onclick="idcUndo(false)" title="Redo"><i class="fas fa-rotate-right"></i></button>
+        <button class="idc-b" onclick="idcZoom(0.8)">−</button><b id="idc-zoom" class="text-xs w-10 text-center">100%</b><button class="idc-b" onclick="idcZoom(1.25)">+</button><button class="idc-b" onclick="idcZoom(0)">Fit</button></span></div>
+      <div id="idc-stage" class="idc-stage"><canvas id="idc-cv" width="1011" height="638"></canvas></div>
+      <div class="idc-card mt-2"><label class="text-xs font-bold text-gray-600">Pratinjau santri</label>
+        <div class="flex gap-2 items-center mt-1"><select id="idc-santri" onchange="idcPilihSantri(this.value)" class="idc-sel flex-1 min-w-0"></select>
+        <label id="idc-foto-btn" class="idc-b cursor-pointer hidden"><i class="fas fa-camera"></i> Foto<input type="file" accept="image/*" class="hidden" onchange="idcUploadFoto(this)"></label></div>
+        <p id="idc-warn" class="text-xs text-amber-700 mt-1"></p></div>
+    </div>
+    <div class="min-w-0">
+      <div class="idc-card mb-2"><p class="text-xs font-bold text-gray-600 mb-2">Tambah elemen</p><div class="flex flex-wrap gap-1.5">
+        <button class="idc-b" onclick="idcAdd('foto')"><i class="fas fa-image"></i> Foto</button><button class="idc-b" onclick="idcAdd('nama')"><i class="fas fa-user"></i> Nama</button><button class="idc-b" onclick="idcAdd('id')"><i class="fas fa-hashtag"></i> ID</button><button class="idc-b" onclick="idcAdd('qr')"><i class="fas fa-qrcode"></i> QR</button><button class="idc-b" onclick="idcAdd('teks')"><i class="fas fa-font"></i> Teks</button></div></div>
+      <div class="idc-card mb-2"><p class="text-xs font-bold text-gray-600 mb-1">Layer (atas → bawah)</p><div id="idc-lay"></div></div>
+      <div class="idc-card"><p class="text-xs font-bold text-gray-600 mb-1">Properti</p><div id="idc-props"></div></div>
+    </div>
+  </div>
+</div>
+<div id="page-rekap" class="content-page hidden admin-only">
           <div class="pg-head mb-3">
             <button onclick="nav('dashboard')" class="pg-back"><i class="fas fa-arrow-left"></i></button><h2>Rekap Bulanan</h2>
             <span id="busy-rekap" class="hidden"></span><button onclick="cetakRekapBulanan()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-print mr-1"></i> Cetak</button><button onclick="eksporRekapCSV()" class="ml-1 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-file-excel mr-1"></i> Excel</button>
@@ -688,7 +729,7 @@ html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b
             <span id="busy-santri" class="hidden"></span><button onclick="bukaModalSantri()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow">+ Tambah</button>
           </div>
           <input type="text" id="cari-santri" oninput="renderSantri()" placeholder="Cari nama / NIS / kelas..." class="w-full border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none mb-3">
-          <button onclick="cetakQRSemua()" class="w-full mb-3 bg-white border border-gray-200 text-gray-700 font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-qrcode mr-1"></i> Cetak Kartu QR (sesuai tab &amp; pencarian)</button><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><ul id="list-santri" class="divide-y divide-gray-100"></ul></div>
+          <button onclick="cetakQRSemua()" class="w-full mb-3 bg-white border border-gray-200 text-gray-700 font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-qrcode mr-1"></i> Cetak Kartu QR (sesuai tab &amp; pencarian)</button><button onclick="nav('idcard')" class="w-full mb-3 bg-gray-800 text-white font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-id-card mr-1"></i> ID Card Builder</button><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><ul id="list-santri" class="divide-y divide-gray-100"></ul></div>
         </div>
 
         <!-- GURU -->
@@ -745,7 +786,7 @@ html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b
         <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div><h3 class="font-bold text-gray-800 mb-3">Data Master</h3>
         <button onclick="pilihMaster('Laki-laki')" class="master-item"><span class="master-ic" style="--c:#2563eb"><i class="fas fa-mars"></i></span>Santri Putra<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
         <button onclick="pilihMaster('Perempuan')" class="master-item"><span class="master-ic" style="--c:#db2777"><i class="fas fa-venus"></i></span>Santri Putri<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
-        <button onclick="pilihMaster('guru')" class="master-item"><span class="master-ic" style="--c:#2b8cc8"><i class="fas fa-chalkboard-teacher"></i></span>Data Guru<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
+        <button onclick="pilihMaster('guru')" class="master-item"><span class="master-ic" style="--c:#2b8cc8"><i class="fas fa-chalkboard-teacher"></i></span>Data Guru<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button><button onclick="tutupMaster();nav('idcard')" class="master-item"><span class="master-ic" style="--c:#7c3aed"><i class="fas fa-id-card"></i></span>ID Card Builder<i class="fas fa-chevron-right ml-auto text-gray-300 text-xs"></i></button>
       </div>
     </div>
   </div>
@@ -1698,6 +1739,270 @@ html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b
       d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kartu QR Santri</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;margin:0}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}.c{border:1px dashed #666;border-radius:3mm;padding:4mm;text-align:center;page-break-inside:avoid}.c svg{width:42mm;height:42mm}.c small{display:block;font-size:8px;color:#555}.c b{display:block;font-size:12px;margin-top:2mm}.c span{font-size:10px}</style></head><body><div class="g">${list.map(s => `<div class="c"><small>${esc(appSettings.nama_instansi || 'E-Absensi Santri')}</small>${qrSvg(s.NIS)}<b>${esc(s.Nama)}</b><span>${esc(s.NIS)} · ${esc(s.Kelas)}</span></div>`).join('')}</div></body></html>`);
       d.close(); setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
     }
+    
+    /* ===== ID CARD BUILDER (tahap 1: editor, template, upload) ===== */
+    const IDC = { W: 1011, H: 638, MMW: 85.6, MMH: 54, tpls: [], cur: null, sel: null, imgs: {}, bgImg: null, pendingBg: null, santri: null, foto: null, zoom: 1, undo: [], redo: [], d: null, g: [], k: 1, lt: 0 };
+    const IDC_FONTS = ['Arial', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New'];
+    const IDC_NM = { foto: 'Foto', nama: 'Nama', id: 'ID / NIS', qr: 'QR Code', teks: 'Teks' }, IDC_IC = { foto: 'image', nama: 'user', id: 'hashtag', qr: 'qrcode', teks: 'font' };
+    const idcSq = e => e.type === 'qr' || (e.type === 'foto' && e.shape === 'circle');
+    const idcSelEl = () => IDC.cur && IDC.cur.els.find(e => e.id === IDC.sel);
+    const idcLoadImg = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('Gambar rusak')); i.src = src; });
+    async function idcImgGet(id) {
+      if (!id) return null; if (IDC.imgs[id]) return IDC.imgs[id];
+      const r = await api('getFiles', { ids: [id] }, { silent: true });
+      if (!r.success || !r.data[id]) return null;
+      return (IDC.imgs[id] = await idcLoadImg(r.data[id]));
+    }
+    function idcReadImg(file, max, mime, q) {
+      return new Promise((ok, no) => {
+        const r = new FileReader();
+        r.onerror = () => no(new Error('File tidak bisa dibaca'));
+        r.onload = () => idcLoadImg(r.result).then(im => {
+          const k = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement('canvas');
+          c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          let url = c.toDataURL(mime, q); if (url.length > 7.5e6) url = c.toDataURL('image/jpeg', .9);
+          ok({ url, w: im.width, h: im.height });
+        }, no);
+        r.readAsDataURL(file);
+      });
+    }
+    
+    // ----- render (dipakai juga untuk ekspor di tahap 2) -----
+    function idcCover(ctx, im, x, y, w, h, z, fx, fy) {
+      const sc = Math.max(w / im.width, h / im.height) * (z || 1), dw = im.width * sc, dh = im.height * sc;
+      ctx.drawImage(im, x - (dw - w) * (fx ?? .5), y - (dh - h) * (fy ?? .5), dw, dh);
+    }
+    function idcEl(ctx, e, s, fi, o) {
+      const W = IDC.W, H = IDC.H, x = e.x * W, y = e.y * H, w = e.w * W, h = e.h * H;
+      if (e.type === 'foto') {
+        ctx.save(); ctx.beginPath(); e.shape === 'circle' ? ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, 7) : ctx.rect(x, y, w, h); ctx.clip();
+        if (fi) idcCover(ctx, fi, x, y, w, h, e.z, e.fx, e.fy);
+        else if (o.ph !== false) { ctx.fillStyle = '#d5dde5'; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#6b7c8c'; ctx.font = `${h * .09}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Foto', x + w / 2, y + h / 2); }
+        ctx.restore();
+      } else if (e.type === 'qr') {
+        const q = qrcode(0, 'M'); q.addData(s ? String(s.NIS) : 'CONTOH'); q.make();
+        const n = q.getModuleCount(), sz = Math.max(1, Math.floor(Math.min(w, h) / (n + 4)));
+        ctx.fillStyle = e.bg || '#fff'; ctx.fillRect(x, y, w, h); ctx.fillStyle = e.fg || '#000';
+        const ox = Math.round(x + (w - sz * n) / 2), oy = Math.round(y + (h - sz * n) / 2);
+        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect(ox + c * sz, oy + r * sz, sz, sz);
+      } else {
+        const t = e.type === 'nama' ? (s ? s.Nama : 'Nama Santri') : e.type === 'id' ? (s ? s.NIS : 'ID Santri')
+          : String(e.text || '').replace(/\{(nama|nis|kelas)\}/gi, (m, k) => s ? ({ nama: s.Nama, nis: s.NIS, kelas: s.Kelas }[k.toLowerCase()] || '') : m);
+        const F = px => `${e.bold ? 'bold ' : ''}${px}px ${e.font || 'Arial'},sans-serif`;
+        let fs = e.size * H; ctx.font = F(fs); const tw = ctx.measureText(t).width;
+        if (tw > w) { fs = Math.max(fs * .5, fs * w / tw); ctx.font = F(fs); }
+        let tt = t; while (tt.length > 1 && ctx.measureText(tt).width > w) tt = tt.slice(0, -1);
+        if (tt !== t) tt = tt.slice(0, -1) + '…';
+        ctx.fillStyle = e.color || '#111'; ctx.textBaseline = 'middle'; ctx.textAlign = e.align || 'left';
+        ctx.fillText(tt, e.align === 'center' ? x + w / 2 : e.align === 'right' ? x + w : x, y + h / 2);
+      }
+      if (o.ed) { ctx.save(); ctx.strokeStyle = 'rgba(80,110,150,.5)'; ctx.setLineDash([6 * o.k, 4 * o.k]); ctx.lineWidth = o.k; ctx.strokeRect(x, y, w, h); ctx.restore(); }
+    }
+    function idcDraw(ctx, cfg, bg, s, fi, o = {}) {
+      const W = IDC.W, H = IDC.H; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+      if (bg) idcCover(ctx, bg, 0, 0, W, H, cfg.bg.z, cfg.bg.fx, cfg.bg.fy);
+      cfg.els.forEach(e => idcEl(ctx, e, s, fi, o));
+      if (!o.ed) return;
+      ctx.save(); ctx.strokeStyle = '#d6249f'; ctx.lineWidth = o.k; o.g.forEach(g => { ctx.beginPath(); g.x !== undefined ? (ctx.moveTo(g.x, 0), ctx.lineTo(g.x, H)) : (ctx.moveTo(0, g.y), ctx.lineTo(W, g.y)); ctx.stroke(); });
+      const e = o.sel; if (e) {
+        const x = e.x * W, y = e.y * H, w = e.w * W, h = e.h * H, hs = 10 * o.k;
+        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2 * o.k; ctx.strokeRect(x, y, w, h);
+        if (!e.lock) [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].forEach(([a, b]) => { ctx.fillStyle = '#fff'; ctx.fillRect(a - hs / 2, b - hs / 2, hs, hs); ctx.strokeRect(a - hs / 2, b - hs / 2, hs, hs); });
+      }
+      ctx.restore();
+    }
+    function idcRedraw() {
+      const cv = el('idc-cv'); if (!cv || !IDC.cur) return;
+      IDC.k = cv.width / (cv.getBoundingClientRect().width || cv.width);
+      idcDraw(cv.getContext('2d'), IDC.cur, IDC.bgImg, IDC.santri, IDC.foto, { ed: true, sel: idcSelEl(), k: IDC.k, g: IDC.g });
+    }
+    
+    // ----- state, undo/redo -----
+    const idcState = () => JSON.stringify({ els: IDC.cur.els, bg: IDC.cur.bg });
+    function idcPush(force) {
+      const s = idcState(); if (IDC.undo[IDC.undo.length - 1] === s) return;
+      if (!force && Date.now() - IDC.lt < 600) return; IDC.lt = Date.now();
+      IDC.undo.push(s); if (IDC.undo.length > 60) IDC.undo.shift(); IDC.redo = [];
+    }
+    function idcUndo(back) {
+      const from = back ? IDC.undo : IDC.redo, to = back ? IDC.redo : IDC.undo; if (!from.length) return;
+      to.push(idcState()); const s = JSON.parse(from.pop()); IDC.cur.els = s.els; IDC.cur.bg = s.bg;
+      if (!idcSelEl()) IDC.sel = null; idcSync();
+    }
+    function idcSync() {
+      const C = IDC.cur, sel = el('idc-tpl');
+      sel.innerHTML = '<option value="">— Template baru —</option>' + IDC.tpls.map(t => `<option value="${esc(t.id)}">${esc(t.nama)}</option>`).join(''); sel.value = C.id || '';
+      el('idc-name').innerText = C.nama || 'Belum diberi nama';
+      el('idc-lock').checked = C.bg.lock; el('idc-bgz').classList.toggle('hidden', C.bg.lock); el('idc-bgz').value = C.bg.z;
+      idcLayers(); idcProps(); idcFit(); idcRedraw();
+    }
+    function idcFit() { const st = el('idc-stage'); el('idc-cv').style.width = Math.max(200, (st.clientWidth - 16) * IDC.zoom) + 'px'; el('idc-zoom').innerText = Math.round(IDC.zoom * 100) + '%'; setTimeout(idcRedraw, 0); }
+    function idcZoom(f) { IDC.zoom = Math.min(4, Math.max(.5, f === 0 ? 1 : IDC.zoom * f)); idcFit(); }
+    
+    // ----- elemen -----
+    function idcAdd(type) {
+      const b = { id: 'e' + Date.now() + Math.random().toString(36).slice(2, 5), type, lock: false };
+      const E = {
+        foto: { x: .06, y: .27, w: .26, h: .5, shape: 'rect', z: 1, fx: .5, fy: .4 },
+        qr: { x: .7, y: .3, w: .22, h: .22 * 1011 / 638, fg: '#000000', bg: '#ffffff' },
+        nama: { x: .36, y: .3, w: .58, h: .1, size: .075, font: 'Arial', bold: true, color: '#111111', align: 'left' },
+        id: { x: .36, y: .42, w: .3, h: .08, size: .06, font: 'Arial', bold: false, color: '#111111', align: 'left' },
+        teks: { x: .36, y: .54, w: .3, h: .08, text: '{kelas}', size: .055, font: 'Arial', bold: false, color: '#111111', align: 'left' }
+      }[type];
+      idcPush(true); const e = { ...b, ...E }; IDC.cur.els.push(e); IDC.sel = e.id; idcSync();
+    }
+    function idcSelect(id) { IDC.sel = id; idcLayers(); idcProps(); idcRedraw(); }
+    function idcLayers() {
+      el('idc-lay').innerHTML = [...IDC.cur.els].reverse().map(e => `<div class="idc-lay ${e.id === IDC.sel ? 'on' : ''}" onclick="idcSelect('${e.id}')"><i class="fas fa-${IDC_IC[e.type]}"></i>${IDC_NM[e.type]}${e.lock ? ' <i class="fas fa-lock text-[10px] text-gray-400"></i>' : ''}</div>`).join('') || '<p class="text-xs text-gray-500">Belum ada elemen. Tambahkan dengan tombol di atas.</p>';
+    }
+    function idcProps() {
+      const e = idcSelEl(), P = el('idc-props');
+      if (!e) { P.innerHTML = '<p class="text-xs text-gray-500">Pilih elemen pada kartu atau daftar layer untuk mengatur.</p>'; return; }
+      const R = (l, h) => `<div class="idc-r"><label>${l}</label>${h}</div>`, N = (k, v, st = '0.1') => `<input type="number" step="${st}" value="${v}" onchange="idcF('${k}',this)">`;
+      const S = (k, o, v) => `<select onchange="idcF('${k}',this)">${o.map(([a, b]) => `<option value="${a}" ${v === a ? 'selected' : ''}>${b}</option>`).join('')}</select>`;
+      const G = (k, v, mn, mx, st) => `<input type="range" min="${mn}" max="${mx}" step="${st}" value="${v}" oninput="idcF('${k}',this)">`;
+      let h = R('X (mm)', N('x', (e.x * IDC.MMW).toFixed(1))) + R('Y (mm)', N('y', (e.y * IDC.MMH).toFixed(1))) + R('Lebar (mm)', N('w', (e.w * IDC.MMW).toFixed(1))) + R('Tinggi (mm)', N('h', (e.h * IDC.MMH).toFixed(1)));
+      if (e.type === 'teks') h += R('Teks', `<input value="${esc(e.text)}" oninput="idcF('text',this)">`) + '<p class="text-[11px] text-gray-500">Bisa memakai {nama} {nis} {kelas}</p>';
+      if (['nama', 'id', 'teks'].includes(e.type)) h += R('Font', S('font', IDC_FONTS.map(f => [f, f]), e.font)) + R('Ukuran (pt)', N('size', Math.round(e.size / .006533), '1')) + R('Tebal', `<input type="checkbox" ${e.bold ? 'checked' : ''} onchange="idcF('bold',this)">`) + R('Warna', `<input type="color" value="${e.color}" oninput="idcF('color',this)">`) + R('Rata', S('align', [['left', 'Kiri'], ['center', 'Tengah'], ['right', 'Kanan']], e.align));
+      if (e.type === 'foto') h += R('Bentuk', S('shape', [['rect', 'Persegi'], ['circle', 'Lingkaran']], e.shape)) + R('Zoom', G('z', e.z, 1, 3, .05)) + R('Geser X', G('fx', e.fx, 0, 1, .01)) + R('Geser Y', G('fy', e.fy, 0, 1, .01));
+      if (e.type === 'qr') h += R('Warna QR', `<input type="color" value="${e.fg}" oninput="idcF('fg',this)">`) + R('Latar QR', `<input type="color" value="${e.bg}" oninput="idcF('bg',this)">`) + '<p class="text-[11px] text-gray-500">Isi QR = NIS santri (sama dengan QR absensi).</p>';
+      h += R('Kunci', `<input type="checkbox" ${e.lock ? 'checked' : ''} onchange="idcF('lock',this)">`) + `<div class="flex flex-wrap gap-1.5 mt-2"><button class="idc-b" onclick="idcDup()">Duplikat</button><button class="idc-b" onclick="idcLayer(1)">▲ Atas</button><button class="idc-b" onclick="idcLayer(-1)">▼ Bawah</button><button class="idc-b text-red-600" onclick="idcDel()">Hapus</button></div>`;
+      P.innerHTML = h;
+    }
+    function idcF(k, inp) {
+      const e = idcSelEl(); if (!e) return; idcPush();
+      const v = inp.type === 'checkbox' ? inp.checked : (inp.type === 'number' || inp.type === 'range') ? parseFloat(inp.value) : inp.value, W = IDC.MMW, Hh = IDC.MMH;
+      if (inp.type === 'number' && isNaN(v)) return;
+      if (k === 'x') e.x = v / W; else if (k === 'y') e.y = v / Hh;
+      else if (k === 'w') { e.w = v / W; if (idcSq(e)) e.h = v / Hh; } else if (k === 'h') { e.h = v / Hh; if (idcSq(e)) e.w = v / W; }
+      else if (k === 'size') e.size = v * .006533;
+      else { e[k] = v; if (k === 'shape' && v === 'circle') e.h = e.w * IDC.W / IDC.H; }
+      if (['x', 'y', 'w', 'h', 'shape'].includes(k) || k === 'lock') { idcProps(); idcLayers(); }
+      idcRedraw();
+    }
+    function idcDup() { const e = idcSelEl(); if (!e) return; idcPush(true); const c = { ...JSON.parse(JSON.stringify(e)), id: 'e' + Date.now(), x: Math.min(.9, e.x + .03), y: Math.min(.9, e.y + .04) }; IDC.cur.els.push(c); IDC.sel = c.id; idcSync(); }
+    function idcDel() { const e = idcSelEl(); if (!e) return; idcPush(true); IDC.cur.els = IDC.cur.els.filter(x => x !== e); IDC.sel = null; idcSync(); }
+    function idcLayer(d) { const a = IDC.cur.els, i = a.findIndex(e => e.id === IDC.sel), j = i + d; if (i < 0 || j < 0 || j >= a.length) return; idcPush(true); [a[i], a[j]] = [a[j], a[i]]; idcLayers(); idcRedraw(); }
+    
+    // ----- interaksi kanvas (mouse & sentuh) -----
+    function idcPt(ev) { const r = el('idc-cv').getBoundingClientRect(); return { x: (ev.clientX - r.left) * IDC.W / r.width, y: (ev.clientY - r.top) * IDC.H / r.height }; }
+    const idcBest = (vals, cands, th) => { let b = null; vals.forEach(v => cands.forEach(c => { const d = c - v; if (Math.abs(d) <= th && (!b || Math.abs(d) < Math.abs(b.d))) b = { d, c }; })); return b; };
+    function idcBind() {
+      const cv = el('idc-cv'), W = IDC.W, H = IDC.H;
+      cv.onpointerdown = ev => {
+        const p = idcPt(ev), e = idcSelEl(); let d = null;
+        if (e && !e.lock) {
+          const x = e.x * W, y = e.y * H, w = e.w * W, h = e.h * H;
+          const c = [['tl', x, y], ['tr', x + w, y], ['bl', x, y + h], ['br', x + w, y + h]].find(([, a, b]) => Math.abs(p.x - a) < 14 * IDC.k && Math.abs(p.y - b) < 14 * IDC.k);
+          if (c) d = { m: 'r', c: c[0], e, o: { x0: x, y0: y, x1: x + w, y1: y + h } };
+        }
+        if (!d) {
+          const hit = [...IDC.cur.els].reverse().find(q => p.x >= q.x * W && p.x <= (q.x + q.w) * W && p.y >= q.y * H && p.y <= (q.y + q.h) * H);
+          if (hit) { IDC.sel = hit.id; if (!hit.lock) d = { m: 'm', e: hit, sx: p.x, sy: p.y, ox: hit.x, oy: hit.y }; }
+          else { IDC.sel = null; if (!IDC.cur.bg.lock && IDC.bgImg) d = { m: 'b', sx: p.x, sy: p.y, fx: IDC.cur.bg.fx, fy: IDC.cur.bg.fy }; }
+          idcLayers(); idcProps();
+        }
+        IDC.d = d; if (d) { idcPush(true); cv.setPointerCapture(ev.pointerId); } idcRedraw();
+      };
+      cv.onpointermove = ev => {
+        const d = IDC.d; if (!d) return; const p = idcPt(ev); IDC.g = [];
+        if (d.m === 'm') {
+          const e = d.e, w = e.w * W, h = e.h * H; let nx = d.ox * W + p.x - d.sx, ny = d.oy * H + p.y - d.sy;
+          const xs = [0, W / 2, W], ys = [0, H / 2, H]; IDC.cur.els.forEach(o => { if (o !== e) { xs.push(o.x * W, (o.x + o.w / 2) * W, (o.x + o.w) * W); ys.push(o.y * H, (o.y + o.h / 2) * H, (o.y + o.h) * H); } });
+          const bx = idcBest([nx, nx + w / 2, nx + w], xs, 7 * IDC.k), by = idcBest([ny, ny + h / 2, ny + h], ys, 7 * IDC.k);
+          if (bx) { nx += bx.d; IDC.g.push({ x: bx.c }); } if (by) { ny += by.d; IDC.g.push({ y: by.c }); }
+          e.x = nx / W; e.y = ny / H;
+        } else if (d.m === 'r') {
+          const o = d.o, c = d.c, ax = c.includes('l') ? o.x1 : o.x0, ay = c.includes('t') ? o.y1 : o.y0;
+          let w = Math.max(20, Math.abs(p.x - ax)), h = Math.max(20, Math.abs(p.y - ay)); if (idcSq(d.e)) w = h = Math.max(w, h);
+          d.e.x = (c.includes('l') ? ax - w : ax) / W; d.e.y = (c.includes('t') ? ay - h : ay) / H; d.e.w = w / W; d.e.h = h / H;
+        } else {
+          const im = IDC.bgImg, sc = Math.max(W / im.width, H / im.height) * IDC.cur.bg.z, ow = im.width * sc - W, oh = im.height * sc - H;
+          if (ow > 1) IDC.cur.bg.fx = Math.min(1, Math.max(0, d.fx - (p.x - d.sx) / ow)); if (oh > 1) IDC.cur.bg.fy = Math.min(1, Math.max(0, d.fy - (p.y - d.sy) / oh));
+        }
+        idcRedraw();
+      };
+      cv.onpointerup = cv.onpointercancel = () => { IDC.d = null; IDC.g = []; idcProps(); idcRedraw(); };
+      document.addEventListener('keydown', ev => {
+        if (el('page-idcard').classList.contains('hidden') || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+        const e = idcSelEl();
+        if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); idcUndo(!ev.shiftKey); }
+        else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); idcUndo(false); }
+        else if (e && ev.key === 'Delete') idcDel();
+        else if (e && !e.lock && ev.key.startsWith('Arrow')) { ev.preventDefault(); idcPush(); const s = ev.shiftKey ? 10 : 1; if (ev.key === 'ArrowLeft') e.x -= s / W; if (ev.key === 'ArrowRight') e.x += s / W; if (ev.key === 'ArrowUp') e.y -= s / H; if (ev.key === 'ArrowDown') e.y += s / H; idcProps(); idcRedraw(); }
+      });
+      window.addEventListener('resize', () => { if (!el('page-idcard').classList.contains('hidden')) idcFit(); });
+    }
+    
+    // ----- latar, template, santri -----
+    async function idcUploadBg(inp) {
+      const f = inp.files[0]; inp.value = ''; if (!f) return;
+      if (!/^image\/(png|jpeg)$/.test(f.type)) { toast('error', 'Gunakan file PNG atau JPG'); return; }
+      try {
+        const r = await idcReadImg(f, 2022, f.type, .93), ratio = r.w / r.h, std = IDC.MMW / IDC.MMH;
+        if (Math.abs(ratio - std) / std > .02) {
+          const ok = await Swal.fire({ icon: 'warning', title: 'Rasio gambar berbeda', html: `Gambar ${r.w}×${r.h} px (rasio ${ratio.toFixed(3)}), sedangkan kartu 85,6×54 mm (rasio ${std.toFixed(3)}).<br>Gambar <b>tidak diregangkan</b>, tetapi tepinya akan terpotong. Sebaiknya ekspor desain CorelDRAW dengan rasio yang sama.`, showCancelButton: true, confirmButtonText: 'Tetap pakai', cancelButtonText: 'Batal' });
+          if (!ok.isConfirmed) return;
+        } else if (r.w < IDC.W) toast('warning', `Resolusi ${r.w}px di bawah 1011px (300 DPI). Hasil cetak bisa kurang tajam.`);
+        IDC.pendingBg = r.url; IDC.bgImg = await idcLoadImg(r.url); idcPush(true); IDC.cur.bg = { ...IDC.cur.bg, z: 1, fx: .5, fy: .5 }; idcSync();
+      } catch (e) { toast('error', e.message); }
+    }
+    async function idcLoadTpl() { const r = await api('getTemplates', {}, { silent: true }); if (r.success) IDC.tpls = r.data; }
+    function idcBaru() { IDC.cur = { id: '', nama: '', bgId: '', bg: { lock: true, z: 1, fx: .5, fy: .5 }, els: [] }; IDC.bgImg = null; IDC.pendingBg = null; IDC.sel = null; IDC.undo = []; IDC.redo = []; idcSync(); }
+    async function idcPilih(id) {
+      if (!id) { idcBaru(); return; }
+      const t = IDC.tpls.find(x => x.id === id); if (!t) return; let c = {}; try { c = JSON.parse(t.config || '{}'); } catch (e) { }
+      IDC.cur = { id: t.id, nama: t.nama, bgId: t.bgId, bg: { lock: true, z: 1, fx: .5, fy: .5, ...(c.bg || {}) }, els: c.els || [] };
+      IDC.sel = null; IDC.pendingBg = null; IDC.undo = []; IDC.redo = []; IDC.bgImg = null; idcSync();
+      IDC.bgImg = await idcImgGet(t.bgId); if (!IDC.bgImg) toast('error', 'Gambar latar template tidak bisa dimuat'); idcRedraw();
+    }
+    async function idcSimpan() {
+      const C = IDC.cur;
+      if (!C.nama) { const r = await Swal.fire({ title: 'Nama template', input: 'text', showCancelButton: true, confirmButtonText: 'Simpan' }); if (!r.isConfirmed || !String(r.value || '').trim()) return; C.nama = r.value.trim(); }
+      let bgId = C.bgId;
+      if (IDC.pendingBg) { const r = await api('saveImage', { kind: 'bg', data: IDC.pendingBg }); if (!r.success) return; bgId = r.data.id; }
+      if (!bgId) { toast('warning', 'Unggah desain latar kartu terlebih dahulu'); return; }
+      const r = await api('saveTemplate', { id: C.id, nama: C.nama, bgId, config: JSON.stringify({ v: 1, bg: C.bg, els: C.els }) });
+      if (!r.success) return;
+      C.id = r.data.id; C.bgId = bgId; IDC.pendingBg = null; IDC.imgs[bgId] = IDC.bgImg; await idcLoadTpl(); idcSync(); toast('success', 'Template tersimpan');
+    }
+    async function idcRename() { const r = await Swal.fire({ title: 'Ganti nama template', input: 'text', inputValue: IDC.cur.nama, showCancelButton: true }); if (!r.isConfirmed || !String(r.value || '').trim()) return; IDC.cur.nama = r.value.trim(); IDC.cur.id ? idcSimpan() : idcSync(); }
+    async function idcHapus() {
+      if (!IDC.cur.id) { toast('info', 'Template belum disimpan'); return; }
+      const r = await Swal.fire({ icon: 'warning', title: `Hapus template "${IDC.cur.nama}"?`, text: 'Gambar latarnya juga ikut dihapus.', showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal' });
+      if (!r.isConfirmed) return; const x = await api('deleteTemplate', { id: IDC.cur.id }); if (x.success) { await idcLoadTpl(); idcBaru(); toast('success', 'Template dihapus'); }
+    }
+    function idcToggleLock(v) { IDC.cur.bg.lock = v; el('idc-bgz').classList.toggle('hidden', v); }
+    function idcBgZoom(v) { idcPush(); IDC.cur.bg.z = parseFloat(v); idcRedraw(); }
+    async function idcPilihSantri(nis) {
+      IDC.santri = santriData.find(s => String(s.NIS) === String(nis)) || null; IDC.foto = null; idcWarn(); idcRedraw();
+      if (IDC.santri && IDC.santri.Foto_ID) { IDC.foto = await idcImgGet(IDC.santri.Foto_ID); idcWarn(); idcRedraw(); }
+    }
+    function idcWarn() {
+      const s = IDC.santri, w = [];
+      if (s) { if (!s.Foto_ID) w.push('Santri ini belum punya foto.'); else if (!IDC.foto) w.push('Foto tidak bisa dimuat.'); if (!s.Nama) w.push('Nama kosong.'); }
+      el('idc-warn').innerHTML = w.length ? '<i class="fas fa-triangle-exclamation"></i> ' + w.join(' ') : (s ? '<span class="text-green-700">Data lengkap.</span>' : 'Pilih santri untuk pratinjau data asli.');
+      el('idc-foto-btn').classList.toggle('hidden', !s);
+    }
+    async function idcUploadFoto(inp) {
+      const f = inp.files[0]; inp.value = ''; const s = IDC.santri; if (!f || !s) return;
+      if (!/^image\//.test(f.type)) { toast('error', 'File harus berupa gambar'); return; }
+      try {
+        const r = await idcReadImg(f, 800, 'image/jpeg', .88), x = await api('saveImage', { kind: 'foto', nis: s.NIS, data: r.url });
+        if (!x.success) return; s.Foto_ID = x.data.id; IDC.foto = IDC.imgs[x.data.id] = await idcLoadImg(r.url); markStale(['santri']); idcWarn(); idcRedraw(); toast('success', 'Foto tersimpan');
+      } catch (e) { toast('error', e.message); }
+    }
+    async function idcInit() {
+      if (!window.qrcode) { Swal.fire('QR belum siap', 'Pustaka QR gagal dimuat. Muat ulang halaman.', 'error'); return; }
+      if (!IDC.bound) { idcBind(); IDC.bound = true; }
+      if (!IDC.cur) idcBaru(); else idcSync();
+      if (!santriData.length) { const r = await api('getSantri', {}, { silent: true }); if (r.success) santriData = r.data; }
+      const l = santriData.filter(s => s.Status === 'Aktif').sort((a, b) => a.Nama.localeCompare(b.Nama));
+      el('idc-santri').innerHTML = '<option value="">— Pilih santri —</option>' + l.map(s => `<option value="${esc(s.NIS)}">${esc(s.Nama)} · ${esc(s.Kelas)}</option>`).join('');
+      if (IDC.santri) el('idc-santri').value = IDC.santri.NIS;
+      idcWarn(); await idcLoadTpl(); idcSync();
+    }
+    const _navIdc = nav; nav = function (p) { _navIdc(p); if (p === 'idcard') idcInit(); };
     
     // INIT
     document.addEventListener('DOMContentLoaded', () => { tickClock(); initApp(); });
