@@ -10,6 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
@@ -487,6 +488,27 @@ html[data-theme="dark"] .rk-card{background:#142230}
 .rk-d.H{background:#d8f3e5;color:#0b5d3b}.rk-d.T{background:#fdecc8;color:#7a4a05}.rk-d.S{background:#dce9fb;color:#1d4f9c}.rk-d.I{background:#e8e0fb;color:#4f2fa6}.rk-d.A{background:#fbdcdd;color:#a31d28}
 html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-row:hover{background:#1b2d40}html[data-theme="dark"] .wa-ic{background:#12382b}html[data-theme="dark"] .wa-ic.off{background:#213446}html[data-theme="dark"] #filter-jk{background:#192b3b!important;color:var(--ink)}html[data-theme="dark"] .rk-d{background:#192b3b}
 </style>
+<style id="v5">
+.ab-stat:before,.ab-stat h3:before{content:none!important;display:none!important}
+.ab-stat h3{display:block!important;font-size:1.75rem!important;color:var(--c)!important;line-height:1.1}
+.ab-stat h3 span{background:none!important;padding:0!important;min-width:0!important;border-radius:0!important;color:inherit!important;font:inherit!important}
+.ab-stat.ab-red{--c:#d9363e}
+.st-ic{width:2rem;height:2rem;border-radius:.7rem;display:grid;place-items:center;font-size:.85rem;margin-bottom:.45rem;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+#ea-status{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#ea-status button{white-space:nowrap;padding:.65rem .2rem!important;font-size:12px!important}
+.rk-sum,.rk-row{background:#fff;border:1px solid var(--line);border-radius:1.1rem;padding:.9rem 1rem;box-shadow:var(--sh)}.rk-sum{margin-bottom:.75rem}.rk-row{padding:.75rem .85rem;cursor:pointer;margin-bottom:.5rem}
+.rk-big{font-size:2.1rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.rk-bar{display:flex;height:.45rem;border-radius:99px;overflow:hidden;background:#e8eef3;margin:.65rem 0 .5rem}.rk-bar i{display:block;height:100%}
+.sg-H{background:#22a06b}.sg-T{background:#f2a413}.sg-S{background:#3b82d6}.sg-I{background:#8b5cf6}.sg-A{background:#e5484d}
+.rk-leg{display:flex;flex-wrap:wrap;gap:.2rem .85rem;font-size:11px;color:var(--mut);font-weight:600}.rk-leg b{color:var(--ink)}
+.rk-leg span:before{content:'';display:inline-block;width:.5rem;height:.5rem;border-radius:50%;margin-right:.3rem;background:var(--d)}
+.lg-H{--d:#22a06b}.lg-T{--d:#f2a413}.lg-S{--d:#3b82d6}.lg-I{--d:#8b5cf6}.lg-A{--d:#e5484d}
+.rk-hd{display:flex;align-items:center;gap:.7rem}
+.rk-av{width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.78rem;flex:none}
+.rk-av.g{background:#d8f3e5;color:#0b5d3b}.rk-av.y{background:#fdecc8;color:#7a4a05}.rk-av.r{background:#fbdcdd;color:#a31d28}.rk-av.n{background:#eef2f5;color:#8798a8}
+.qr-btn{width:2rem;height:2rem;border-radius:.6rem;background:#eef5fb;color:#2f6fd0;display:grid;place-items:center}
+html[data-theme="dark"] .rk-sum,html[data-theme="dark"] .rk-row{background:#192b3b}html[data-theme="dark"] .rk-bar{background:#243648}html[data-theme="dark"] .qr-btn{background:#1b2d40;color:#8fb8ff}
+</style>
 </head>
 <body class="text-gray-800 overflow-hidden" id="main-body">
 
@@ -579,9 +601,9 @@ html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-
 
           <p class="sec-t admin-only">Absen Hari Ini</p>
           <div class="admin-only grid grid-cols-3 gap-2 md:gap-3 mb-4">
-            <div class="ab-stat ab-blue"><p>Total Santri</p><h3><span id="dash-total">0</span></h3></div>
-            <div class="ab-stat ab-green"><p>Sudah Absen</p><h3><span id="dash-sudah">0</span></h3></div>
-            <div id="card-belum" class="ab-stat ab-neutral"><p>Belum Absen</p><h3><span id="dash-belum">0</span></h3></div>
+            <div class="ab-stat ab-blue"><i class="st-ic fas fa-users"></i><p>Total Santri</p><h3><span id="dash-total">0</span></h3></div>
+            <div class="ab-stat ab-green"><i class="st-ic fas fa-user-check"></i><p>Sudah Absen</p><h3><span id="dash-sudah">0</span></h3></div>
+            <div id="card-belum" class="ab-stat ab-neutral"><i class="st-ic fas fa-user-clock"></i><p>Belum Absen</p><h3><span id="dash-belum">0</span></h3></div>
           </div>
 
           <p class="sec-t admin-only">Menu Utama</p>
@@ -666,7 +688,7 @@ html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-
             <span id="busy-santri" class="hidden"></span><button onclick="bukaModalSantri()" class="ml-auto bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-bold shadow">+ Tambah</button>
           </div>
           <input type="text" id="cari-santri" oninput="renderSantri()" placeholder="Cari nama / NIS / kelas..." class="w-full border border-gray-200 bg-white p-2.5 rounded-lg text-sm outline-none mb-3">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><ul id="list-santri" class="divide-y divide-gray-100"></ul></div>
+          <button onclick="cetakQRSemua()" class="w-full mb-3 bg-white border border-gray-200 text-gray-700 font-bold py-2.5 rounded-lg text-sm"><i class="fas fa-qrcode mr-1"></i> Cetak Kartu QR (sesuai tab &amp; pencarian)</button><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><ul id="list-santri" class="divide-y divide-gray-100"></ul></div>
         </div>
 
         <!-- GURU -->
@@ -1410,7 +1432,7 @@ html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-
       el('jk-seg').innerHTML = tab('Laki-laki', 'Putra') + tab('Perempuan', 'Putri') + (kosong ? tab('', `Belum diatur (${kosong})`) : '');
       const l = santriData.map((s, i) => [s, i]).filter(([s]) => (s.Jenis_Kelamin || '') === santriJK && (!q || (s.Nama + s.NIS + s.Kelas).toLowerCase().includes(q)));
       el('list-santri').innerHTML = l.map(([s, i]) => `<li class="p-3 flex justify-between items-center gap-2 text-sm cursor-pointer" onclick="formSantri(${i})">
-        <span class="min-w-0"><b class="block truncate">${esc(s.Nama)}</b><span class="text-xs text-gray-500">${esc(s.NIS)} · ${esc(s.Kelas)}${s.Status !== 'Aktif' ? ' · Nonaktif' : ''}</span></span><i class="fas fa-edit text-blue-500"></i></li>`).join('') || '<li class="p-6 text-center text-sm text-gray-400">Belum ada data.</li>';
+        <span class="min-w-0"><b class="block truncate">${esc(s.Nama)}</b><span class="text-xs text-gray-500">${esc(s.NIS)} · ${esc(s.Kelas)}${s.Status !== 'Aktif' ? ' · Nonaktif' : ''}</span></span><span class="flex items-center gap-3"><button type="button" class="qr-btn" onclick="event.stopPropagation();tampilQR(${i})" title="Lihat QR"><i class="fas fa-qrcode"></i></button><i class="fas fa-edit text-blue-500"></i></span></li>`).join('') || '<li class="p-6 text-center text-sm text-gray-400">Belum ada data.</li>';
     }
     
     // ---------- FORM CRUD GENERIK ----------
@@ -1623,6 +1645,58 @@ html[data-theme="dark"] .ab-head{background:#192b3b}html[data-theme="dark"] .ab-
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob(['\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
       a.download = 'rekap-' + d.bulan + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+    }
+    
+    /* ===== PERBAIKAN v5: rekap sederhana + QR santri ===== */
+    const SEG = [['H', 'Hadir'], ['T', 'Terlambat'], ['S', 'Sakit'], ['I', 'Izin'], ['A', 'Alfa']];
+    const segBar = c => { const t = SEG.reduce((a, [k]) => a + c[k], 0); return `<div class="rk-bar">${t ? SEG.map(([k]) => c[k] ? `<i class="sg-${k}" style="width:${c[k] / t * 100}%"></i>` : '').join('') : ''}</div>`; };
+    const segLeg = (c, all) => `<div class="rk-leg">${SEG.filter(([k]) => all || c[k]).map(([k, n]) => `<span class="lg-${k}"><b>${c[k]}</b> ${n}</span>`).join('')}</div>`;
+    function renderRekap() {
+      const d = rekapData; if (!d) return;
+      el('rekap-bulan-label').innerText = BLN[+d.bulan.slice(5) - 1] + ' ' + d.bulan.slice(0, 4);
+      el('rekap-info').innerText = d.totalSesiEfektif + ' sesi efektif bulan ini';
+      el('rekap-sesi-chips').innerHTML = ['ALL', ...getSesiNames()].map(n => `<button onclick="setRekapSesi(this.dataset.n)" data-n="${esc(n)}" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${rekapSesi === n ? 'bg-gray-800 text-white' : 'bg-white text-gray-500'}">${n === 'ALL' ? 'Semua sesi' : esc(n)}</button>`).join('');
+      const kc = el('rekap-kelas'), cur = kc.value; kc.innerHTML = '<option value="">Semua kelas</option>' + [...new Set(d.santri.map(s => s.kelas))].sort().map(k => `<option>${esc(k)}</option>`).join(''); kc.value = cur;
+      const q = el('rekap-cari').value.toLowerCase(), u = el('rekap-urut').value;
+      const l = d.santri.filter(s => (!q || s.nama.toLowerCase().includes(q)) && (!kc.value || s.kelas === kc.value));
+      if (u === 'rendah') l.sort((a, b) => (a.persen ?? 101) - (b.persen ?? 101)); if (u === 'alfa') l.sort((a, b) => b.c.A - a.c.A);
+      const tot = { H: 0, T: 0, S: 0, I: 0, A: 0 }; l.forEach(s => SEG.forEach(([k]) => tot[k] += s.c[k]));
+      const ps = l.filter(s => s.persen !== null), avg = ps.length ? Math.round(ps.reduce((a, s) => a + s.persen, 0) / ps.length) : null;
+      el('rekap-ringkas').className = '';
+      el('rekap-ringkas').innerHTML = `<div class="rk-sum"><div class="flex justify-between items-end"><div><p class="text-xs font-bold text-gray-500">Rata-rata kehadiran</p><span class="rk-big">${avg === null ? '–' : avg + '%'}</span></div><span class="text-xs font-bold text-gray-500">${l.length} santri</span></div>${segBar(tot)}${segLeg(tot, true)}</div>`;
+      el('rekap-list').innerHTML = l.map(s => {
+        const cls = s.persen === null ? 'n' : s.persen >= 90 ? 'g' : s.persen >= 75 ? 'y' : 'r', ini = s.nama.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(), open = rekapOpen.has(s.nis);
+        return `<div class="rk-row" data-n="${esc(s.nis)}" onclick="toggleRekap(this.dataset.n)"><div class="rk-hd"><span class="rk-av ${cls}">${esc(ini)}</span>
+          <span class="min-w-0 flex-1"><b class="block truncate text-sm">${esc(s.nama)}</b><span class="text-xs text-gray-500">${esc(s.kelas)}</span></span>
+          <span class="text-right"><b class="text-lg leading-none">${s.persen === null ? '–' : s.persen + '%'}</b><i class="fas fa-chevron-${open ? 'up' : 'down'} block text-[10px] text-gray-400 mt-1"></i></span></div>
+          ${segBar(s.c)}${segLeg(s.c, false)}${open ? kalenderRekap(s, d) : ''}</div>`;
+      }).join('') || '<p class="p-6 text-center text-sm text-gray-400">Tidak ada data.</p>';
+    }
+    
+    // ---------- QR CODE SANTRI (isi QR = NIS, sesuai yang dibaca scanner) ----------
+    function qrSvg(t) {
+      const q = qrcode(0, 'M'); q.addData(String(t)); q.make();
+      const n = q.getModuleCount(), m = 2; let p = '';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) p += `M${c + m},${r + m}h1v1h-1z`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${p}"/></svg>`;
+    }
+    const qrOk = () => { if (typeof qrcode === 'undefined') { Swal.fire('QR belum siap', 'Pustaka QR gagal dimuat. Periksa koneksi lalu muat ulang.', 'error'); return false; } return true; };
+    function tampilQR(i) {
+      const s = santriData[i]; if (!s || !qrOk()) return;
+      Swal.fire({ html: `<div style="max-width:220px;margin:0 auto">${qrSvg(s.NIS)}</div><b style="display:block;margin-top:.6rem;font-size:1.05rem">${esc(s.Nama)}</b><span style="font-size:.85rem;color:#64748b">${esc(s.NIS)} · ${esc(s.Kelas)}</span>`, showCancelButton: true, confirmButtonText: '<i class="fas fa-print"></i> Cetak', cancelButtonText: 'Tutup' })
+        .then(r => r.isConfirmed && cetakKartuQR([s]));
+    }
+    function santriTampil() {
+      const q = el('cari-santri').value.toLowerCase();
+      return santriData.filter(s => (s.Jenis_Kelamin || '') === santriJK && (!q || (s.Nama + s.NIS + s.Kelas).toLowerCase().includes(q)));
+    }
+    function cetakQRSemua() { const l = santriTampil(); if (!l.length) { toast('warning', 'Tidak ada santri untuk dicetak'); return; } cetakKartuQR(l); }
+    function cetakKartuQR(list) {
+      if (!qrOk()) return;
+      const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
+      const d = f.contentWindow.document; d.open();
+      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kartu QR Santri</title><style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;margin:0}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}.c{border:1px dashed #666;border-radius:3mm;padding:4mm;text-align:center;page-break-inside:avoid}.c svg{width:42mm;height:42mm}.c small{display:block;font-size:8px;color:#555}.c b{display:block;font-size:12px;margin-top:2mm}.c span{font-size:10px}</style></head><body><div class="g">${list.map(s => `<div class="c"><small>${esc(appSettings.nama_instansi || 'E-Absensi Santri')}</small>${qrSvg(s.NIS)}<b>${esc(s.Nama)}</b><span>${esc(s.NIS)} · ${esc(s.Kelas)}</span></div>`).join('')}</div></body></html>`);
+      d.close(); setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
     }
     
     // INIT
